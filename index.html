@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Acorn — Tree + Journal</title>
+<title>Acorn — Menu Build</title>
 <meta name="theme-color" content="#0b3d2e">
 <style>
 *{box-sizing:border-box}html,body{height:100%;margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto}
 :root{--bg1:#0b3d2e;--bg2:#134c3a;--bg3:#1a583f;--accent:#a3e3c2;--glow:rgba(163,227,194,.25)}
 body{background:linear-gradient(180deg,var(--bg1) 0%, var(--bg2) 30%, var(--bg3) 100%); color:#f4fff8}
-a{color:inherit}
+a{color:inherit;text-decoration:none}
 
 /* Layout */
 main{max-width:560px;margin:0 auto;padding:16px 16px 40px}
@@ -17,11 +17,23 @@ header{display:flex;justify-content:space-between;align-items:center;margin-bott
 .appTitle{display:flex;gap:10px;align-items:center}
 h1{font-size:20px;margin:0;letter-spacing:.5px}
 .forestName{opacity:.9;font-size:13px}
-.topNav{display:flex;gap:8px}
-.tabBtn{border:1px solid rgba(255,255,255,.25);background:transparent;color:#c8ffe1;border-radius:999px;padding:8px 12px;font-size:13px}
-.tabBtn[aria-selected="true"]{background:rgba(255,255,255,.12)}
 
-/* Dots meter (planting meter) */
+/* Hamburger + Drawer */
+.hamburger{border:1px solid rgba(255,255,255,.25);background:transparent;color:#c8ffe1;border-radius:10px;padding:8px 10px;font-size:18px;line-height:1}
+.hamburger:active{transform:scale(.98)}
+#drawerBackdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:9998}
+#drawer{position:fixed;top:0;right:-280px;width:260px;height:100vh;background:rgba(7,33,27,.94);box-shadow:-12px 0 30px rgba(0,0,0,.35);
+  border-left:1px solid rgba(255,255,255,.12);transition:transform .24s ease;z-index:9999;padding:16px 14px 20px}
+#drawer.open{transform:translateX(-280px)}
+#drawerBackdrop.open{opacity:1;pointer-events:auto}
+.drawerTitle{font-weight:800;margin:6px 0 14px}
+.menuItem{display:flex;justify-content:space-between;align-items:center;padding:10px 10px;border-radius:10px;margin-bottom:8px;
+  border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06)}
+.menuItem .label{font-size:14px}
+.badge{font-size:11px;opacity:.85;background:rgba(255,255,255,.1);padding:2px 6px;border-radius:10px}
+.menuSmall{font-size:12px;opacity:.8;margin:8px 10px}
+
+/* Dots meter */
 .rings{display:flex;gap:6px;align-items:center}
 .ring{width:12px;height:12px;border:2px solid var(--accent);border-radius:50%;opacity:.9}
 .ring.filled{background:var(--accent)}
@@ -68,7 +80,7 @@ svg{width:92%;height:auto;filter:drop-shadow(0 6px 18px rgba(0,0,0,.35)); z-inde
 .count{font-size:12px;opacity:.85;text-align:center;margin-top:6px}
 .small{font-size:12px;opacity:.78;text-align:center;margin-top:6px}
 
-/* Journal input on Tree tab */
+/* Journal input on Tree page */
 .journal{margin-top:14px}
 label{font-size:13px;opacity:.95}
 textarea{width:100%;min-height:84px;margin-top:6px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:#eafff3;padding:12px;resize:vertical;outline:none}
@@ -106,11 +118,11 @@ textarea::placeholder{color:#cdeede;opacity:.7}
   100%{opacity:0; transform:translate(-50%,0) translateX(14vw)}
 }
 
-/* Tabs: pages */
+/* Pages */
 .page{display:none}
 .page[aria-hidden="false"]{display:block}
 
-/* JOURNAL PAGE (list) */
+/* JOURNAL PAGE */
 .jTop{display:flex;justify-content:space-between;align-items:center;margin:8px 0 12px}
 .editNameBtn{border:1px solid rgba(255,255,255,.25);background:transparent;color:#c8ffe1;border-radius:8px;padding:6px 10px;font-size:12px}
 .statRow{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 12px}
@@ -123,11 +135,12 @@ textarea::placeholder{color:#cdeede;opacity:.7}
 .entry summary::-webkit-details-marker{display:none}
 
 /* DEV PANEL */
-#devPanel{position:fixed;right:10px;top:10px;z-index:9999;background:rgba(0,0,0,.55);
+#devPanel{position:fixed;right:10px;top:10px;z-index:9997;background:rgba(0,0,0,.55);
   backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:8px;display:none}
 #devPanel h4{margin:0 0 6px;font-size:12px;letter-spacing:.3px;opacity:.8}
 #devPanel button{margin:2px 3px;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.25);
   background:rgba(255,255,255,.06);color:#eafff3;font-size:12px}
+.danger{border-color:rgba(255,120,120,.4)!important;color:#ffd7d7!important}
 </style>
 </head>
 <body>
@@ -139,11 +152,19 @@ textarea::placeholder{color:#cdeede;opacity:.7}
       <h1>Acorn</h1>
       <div class="forestName" id="forestNameLabel"></div>
     </div>
-    <div class="topNav" role="tablist" aria-label="Pages">
-      <button class="tabBtn" id="tabTree" role="tab" aria-selected="true">Tree</button>
-      <button class="tabBtn" id="tabJournal" role="tab" aria-selected="false">Journal</button>
-    </div>
+    <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
   </header>
+
+  <!-- Drawer -->
+  <div id="drawerBackdrop"></div>
+  <aside id="drawer" aria-label="Menu">
+    <div class="drawerTitle">Menu</div>
+    <a href="#" class="menuItem" id="menuTree"><span class="label">🌳 Tree</span><span class="badge">Home</span></a>
+    <a href="#" class="menuItem" id="menuJournal"><span class="label">📓 Journal</span><span class="badge">Entries</span></a>
+    <a href="#" class="menuItem" id="menuSettings"><span class="label">⚙️ Settings</span><span class="badge">Soon</span></a>
+    <div class="menuSmall" id="devOnlyNote" style="display:none">Dev tools</div>
+    <a href="#" class="menuItem danger" id="menuReset" style="display:none"><span class="label">🧹 Reset Progress</span></a>
+  </aside>
 
   <!-- Planting dots -->
   <div class="rings" id="rings" aria-label="Forest progress dots"></div>
@@ -256,6 +277,8 @@ textarea::placeholder{color:#cdeede;opacity:.7}
       <button id="devAddCP">+5 CP</button>
       <button id="devNextStage">Next Stage (fast)</button>
       <button id="devLeaves">Full Leaves</button>
+      <button id="devNight">Toggle Night (sim)</button>
+      <button id="devReset" class="danger">Reset Progress</button><br>
       <button id="devFox">🦊</button>
       <button id="devBird">🐦</button>
       <button id="devButterfly">🦋</button>
@@ -304,23 +327,27 @@ const stageCPEl   = document.getElementById('stageCP');
 const creatureLayer = document.getElementById('creatureLayer');
 const pageTree = document.getElementById('pageTree');
 const pageJournal = document.getElementById('pageJournal');
-const tabTree = document.getElementById('tabTree');
-const tabJournal = document.getElementById('tabJournal');
 const devPanel = document.getElementById('devPanel');
 const forestNameLabel = document.getElementById('forestNameLabel');
-const editNameBtn = document.getElementById('editNameBtn');
 const forestNameStat = document.getElementById('forestNameStat');
 const streakStat = document.getElementById('streakStat');
 const cpStat = document.getElementById('cpStat');
 const forestCountStat = document.getElementById('forestCountStat');
 const entryCountStat = document.getElementById('entryCountStat');
 const entryList = document.getElementById('entryList');
+const hamburger = document.getElementById('hamburger');
+const drawer = document.getElementById('drawer');
+const drawerBackdrop = document.getElementById('drawerBackdrop');
+const menuTree = document.getElementById('menuTree');
+const menuJournal = document.getElementById('menuJournal');
+const menuSettings = document.getElementById('menuSettings');
+const menuReset = document.getElementById('menuReset');
+const devOnlyNote = document.getElementById('devOnlyNote');
 
 /* ===== Audio ===== */
 let audioEnabled = true, audioCtx;
 function ensureAudio(){ try{ if(!audioCtx){ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); } if(audioCtx.state==='suspended'){ audioCtx.resume(); } }catch(e){} }
-function chime(){
-  if(!audioEnabled) return; ensureAudio(); if(!audioCtx||audioCtx.state!=='running') return;
+function chime(){ if(!audioEnabled) return; ensureAudio(); if(!audioCtx||audioCtx.state!=='running') return;
   const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type='sine';
   const notes=[523.25,587.33,659.25,698.46]; o.frequency.value=notes[Math.floor(Math.random()*notes.length)];
   const now=audioCtx.currentTime; g.gain.setValueAtTime(0.0001,now); g.gain.exponentialRampToValueAtTime(0.08,now+0.01); g.gain.exponentialRampToValueAtTime(0.0001,now+0.45);
@@ -328,7 +355,7 @@ function chime(){
 }
 
 /* ===== State ===== */
-const storeKey='acorn.journal.master.v1';
+const storeKey='acorn.menu.master.v1';
 function todayMidnight(){const d=new Date(); d.setHours(0,0,0,0); return +d;}
 function ymd(ts){const d=new Date(ts); return d.toISOString().slice(0,10);}
 function randInt(min,max){return Math.floor(min+Math.random()*(max-min+1));}
@@ -338,7 +365,7 @@ function makeDay(){ return {leafCP:0, journalGiven:false, plantedGiven:false, lo
 function loadState(){
   const d=todayMidnight(), raw=localStorage.getItem(storeKey);
   if(raw){ const s=JSON.parse(raw); if(s.date!==d){ s.date=d; s.day=makeDay(); } return s; }
-  return {date:d, planted:false, cycle:makeCycle(), cp:0, day:makeDay(), dots:0, forest:0, name:"", entries:[]};
+  return {date:d, planted:false, cycle:makeCycle(), cp:0, day:makeDay(), dots:0, forest:0, name:"", entries:[], dev:0, simNight:0};
 }
 const state = loadState();
 function saveState(){ localStorage.setItem(storeKey, JSON.stringify(state)); }
@@ -363,13 +390,9 @@ function ensureForestName(){
   forestNameLabel.textContent = state.name ? `• ${state.name}` : '';
   forestNameStat.textContent = state.name || '—';
 }
-editNameBtn.addEventListener('click', ()=>{
-  const n=prompt("Rename your forest", state.name || "My Forest");
-  if(n!==null){ state.name=n.trim().slice(0,24); saveState(); ensureForestName(); }
-});
 
 /* ===== Trees & leaves ===== */
-function phase(){ const h=new Date().getHours(); return h<12?'morning':h<18?'midday':'evening'; }
+function phase(){ if(state.simNight) return 'evening'; const h=new Date().getHours(); return h<12?'morning':h<18?'midday':'evening'; }
 function setTreesVisible(on){
   const p=phase();
   treeMorning.style.display = (on && p==='morning') ? 'block' : 'none';
@@ -387,7 +410,7 @@ function renderLeaves(){
     e.setAttribute('cx',p.x); e.setAttribute('cy',p.y); e.setAttribute('rx',4*p.s); e.setAttribute('ry',6*p.s); e.setAttribute('fill',grad); e.setAttribute('opacity',0.95); layer.appendChild(e); }
 }
 
-/* ===== Background forest ===== */
+/* ===== Background forest (5 dots → new tree) ===== */
 function updateDotsUI(){
   ringsEl.innerHTML=''; for(let i=0;i<5;i++){ const d=document.createElement('div'); d.className='ring'; if(i<state.dots) d.classList.add('filled'); ringsEl.appendChild(d); }
 }
@@ -432,7 +455,7 @@ const CREATURES = [
   {icon:'🐞', minCP:12, zone:'bark',  baseChance:0.18, duration:12000},
   {icon:'🦊', minCP:30, zone:'ground',baseChance:0.14, duration:16000}
 ];
-function isNight(){ const h=new Date().getHours(); return (h>=20||h<6) && state.cp>=30; }
+function nightAllowed(){ return (state.simNight || (new Date().getHours()>=20 || new Date().getHours()<6)) && state.cp>=30; }
 function spawnCreature(def){
   const el = document.createElement('div'); el.className = `creature ${def.zone}`; el.textContent = def.icon;
   if(def.zone==='sky'){ el.style.top=(18+Math.random()*36)+'%'; el.classList.add('fly'); }
@@ -442,7 +465,7 @@ function spawnCreature(def){
 }
 function maybeCreatureVisit(trigger='tap'){
   const pool = CREATURES.filter(c => state.cp >= c.minCP);
-  if(isNight()) pool.push({icon:'🦉',minCP:30,zone:'sky',baseChance:0.22,duration:6500});
+  if(nightAllowed()) pool.push({icon:'🦉',minCP:30,zone:'sky',baseChance:0.22,duration:6500});
   if(pool.length===0) return;
   const mult = trigger==='plant' ? 1.8 : 1.0;
   const pick = pool[Math.floor(Math.random()*pool.length)];
@@ -481,7 +504,7 @@ function logTodayEntry(){
     note: (state.cycle.journal||"").trim()
   };
   state.entries = state.entries || [];
-  state.entries.unshift(entry); // newest first
+  state.entries.unshift(entry);
   state.day.logged = true;
   saveState();
 }
@@ -500,82 +523,14 @@ function pluckOne(){
   const r=leaf.getBoundingClientRect(); const cx=r.left + r.width/2, cy=r.top + r.height/2;
   leaf.remove(); state.cycle.left--; saveState(); updateCounts(); chime(); spawnLeafParticle(cx, cy);
   maybeCreatureVisit('tap');
-  if(state.cycle.left<=0){
-    // finishing a tree: log the day
-    logTodayEntry();
-    state.planted=false; saveState(); showAcornScreen();
-  }
+  if(state.cycle.left<=0){ logTodayEntry(); state.planted=false; saveState(); showAcornScreen(); }
 }
-
-/* ===== Tabs ===== */
-function showTab(which){
-  const tree = which==='tree';
-  pageTree.setAttribute('aria-hidden', String(!tree));
-  pageJournal.setAttribute('aria-hidden', String(tree));
-  tabTree.setAttribute('aria-selected', String(tree));
-  tabJournal.setAttribute('aria-selected', String(!tree));
-  if(!tree) renderJournalPage();
-}
-tabTree.addEventListener('click', ()=>showTab('tree'));
-tabJournal.addEventListener('click', ()=>showTab('journal'));
-
-/* ===== New day ===== */
-resetBtn.addEventListener('click', ()=>{
-  // log entry if we had a planted cycle
-  if(state.planted) logTodayEntry();
-  state.planted=false; state.cycle=makeCycle(); state.day=makeDay();
-  saveState(); boot();
-});
-
-/* ===== Input handlers ===== */
-plantBtn.addEventListener('click', plant, {passive:true});
-document.getElementById('stage').addEventListener('pointerdown', ()=>{ if(state.planted) pluckOne(); }, {passive:true});
-soundToggle.addEventListener('click', ()=>{ audioEnabled=!audioEnabled; if(audioEnabled) ensureAudio();
-  soundToggle.setAttribute('aria-pressed',String(audioEnabled));
-  soundToggle.textContent='Sound. '+(audioEnabled?'On':'Off'); });
-
-let saveTimer=null;
-journalBox.addEventListener('input', ()=>{
-  const cmd = journalBox.value.trim().toLowerCase();
-  if(cmd==='/dev on'){ setDev(true); return; }
-  if(cmd==='/dev off'){ setDev(false); return; }
-  saveNote.textContent='Saving...';
-  clearTimeout(saveTimer);
-  saveTimer=setTimeout(()=>{
-    state.cycle.journal = journalBox.value.slice(0,1000); saveState(); saveNote.textContent='Saved';
-    if(!state.day.journalGiven && state.cycle.journal.trim().length >= 10){
-      state.day.journalGiven = true; addCP(2);
-    }
-  }, 400);
-});
-
-/* ===== Dev buttons ===== */
-function setDev(on){ localStorage.setItem(storeKey+'.dev', on?1:0); devPanel.style.display = on?'block':'none'; }
-(function(){ const on = !!Number(localStorage.getItem(storeKey+'.dev')); setDev(on); })();
-document.getElementById('devAddCP').addEventListener('click', ()=> addCP(5));
-document.getElementById('devNextStage').addEventListener('click', ()=>{
-  const target = nextStageTarget(state.cp); const start=state.cp, delta=target-start, dur=1200, t0=performance.now();
-  (function step(t){ const p=Math.min(1,(t-t0)/dur); const ease=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2; state.cp=start+delta*ease; updateStageBar();
-    if(p<1) requestAnimationFrame(step); else {state.cp=target; saveState(); updateStageBar(); chime();}})(t0);
-});
-document.getElementById('devLeaves').addEventListener('click', ()=>{
-  state.cycle.total=randInt(220,320); state.cycle.left=state.cycle.total; state.cycle.seed=Math.floor(Math.random()*2**31);
-  saveState(); if(state.planted) renderLeaves(); updateCounts();
-});
-function spawnIcon(icon, zone){ spawnCreature({icon, zone, minCP:0, baseChance:1, duration: zone==='ground' ? 16000 : (zone==='bark'?12000:6500)}); }
-document.getElementById('devFox').addEventListener('click', ()=> spawnIcon('🦊','ground'));
-document.getElementById('devBird').addEventListener('click', ()=> spawnIcon('🐦','sky'));
-document.getElementById('devButterfly').addEventListener('click', ()=> spawnIcon('🦋','sky'));
-document.getElementById('devLady').addEventListener('click', ()=> spawnIcon('🐞','bark'));
-document.getElementById('devAnt').addEventListener('click', ()=> spawnIcon('🐜','bark'));
-document.getElementById('devOwl').addEventListener('click', ()=> spawnIcon('🦉','sky'));
 
 /* ===== Journal page render ===== */
 function calcStreak(entries){
   if(!entries || !entries.length) return 0;
   const days = new Set(entries.map(e=>e.dateISO));
   let streak = 0; let d = new Date(); d.setHours(0,0,0,0);
-  // count back from today
   while(days.has(d.toISOString().slice(0,10))){ streak++; d.setDate(d.getDate()-1); }
   return streak;
 }
@@ -599,14 +554,95 @@ function renderJournalPage(){
   });
 }
 
+/* ===== Tabs via Drawer ===== */
+function showPage(which){
+  const showTree = which==='tree';
+  document.getElementById('pageTree').setAttribute('aria-hidden', String(!showTree));
+  document.getElementById('pageJournal').setAttribute('aria-hidden', String(showTree));
+  closeDrawer();
+  if(!showTree) renderJournalPage();
+}
+
+/* ===== Drawer controls ===== */
+function openDrawer(){ drawer.classList.add('open'); drawerBackdrop.classList.add('open'); }
+function closeDrawer(){ drawer.classList.remove('open'); drawerBackdrop.classList.remove('open'); }
+hamburger.addEventListener('click', openDrawer);
+drawerBackdrop.addEventListener('click', closeDrawer);
+menuTree.addEventListener('click', (e)=>{e.preventDefault(); showPage('tree');});
+menuJournal.addEventListener('click', (e)=>{e.preventDefault(); showPage('journal');});
+menuSettings.addEventListener('click', (e)=>{e.preventDefault(); alert('Settings coming soon ✨');});
+
+/* ===== New day ===== */
+resetBtn.addEventListener('click', ()=>{
+  if(state.planted) logTodayEntry();
+  state.planted=false; state.cycle=makeCycle(); state.day=makeDay();
+  saveState(); boot();
+});
+
+/* ===== Input handlers ===== */
+plantBtn.addEventListener('click', plant, {passive:true});
+document.getElementById('stage').addEventListener('pointerdown', ()=>{ if(state.planted) pluckOne(); }, {passive:true});
+soundToggle.addEventListener('click', ()=>{ audioEnabled=!audioEnabled; if(audioEnabled) ensureAudio();
+  soundToggle.setAttribute('aria-pressed',String(audioEnabled));
+  soundToggle.textContent='Sound. '+(audioEnabled?'On':'Off'); });
+
+/* ===== Journal typing (with /dev on/off) ===== */
+let saveTimer=null;
+journalBox.addEventListener('input', ()=>{
+  const cmd = journalBox.value.trim().toLowerCase();
+  if(cmd==='/dev on'){ state.dev=1; saveState(); applyDevUI(); return; }
+  if(cmd==='/dev off'){ state.dev=0; saveState(); applyDevUI(); return; }
+  saveNote.textContent='Saving...';
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{
+    state.cycle.journal = journalBox.value.slice(0,1000); saveState(); saveNote.textContent='Saved';
+    if(!state.day.journalGiven && state.cycle.journal.trim().length >= 10){
+      state.day.journalGiven = true; addCP(2);
+    }
+  }, 400);
+});
+
+/* ===== Dev helpers & panel ===== */
+function applyDevUI(){
+  devPanel.style.display = state.dev ? 'block' : 'none';
+  menuReset.style.display = state.dev ? 'flex' : 'none';
+  devOnlyNote.style.display = state.dev ? 'block' : 'none';
+}
+document.getElementById('devAddCP').addEventListener('click', ()=> addCP(5));
+document.getElementById('devNextStage').addEventListener('click', ()=>{
+  const target = nextStageTarget(state.cp); const start=state.cp, delta=target-start, dur=1200, t0=performance.now();
+  (function step(t){ const p=Math.min(1,(t-t0)/dur); const ease=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2; state.cp=start+delta*ease; updateStageBar();
+    if(p<1) requestAnimationFrame(step); else {state.cp=target; saveState(); updateStageBar(); chime();}})(t0);
+});
+document.getElementById('devLeaves').addEventListener('click', ()=>{
+  state.cycle.total=randInt(220,320); state.cycle.left=state.cycle.total; state.cycle.seed=Math.floor(Math.random()*2**31);
+  saveState(); if(state.planted) renderLeaves(); updateCounts();
+});
+document.getElementById('devNight').addEventListener('click', ()=>{ state.simNight = state.simNight?0:1; saveState(); setTreesVisible(state.planted); });
+document.getElementById('devReset').addEventListener('click', ()=>{ doResetProgress(); });
+
+/* Drawer reset (dev only) */
+menuReset.addEventListener('click', (e)=>{ e.preventDefault(); doResetProgress(); });
+
+function doResetProgress(){
+  if(!confirm('Reset all local progress? This clears CP, journal entries, forest name, forest trees, dots.')) return;
+  const keepDev = state.dev;
+  localStorage.removeItem(storeKey);
+  // Recreate base state
+  const d=todayMidnight();
+  Object.assign(state, {date:d, planted:false, cycle:makeCycle(), cp:0, day:makeDay(), dots:0, forest:0, name:"", entries:[], dev:keepDev?1:0, simNight:0});
+  saveState(); applyDevUI(); boot(); closeDrawer();
+}
+
 /* ===== Boot ===== */
 function updateDotsUIAndForest(){ updateDotsUI(); renderForest(); }
+function ensureForestNameLabels(){ forestNameLabel.textContent = state.name ? `• ${state.name}` : ''; forestNameStat.textContent = state.name || '—'; }
 function boot(){
-  ensureForestName();
+  ensureForestName(); ensureForestNameLabels(); applyDevUI();
   updateStageBar(); updateDotsUIAndForest(); updateJournalBox();
   if(state.planted && state.cycle.left>0){ showTreeScreen(); } else { showAcornScreen(); }
-  // default to Tree tab
-  showTab('tree');
+  // default to Tree page
+  showPage('tree');
 }
 boot();
 setInterval(()=>{ if(state.planted){ setTreesVisible(true); renderLeaves(); } }, 10*60*1000);
