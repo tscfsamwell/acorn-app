@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Acorn — Onboarding Build</title>
+<title>Acorn — Seamless Onboarding</title>
 <meta name="theme-color" content="#0b3d2e">
 <style>
 *{box-sizing:border-box}html,body{height:100%;margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto}
@@ -71,7 +71,6 @@ svg{width:92%;height:auto;filter:drop-shadow(0 6px 18px rgba(0,0,0,.35)); z-inde
 .cta{display:inline-flex;align-items:center;gap:10px;background:var(--accent);color:#0b3d2e;border:none;border-radius:999px;padding:14px 18px;font-weight:800;font-size:16px;box-shadow:0 6px 18px rgba(0,0,0,.25)}
 .cta:active{transform:scale(.97)}
 .cta .sprout{font-size:20px}
-.tapHint{font-size:13px;opacity:.8}
 
 /* Controls & text */
 .controls{display:flex;justify-content:space-between;gap:8px;margin-top:10px}
@@ -212,7 +211,6 @@ textarea::placeholder{color:#cdeede;opacity:.7}
             <rect x="42" y="24" width="10" height="6" rx="3" fill="#6b4b30" transform="rotate(-25 47 27)"/>
           </svg>
           <button id="plantBtn" class="cta"><span class="sprout">🌱</span>Plant Acorn</button>
-          <div class="tapHint">Get a random quote and today’s tree</div>
         </div>
 
         <!-- TREES (PHASED) -->
@@ -391,7 +389,7 @@ function chime(){ if(!audioEnabled) return; ensureAudio(); if(!audioCtx||audioCt
 }
 
 /* ===== State ===== */
-const storeKey='acorn.onboard.master.v1';
+const storeKey='acorn.seamless.master.v1';
 function todayMidnight(){const d=new Date(); d.setHours(0,0,0,0); return +d;}
 function ymd(ts){const d=new Date(ts); return d.toISOString().slice(0,10);}
 function randInt(min,max){return Math.floor(min+Math.random()*(max-min+1));}
@@ -480,10 +478,12 @@ function spawnLeafParticle(x,y){
   const el = document.createElement('div'); el.className='leafParticle'; el.textContent=emoji; el.style.left=x+'px'; el.style.top=y+'px';
   document.body.appendChild(el);
   const start=performance.now(), duration=1600+Math.random()*1300, driftX=(Math.random()*120+50)*(Math.random()<0.5?-1:1), driftY=-(80+Math.random()*90);
-  function frame(t){ const p=Math.min(1,(t-start)/duration), ease=1-Math.pow(1-p,2), tx=x+driftX*ease, ty=y+driftY*ease + 0.55*(p*220);
+  function frame(t){ const p=Math.min(1,(t-start)/duration), ease=1-Math.pow(1-p,2), tx=x+drX*ease, ty=y+drY*ease + 0.55*(p*220);
     el.style.transform=`translate(${tx-x}px, ${ty-y}px) rotate(${p*260}deg)`; el.style.opacity=String(1-p);
     if(p<1) requestAnimationFrame(frame); else el.remove();
-  } requestAnimationFrame(frame);
+  }
+  const drX = driftX, drY = driftY;
+  requestAnimationFrame(frame);
 }
 const CREATURES = [
   {icon:'🦋', minCP:5,  zone:'sky',   baseChance:0.30, duration:6000},
@@ -499,7 +499,6 @@ function spawnCreature(def){
   else if(def.zone==='bark'){ el.style.bottom=(20+Math.random()*30)+'%'; el.classList.add('crawl'); }
   else if(def.zone==='ground'){ el.classList.add('fox'); }
   creatureLayer.appendChild(el); setTimeout(()=>el.remove(), def.duration||8000);
-  // Onboarding toast for first creature
   if(!state.onb.creature && !state.onb.never){ showToast("Visitors! As your tree grows, butterflies, birds, and foxes may appear."); state.onb.creature=1; saveState(); }
 }
 function maybeCreatureVisit(trigger='tap'){
@@ -523,16 +522,13 @@ function addCP(amount){ state.cp += amount; saveState(); updateStageBar(); }
 
 /* ===== Planting & day flow ===== */
 function onPlanted(){
-  // dots & forest growth
   state.dots = (state.dots + 1);
   if(state.dots >= 5){ state.dots = 0; state.forest = (state.forest||0)+1; addBackgroundTree(); }
   saveState(); updateDotsUI();
 
-  // CP & creatures
   if(!state.day.plantedGiven){ state.day.plantedGiven=true; addCP(1); }
   maybeCreatureVisit('plant');
 
-  // Onboarding dots tip (once)
   if(!state.onb.dots && !state.onb.never){ coachTip('These 5 dots track planted trees. Fill all 5 to grow your background forest.', ringsEl, 'top'); state.onb.dots=1; saveState(); }
 }
 function logTodayEntry(){
@@ -559,11 +555,8 @@ function plant(){
   state.cycle={seed,total,left:total,quoteIdx:idx,journal:""}; saveState();
   showTreeScreen(); chime(); onPlanted();
 
-  // Onboarding leaves tip (once)
-  if(!state.onb.leaves && !state.onb.never){
-    setTimeout(()=>coachTip('Tap the leaves to send them into the wind. Little taps add Care Points.', document.getElementById('stage'), 'center'), 350);
-    state.onb.leaves=1; saveState();
-  }
+  // leaves tip (seamless)
+  setTimeout(()=>{ if(!state.onb.leaves && !state.onb.never){ coachTip('Tap the leaves to send them into the wind. Little taps add Care Points.', document.getElementById('stage'), 'center'); state.onb.leaves=1; saveState(); }}, 800);
 }
 function pluckOne(){
   if(!state.planted || state.cycle.left<=0) return;
@@ -572,16 +565,16 @@ function pluckOne(){
   leaf.remove(); state.cycle.left--; saveState(); updateCounts(); chime(); spawnLeafParticle(cx, cy);
   maybeCreatureVisit('tap');
 
-  // After a couple taps, show journal hint once
-  if(!state.onb.journal && !state.onb.never){
-    const used = (state.cycle.total - state.cycle.left);
-    if(used>=2){ coachTip('Write a line about how the mantra felt. Journaling boosts growth.', journalBox, 'top'); state.onb.journal=1; saveState(); }
+  const used = (state.cycle.total - state.cycle.left);
+  if(used>=2 && !state.onb.journal && !state.onb.never){
+    if(journalBox && journalBox.scrollIntoView) journalBox.scrollIntoView({behavior:'smooth', block:'center'});
+    setTimeout(()=>{ coachTip('Write a line about how the mantra felt. Journaling boosts growth.', journalBox, 'top'); state.onb.journal=1; saveState(); }, 180);
   }
 
   if(state.cycle.left<=0){ logTodayEntry(); state.planted=false; saveState(); showAcornScreen(); }
 }
 
-/* ===== Journal page render ===== */
+/* ===== Journal render ===== */
 function calcStreak(entries){
   if(!entries || !entries.length) return 0;
   const days = new Set(entries.map(e=>e.dateISO));
@@ -640,12 +633,16 @@ soundToggle.addEventListener('click', ()=>{ audioEnabled=!audioEnabled; if(audio
   soundToggle.setAttribute('aria-pressed',String(audioEnabled));
   soundToggle.textContent='Sound. '+(audioEnabled?'On':'Off'); });
 
-/* ===== Journal typing (with /dev on/off) ===== */
+/* ===== Journal typing (with /dev on/off and tip controls) ===== */
 let saveTimer=null;
 journalBox.addEventListener('input', ()=>{
   const cmd = journalBox.value.trim().toLowerCase();
   if(cmd==='/dev on'){ state.dev=1; saveState(); applyDevUI(); showToast('Dev tools enabled'); return; }
   if(cmd==='/dev off'){ state.dev=0; saveState(); applyDevUI(); showToast('Dev tools disabled'); return; }
+  if(cmd==='/tips reset'){ state.onb={plant:0,leaves:0,journal:0,dots:0,menu:0,creature:0,never:0}; saveState(); showToast('Tips reset'); return; }
+  if(cmd==='/tip leaves'){ state.onb.leaves=0; saveState(); coachTip('Tap the leaves to send them into the wind. Little taps add Care Points.', document.getElementById('stage'), 'center'); return; }
+  if(cmd==='/tip journal'){ state.onb.journal=0; saveState(); coachTip('Write a line about how the mantra felt. Journaling boosts growth.', journalBox, 'top'); return; }
+
   saveNote.textContent='Saving...';
   clearTimeout(saveTimer);
   saveTimer=setTimeout(()=>{
@@ -686,43 +683,48 @@ function doResetProgress(){
   saveState(); applyDevUI(); boot(); closeDrawer();
 }
 
-/* ===== Onboarding (coachmarks + toast) ===== */
+/* ===== Onboarding (hardened coachTip + toast) ===== */
 function coachTip(text, target, position='top'){
-  if(state.onb.never) return;
-  const rect = target.getBoundingClientRect();
+  if(state.onb?.never) return;
+
   coachText.textContent = text;
-  coach.setAttribute('aria-hidden','false');
-  coach.classList.add('show');
 
-  const margin = 10;
-  let left = rect.left + rect.width/2 - 130; // center-ish (card width ~260)
-  left = Math.max(12, Math.min(left, window.innerWidth - 272));
-
-  let top;
-  if(position==='inside'){ // drawer
-    const drect = drawer.getBoundingClientRect();
-    left = drect.left + 14;
-    top = drect.top + 60;
-    coachArrow.style.display='none';
-  } else if(position==='center'){
-    top = rect.top + rect.height/2 - 20;
-    coachArrow.style.left = (rect.left + rect.width/2 - 8) + 'px';
-    coachArrow.style.top = (top-10) + 'px';
-    coachArrow.style.display='block';
-  } else { // top by default
-    top = rect.top - 70 - margin;
-    coachArrow.style.left = (rect.left + rect.width/2 - 8) + 'px';
-    coachArrow.style.top = (rect.top - 12) + 'px';
-    coachArrow.style.display='block';
+  function showAt(x, y, arrowX=null, arrowY=null, showArrow=true){
+    coachCard.style.left = Math.max(12, Math.min(x, window.innerWidth - 272)) + 'px';
+    coachCard.style.top  = Math.max(12, Math.min(y, window.innerHeight - 140)) + 'px';
+    if(showArrow){
+      coachArrow.style.display = 'block';
+      coachArrow.style.left = Math.max(12, Math.min((arrowX ?? x)+8, window.innerWidth - 12)) + 'px';
+      coachArrow.style.top  = Math.max(8, Math.min((arrowY ?? y)-10, window.innerHeight - 8)) + 'px';
+    } else {
+      coachArrow.style.display = 'none';
+    }
+    coach.setAttribute('aria-hidden','false');
+    coach.classList.add('show');
   }
 
-  coachCard.style.left = left + 'px';
-  coachCard.style.top = Math.max(12, top) + 'px';
+  let rect=null; try{ rect = target?.getBoundingClientRect?.() || null; }catch(e){ rect=null; }
+  const usable = rect && rect.width>0 && rect.height>0 &&
+    rect.bottom>0 && rect.right>0 && rect.top<window.innerHeight && rect.left<window.innerWidth;
 
-  function close(){
-    coach.classList.remove('show');
-    coach.setAttribute('aria-hidden','true');
-  }
+  setTimeout(()=>{
+    if(!usable){
+      const x = window.innerWidth/2 - 130; const y = window.innerHeight/2 - 60;
+      showAt(x, y, null, null, false); return;
+    }
+    if(position==='inside'){
+      showAt(rect.left + 14, rect.top + 60, null, null, false);
+    }else if(position==='center'){
+      const cx = rect.left + rect.width/2, cy = rect.top + rect.height/2;
+      showAt(cx - 130, cy - 40, cx - 8, cy - 10, true);
+    }else{ // top
+      const cx = rect.left + rect.width/2;
+      const topY = rect.top - 70 - 10;
+      showAt(cx - 130, topY, cx - 8, rect.top - 12, true);
+    }
+  }, 120);
+
+  function close(){ coach.classList.remove('show'); coach.setAttribute('aria-hidden','true'); }
   coachOk.onclick = close;
   coachSkip.onclick = ()=>{ state.onb.never=1; saveState(); close(); };
   coach.querySelector('.coachMask').onclick = close;
@@ -730,7 +732,7 @@ function coachTip(text, target, position='top'){
 function showToast(msg){
   toast.textContent = msg;
   toast.classList.add('show');
-  setTimeout(()=>toast.classList.remove('show'), 2600);
+  setTimeout(()=>toast.classList.remove('show'), 2400);
 }
 
 /* ===== Boot ===== */
@@ -742,7 +744,6 @@ function boot(){
   if(state.planted && state.cycle.left>0){ showTreeScreen(); } else { showAcornScreen(); }
   showPage('tree');
 
-  // First-run: Acorn tip
   if(!state.onb.plant && !state.onb.never){
     setTimeout(()=>coachTip('Tap the acorn to plant your first tree. You’ll get a mantra for today.', plantBtn, 'top'), 300);
     state.onb.plant=1; saveState();
