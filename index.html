@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-<title>Acorn — Master (Sage Default)</title>
+<title>Acorn — Master (Sage + Sound Fix)</title>
 <meta name="theme-color" content="#0f3a2f"/>
 <style>
 *{box-sizing:border-box}html,body{height:100%;margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto}
@@ -381,27 +381,84 @@ const coachOk = document.getElementById('coachOk');
 const coachSkip = document.getElementById('coachSkip');
 const toast = document.getElementById('toast');
 
-/* ===== Audio (file-based, drop your files into /sounds/) ===== */
+/* ===== Audio (fixed: mobile unlock + master volume + fallbacks) ===== */
 let audioEnabled = true;
-let SND_VOL = 0.9; // can be changed in Settings
+let SND_VOL = 0.9;                 // bound to the slider
+let _ctx = null, _gain = null;     // WebAudio master
+let _unlocked = false;
+const _audioCache = new Map();
+
+// your file lists — change names when you add custom files
 const SND = {
-  cpGain:  ["cp1.m4a","cp2.m4a","cp3.m4a"],  // change names to your files
+  cpGain:  ["cp1.m4a","cp2.m4a","cp3.m4a"],
   plant:   ["plant1.m4a","plant2.m4a"],
   level:   ["level1.m4a","level2.m4a"],
   creature:["visit1.m4a","visit2.m4a","visit3.m4a"]
 };
-const _audioCache = new Map();
-function getAudio(path){
+
+function ensureAudio(){
+  if(_ctx) return;
+  _ctx = new (window.AudioContext || window.webkitAudioContext)();
+  _gain = _ctx.createGain();
+  _gain.gain.value = SND_VOL;
+  _gain.connect(_ctx.destination);
+}
+function primeAudio(){
+  ensureAudio();
+  if(_unlocked) return;
+  try{
+    const buf = _ctx.createBuffer(1, 1, 22050);
+    const src = _ctx.createBufferSource(); src.buffer = buf; src.connect(_gain); src.start(0);
+    _ctx.resume();
+    _unlocked = true;
+  }catch(e){}
+}
+document.addEventListener('pointerdown', primeAudio, {once:true, passive:true});
+document.addEventListener('touchstart', primeAudio, {once:true, passive:true});
+
+function beep(freq=660, ms=140){
+  if(!audioEnabled) return;
+  ensureAudio();
+  try{
+    const o=_ctx.createOscillator(), g=_ctx.createGain();
+    o.type='sine'; o.frequency.value=freq;
+    g.gain.value=0.0001; g.gain.setTargetAtTime(0.25, _ctx.currentTime, 0.008);
+    o.connect(g); g.connect(_gain);
+    o.start();
+    setTimeout(()=>{ g.gain.setTargetAtTime(0.0001, _ctx.currentTime, 0.02); setTimeout(()=>o.stop(), 120); }, ms);
+  }catch(e){}
+}
+
+function getHtmlAudio(path){
+  // cache base element, clone for overlap
   if(!_audioCache.has(path)){
-    const a = new Audio(path); a.preload="auto"; a.volume=SND_VOL; _audioCache.set(path,a);
+    const a = new Audio(path); a.preload='auto';
+    _audioCache.set(path, a);
   }
-  const clone=_audioCache.get(path).cloneNode(); clone.volume=SND_VOL; return clone;
+  const base = _audioCache.get(path);
+  const el = base.cloneNode(true);
+  el.volume = SND_VOL;       // respect master slider
+  return el;
 }
+
+async function playFile(file){
+  if(!audioEnabled) return;
+  try{
+    const a = getHtmlAudio(`sounds/${file}`);
+    if(_ctx && _ctx.state === 'suspended') { await _ctx.resume(); }
+    await a.play();
+  }catch(err){
+    // fallback gentle tone instead of silence
+    beep(520, 130);
+  }
+}
+
 function playFrom(list){
-  if(!audioEnabled || !Array.isArray(list) || !list.length) return;
-  const file=list[Math.floor(Math.random()*list.length)];
-  const a=getAudio(`sounds/${file}`); a.play().catch(()=>{});
+  if(!Array.isArray(list) || list.length===0) return;
+  const pick = list[Math.floor(Math.random()*list.length)];
+  playFile(pick);
 }
+
 const SOUND = {
   cpGain(){ playFrom(SND.cpGain); },
   plant(){  playFrom(SND.plant);  },
@@ -410,7 +467,7 @@ const SOUND = {
 };
 
 /* ===== State ===== */
-const storeKey='acorn.master.sage.v1';
+const storeKey='acorn.master.sage.v2';
 function todayMidnight(){const d=new Date(); d.setHours(0,0,0,0); return +d;}
 function ymd(ts){const d=new Date(ts); return d.toISOString().slice(0,10);}
 function randInt(min,max){return Math.floor(min+Math.random()*(max-min+1));}
@@ -426,7 +483,6 @@ function loadState(){
           ach:{}, theme:{}, volume:0.9};
 }
 const state = loadState(); SND_VOL = state.volume ?? 0.9;
-function saveState(){ localStorage.setItem(storeKey, JSON.stringify(state)); }
 
 /* ===== Themes ===== */
 const PRESETS = {
@@ -659,9 +715,6 @@ function buildGallery(){
 }
 function buildAchievements(){
   achGrid.innerHTML='';
-  const items = [
-    ...Object.values(ACH).map?ACH:ACH // ensure array
-  ];
   ACH.forEach(a=>{
     const ok = state.ach?.[a.id];
     const div=document.createElement('div'); div.className='card'+(ok?'':' locked');
@@ -813,7 +866,7 @@ function syncPickersFromVars(){
   cSky1.value = rgb2hex(getVar('--sky1')); cSky2.value = rgb2hex(getVar('--sky2')); cSky3.value = rgb2hex(getVar('--sky3'));
   cAcc1.value = rgb2hex(getVar('--accent')); cAcc2.value = rgb2hex(getVar('--accent2')); cText.value = rgb2hex(getVar('--text'));
 }
-function rgb2hex(rgb){ // handles rgb(a) or hex
+function rgb2hex(rgb){
   rgb = rgb.trim();
   if(rgb.startsWith('#')) return rgb;
   const m = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/); if(!m) return '#ffffff';
@@ -830,25 +883,41 @@ function rgb2hex(rgb){ // handles rgb(a) or hex
 document.querySelectorAll('.paletteBtn').forEach(btn=>{
   btn.addEventListener('click', ()=>{ applyPreset(btn.getAttribute('data-preset')); syncPickersFromVars(); showToast(`Theme set: ${btn.textContent.trim()}`); });
 });
-volRange.addEventListener('input', ()=>{ SND_VOL = parseFloat(volRange.value||'0.9'); state.volume=SND_VOL; saveState(); });
+volRange.addEventListener('input', ()=>{
+  SND_VOL = parseFloat(volRange.value || '0.9');
+  state.volume = SND_VOL; saveState();
+  try{ ensureAudio(); if(_gain) _gain.gain.value = SND_VOL; }catch(e){}
+  showToast(`Volume: ${Math.round(SND_VOL*100)}%`);
+});
 
 /* ===== Boot ===== */
 function updateDotsAndForest(){ updateDotsUI(); renderForest(); }
-function updateQuote(){ mantraEl.textContent = (state.planted && state.cycle.quoteIdx>=0) ? QUOTES[state.cycle.quoteIdx] : ''; }
 function applyDevUI(){ document.getElementById('devPanel').style.display = state.dev ? 'block' : 'none'; menuReset.style.display = state.dev ? 'flex' : 'none'; }
 
 function boot(){
-  // Default theme on first run = Sage
+  // Theme default
   if(!state.theme || (!state.theme.custom && !state.theme.preset)){ applyPreset('sage'); }
   else if(state.theme.custom && state.theme.values){
     const v=state.theme.values; setCSSVars(v.sky1,v.sky2,v.sky3,v.accent,v.accent2,v.text);
   } else if(state.theme.preset){ applyPreset(state.theme.preset); }
   syncPickersFromVars();
 
+  // Audio defaults
+  try{
+    ensureAudio();
+    SND_VOL = state.volume ?? 0.9;
+    volRange.value = String(SND_VOL);
+    if(_gain) _gain.gain.value = SND_VOL;
+  }catch(e){}
+
   ensureForestName(); applySeason(); applyDevUI();
   updateStageBar(); updateDotsAndForest();
   journalBox.value = state.cycle.journal || ""; saveState(); saveNote.textContent='Saved';
   forestNameLabel.textContent = state.name ? `• ${state.name}` : '';
+  // Sound toggle initial label
+  soundToggle.setAttribute('aria-pressed', String(audioEnabled));
+  soundToggle.textContent = 'Sound. ' + (audioEnabled ? 'On' : 'Off');
+
   if(state.planted && state.cycle.left>0){ showTree(); } else { showAcorn(); }
   showPage('tree'); buildGallery(); buildAchievements();
   if(!state.onb.plant && !state.onb.never){ setTimeout(()=>coachTip('Tap the acorn to plant your first tree. You’ll get a mantra for today.', plantBtn, 'top'), 300); state.onb.plant=1; saveState(); }
@@ -859,9 +928,14 @@ resetBtn.addEventListener('click', ()=>{
   state.planted=false; state.cycle=makeCycle(); state.day=makeDay();
   saveState(); boot();
 });
-soundToggle.addEventListener('click', ()=>{ audioEnabled=!audioEnabled; soundToggle.setAttribute('aria-pressed',String(audioEnabled)); soundToggle.textContent='Sound. '+(audioEnabled?'On':'Off'); });
+soundToggle.addEventListener('click', ()=>{
+  audioEnabled=!audioEnabled;
+  soundToggle.setAttribute('aria-pressed',String(audioEnabled));
+  soundToggle.textContent='Sound. '+(audioEnabled?'On':'Off');
+});
 
 boot();
+// Occasionally refresh leaves graphics to avoid SVG perf drift
 setInterval(()=>{ if(state.planted){ renderLeaves(); } }, 9*60*1000);
 </script>
 </body>
