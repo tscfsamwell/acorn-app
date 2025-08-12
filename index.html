@@ -1,39 +1,39 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Acorn — Super Master</title>
-<meta name="theme-color" content="#0b3d2e">
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Acorn — Master (Sage Default)</title>
+<meta name="theme-color" content="#0f3a2f"/>
 <style>
 *{box-sizing:border-box}html,body{height:100%;margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto}
 :root{
-  --sky1:#0e4434; --sky2:#0c3a2c; --sky3:#0a3327;
-  --glow:rgba(163,227,194,.25);
-  --accent:#a3e3c2; --accent2:#8fe3bb;
-  --text:#eafff3;
+  /* ==== SAGE DEFAULT ==== */
+  --sky1:#0f3a2f; --sky2:#0d3329; --sky3:#0a2b23;
+  --accent:#bfe8cf; --accent2:#98d8bb; --text:#ecfff6;
+  --card:#08251e; --line:rgba(255,255,255,.15); --glow:rgba(163,227,194,.25);
 }
-body{background:linear-gradient(180deg,#0b3d2e 0%, #134c3a 30%, #1a583f 100%); color:var(--text)}
+body{background:linear-gradient(180deg,var(--sky1) 0%, var(--sky2) 30%, var(--sky3) 100%); color:var(--text)}
 main{max-width:560px;margin:0 auto;padding:16px 16px 44px}
 header{display:flex;justify-content:space-between;align-items:center}
 h1{font-size:20px;margin:0}
 .forestName{opacity:.9;font-size:13px;margin-left:8px}
 
-/* Menu / Drawer */
-.hamburger{border:1px solid rgba(255,255,255,.25);background:transparent;color:#c8ffe1;border-radius:10px;padding:8px 10px;font-size:18px}
+/* Drawer */
+.hamburger{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:10px;padding:8px 10px;font-size:18px}
 #drawerBackdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .2s;z-index:9998}
-#drawer{position:fixed;top:0;right:-280px;width:260px;height:100vh;background:rgba(7,33,27,.94);border-left:1px solid rgba(255,255,255,.12);box-shadow:-12px 0 30px rgba(0,0,0,.35);transition:transform .24s;z-index:9999;padding:16px}
+#drawer{position:fixed;top:0;right:-280px;width:260px;height:100vh;background:color-mix(in oklab, var(--card) 92%, black 0%);border-left:1px solid var(--line);box-shadow:-12px 0 30px rgba(0,0,0,.35);transition:transform .24s;z-index:9999;padding:16px}
 #drawer.open{transform:translateX(-280px)} #drawerBackdrop.open{opacity:1;pointer-events:auto}
-.menuItem{display:flex;justify-content:space-between;align-items:center;padding:10px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);border-radius:10px;margin-bottom:8px}
+.menuItem{display:flex;justify-content:space-between;align-items:center;padding:10px;border:1px solid var(--line);background:rgba(255,255,255,.06);border-radius:10px;margin-bottom:8px;color:var(--text);text-decoration:none}
 .badge{font-size:11px;opacity:.85;background:rgba(255,255,255,.1);padding:2px 6px;border-radius:10px}
 
-/* Dots meter & stage bar */
+/* Dots + stage bar */
 .rings{display:flex;gap:6px;align-items:center;margin:10px 0 6px}
 .ring{width:12px;height:12px;border:2px solid var(--accent);border-radius:50%}
 .ring.filled{background:var(--accent)}
 .stageWrap{display:flex;align-items:center;gap:10px}
 .stageBar{flex:1;height:10px;border-radius:999px;background:rgba(255,255,255,.12);overflow:hidden}
-.stageFill{height:100%;width:0%;background:linear-gradient(90deg,#baf2d8,#8fe3bb);transition:width .35s}
+.stageFill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .35s}
 .stageName{min-width:98px;font-size:13px;opacity:.9}
 .stageCP{font-size:12px;opacity:.85;min-width:74px;text-align:right}
 
@@ -41,8 +41,8 @@ h1{font-size:20px;margin:0}
 #stage{position:relative;width:100%;aspect-ratio:3/4;border-radius:20px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.25);margin-top:6px}
 .scene{position:absolute;inset:0;display:grid;place-items:center;background:
   radial-gradient(ellipse at 50% 85%, rgba(0,0,0,.25) 0%, rgba(0,0,0,0) 40%),
-  radial-gradient(ellipse at 50% 15%, rgba(255,255,255,.15) 0%, rgba(255,255,255,0) 55%),
-  linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 60%,var(--sky3) 100%)}
+  radial-gradient(ellipse at 50% 15%, rgba(255,255,255,.12) 0%, rgba(255,255,255,0) 55%),
+  linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 60%,var(--sky3) 100%);}
 .parallax{position:absolute;inset:0;pointer-events:none}
 .layer{position:absolute;inset:0;opacity:.35}
 .layer.back{animation:drift 18s ease-in-out infinite; transform:translateY(2%)}
@@ -50,7 +50,7 @@ h1{font-size:20px;margin:0}
 .layer.front{animation:drift 10s ease-in-out infinite; opacity:.55}
 @keyframes drift{0%{transform:translateY(1%)}50%{transform:translateY(-1%)}100%{transform:translateY(1%)}}
 .forestTree{position:absolute;bottom:8%;opacity:.32;filter:blur(.2px) drop-shadow(0 4px 10px rgba(0,0,0,.3))}
-.ground{position:absolute;left:0;right:0;bottom:-6%;height:28%;background:radial-gradient(ellipse at 50% 20%, #124a38 0%, #0e3f30 45%, #0b3528 100%);box-shadow:0 -10px 40px inset rgba(0,0,0,.25); z-index:1}
+.ground{position:absolute;left:0;right:0;bottom:-6%;height:28%;background:radial-gradient(ellipse at 50% 20%, color-mix(in oklab, var(--sky2) 88%, black 0%) 0%, color-mix(in oklab, var(--sky3) 88%, black 0%) 45%, #0b3528 100%);box-shadow:0 -10px 40px inset rgba(0,0,0,.25); z-index:1}
 .glow{position:absolute;inset:0;background:radial-gradient(circle at 50% 25%, var(--glow), transparent 45%); z-index:1}
 
 svg.tree{width:92%;height:auto;filter:drop-shadow(0 6px 18px rgba(0,0,0,.35)); z-index:2}
@@ -65,14 +65,14 @@ svg.tree{width:92%;height:auto;filter:drop-shadow(0 6px 18px rgba(0,0,0,.35)); z
 
 /* Controls & text */
 .controls{display:flex;justify-content:space-between;gap:8px;margin-top:10px}
-.ghost{background:transparent;color:#c8ffe1;border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:10px 14px}
+.ghost{background:transparent;color:var(--text);border:1px solid var(--line);border-radius:999px;padding:10px 14px}
 .mantra{min-height:52px;text-align:center;font-size:16px;line-height:1.35;margin:10px 0 0}
 .count{font-size:12px;opacity:.85;text-align:center;margin-top:6px}
 
 /* Journal */
 .journal{margin-top:14px}
 label{font-size:13px;opacity:.95}
-textarea{width:100%;min-height:84px;margin-top:6px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:#eafff3;padding:12px;resize:vertical}
+textarea{width:100%;min-height:84px;margin-top:6px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:var(--text);padding:12px;resize:vertical}
 textarea::placeholder{color:#cdeede;opacity:.7}
 .saveNote{font-size:12px;opacity:.75;margin-top:6px}
 
@@ -99,41 +99,45 @@ textarea::placeholder{color:#cdeede;opacity:.7}
 
 /* Journal/Profile page */
 .jTop{display:flex;justify-content:space-between;align-items:center;margin:8px 0 12px}
-.editNameBtn{border:1px solid rgba(255,255,255,.25);background:transparent;color:#c8ffe1;border-radius:8px;padding:6px 10px;font-size:12px}
+.editNameBtn,.paletteBtn{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:8px;padding:6px 10px;font-size:12px}
 .statRow{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 12px}
-.stat{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);padding:8px 10px;border-radius:10px;font-size:12px}
-.entry{border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);border-radius:12px;padding:10px;margin-bottom:10px}
+.stat{background:rgba(255,255,255,.08);border:1px solid var(--line);padding:8px 10px;border-radius:10px;font-size:12px}
+.entry{border:1px solid var(--line);background:rgba(255,255,255,.06);border-radius:12px;padding:10px;margin-bottom:10px}
 .entry h4{margin:0 0 6px;font-size:14px}
 .entry .meta{font-size:12px;opacity:.85;margin-bottom:6px}
 .entry .note{white-space:pre-wrap;line-height:1.35}
 
 /* Gallery & Achievements */
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.card{border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);border-radius:12px;padding:12px;text-align:center}
+.card{border:1px solid var(--line);background:rgba(255,255,255,.06);border-radius:12px;padding:12px;text-align:center}
 .locked{opacity:.45;filter:grayscale(1)}
 .card small{display:block;opacity:.8;margin-top:6px;font-size:11px}
 
 /* Dev panel */
 #devPanel{position:fixed;right:10px;top:10px;z-index:9997;background:rgba(0,0,0,.55);
-  backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:8px;display:none}
+  backdrop-filter:blur(6px);border:1px solid var(--line);border-radius:12px;padding:8px;display:none}
 #devPanel h4{margin:0 0 6px;font-size:12px;letter-spacing:.3px;opacity:.8}
-#devPanel button{margin:2px 3px;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.25);
-  background:rgba(255,255,255,.06);color:#eafff3;font-size:12px}
+#devPanel button{margin:2px 3px;padding:6px 8px;border-radius:8px;border:1px solid var(--line);
+  background:rgba(255,255,255,.06);color:var(--text);font-size:12px}
 .danger{border-color:rgba(255,120,120,.4)!important;color:#ffd7d7!important}
 
 /* Coach & Toast */
 #coach{position:fixed;inset:0;pointer-events:none;z-index:10000}
 .coachMask{position:absolute;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(2px);opacity:0;transition:opacity .15s}
 #coach.show .coachMask{opacity:1}
-.coachCard{position:absolute;max-width:260px;background:rgba(8,37,30,.98);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:12px;box-shadow:0 12px 30px rgba(0,0,0,.35);opacity:0;transform:translateY(6px);transition:opacity .18s, transform .18s;pointer-events:auto}
+.coachCard{position:absolute;max-width:260px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;box-shadow:0 12px 30px rgba(0,0,0,.35);opacity:0;transform:translateY(6px);transition:opacity .18s, transform .18s;pointer-events:auto}
 #coach.show .coachCard{opacity:1;transform:translateY(0)}
 .coachText{font-size:14px;line-height:1.35;margin:0 0 8px}
 .coachBtns{display:flex;gap:8px;justify-content:flex-end}
 .coachBtn{background:var(--accent);color:#0b3d2e;border:none;border-radius:10px;padding:8px 10px;font-weight:700}
-.coachSkip{background:transparent;color:#eafff3;border:1px solid rgba(255,255,255,.25)}
-.coachArrow{position:absolute;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:10px solid rgba(8,37,30,.98)}
-#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:rgba(8,37,30,.98);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:10px 12px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:10001}
+.coachSkip{background:transparent;color:var(--text);border:1px solid rgba(255,255,255,.25)}
+.coachArrow{position:absolute;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:10px solid var(--card)}
+#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:10001}
 #toast.show{opacity:1}
+.paletteRow{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.palette{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.palette label{font-size:12px}
+.colorBox{width:18px;height:18px;border-radius:4px;border:1px solid rgba(255,255,255,.25)}
 </style>
 </head>
 <body>
@@ -153,7 +157,7 @@ textarea::placeholder{color:#cdeede;opacity:.7}
     <a href="#" class="menuItem" data-page="journal"><span>📓 Journal</span><span class="badge">Entries</span></a>
     <a href="#" class="menuItem" data-page="gallery"><span>🗂️ Gallery</span><span class="badge">Creatures</span></a>
     <a href="#" class="menuItem" data-page="ach"><span>🏅 Achievements</span><span class="badge">Milestones</span></a>
-    <a href="#" class="menuItem" data-page="settings"><span>⚙️ Settings</span><span class="badge">Soon</span></a>
+    <a href="#" class="menuItem" data-page="settings"><span>🎨 Settings</span><span class="badge">Colours</span></a>
     <a href="#" class="menuItem danger" id="menuReset" style="display:none"><span>🧹 Reset Progress</span></a>
   </aside>
 
@@ -257,10 +261,32 @@ textarea::placeholder{color:#cdeede;opacity:.7}
     <div class="grid" id="achGrid"></div>
   </section>
 
-  <!-- Settings placeholder -->
+  <!-- SETTINGS PAGE -->
   <section class="page" id="page-settings" aria-hidden="true">
-    <div class="jTop"><div style="font-weight:700">Settings</div></div>
-    <p>Coming soon ✨</p>
+    <div class="jTop"><div style="font-weight:700">Settings — Colours & Audio</div></div>
+
+    <div class="paletteRow">
+      <button class="paletteBtn" data-preset="sage">🌿 Sage</button>
+      <button class="paletteBtn" data-preset="evergreen">🌲 Evergreen</button>
+      <button class="paletteBtn" data-preset="dusk">🌌 Dusk</button>
+      <button class="paletteBtn" data-preset="amber">🍁 Amber</button>
+    </div>
+
+    <div class="palette">
+      <span class="colorBox" id="cSky1Box"></span><label>Sky 1</label><input type="color" id="cSky1" value="#0f3a2f">
+      <span class="colorBox" id="cSky2Box"></span><label>Sky 2</label><input type="color" id="cSky2" value="#0d3329">
+      <span class="colorBox" id="cSky3Box"></span><label>Sky 3</label><input type="color" id="cSky3" value="#0a2b23">
+    </div>
+    <div class="palette" style="margin-top:8px">
+      <span class="colorBox" id="cAcc1Box"></span><label>Accent</label><input type="color" id="cAcc1" value="#bfe8cf">
+      <span class="colorBox" id="cAcc2Box"></span><label>Accent 2</label><input type="color" id="cAcc2" value="#98d8bb">
+      <span class="colorBox" id="cTextBox"></span><label>Text</label><input type="color" id="cText" value="#ecfff6">
+    </div>
+    <div class="palette" style="margin-top:8px">
+      <label style="margin-right:8px">Master Volume</label>
+      <input type="range" id="volRange" min="0" max="1" step="0.05" value="0.9">
+    </div>
+    <p style="opacity:.8;font-size:12px;margin-top:8px">Tip: presets change all colours. Pickers let you fine‑tune and save automatically.</p>
   </section>
 
   <!-- Dev tools -->
@@ -297,7 +323,7 @@ textarea::placeholder{color:#cdeede;opacity:.7}
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script>
-/* ===== Quotes (placeholder — replace with your list later) ===== */
+/* ===== Quotes (placeholder) ===== */
 const QUOTES = [
   "Roots grow deeper when you’re quiet inside.",
   "Observation is love in practice.",
@@ -305,7 +331,7 @@ const QUOTES = [
   "Be kinder than you feel."
 ];
 
-/* ===== Elements ===== */
+/* ===== Grab elements ===== */
 const ringsEl = document.getElementById('rings');
 const forestLayer = document.getElementById('forestLayer');
 const plantBtn = document.getElementById('plantBtn');
@@ -342,7 +368,6 @@ const entryCountStat = document.getElementById('entryCountStat');
 const entryList = document.getElementById('entryList');
 const galleryGrid = document.getElementById('galleryGrid');
 const achGrid = document.getElementById('achGrid');
-const scene = document.getElementById('scene');
 const layerBack = document.getElementById('layerBack');
 const layerMid = document.getElementById('layerMid');
 const layerFront = document.getElementById('layerFront');
@@ -356,35 +381,36 @@ const coachOk = document.getElementById('coachOk');
 const coachSkip = document.getElementById('coachSkip');
 const toast = document.getElementById('toast');
 
-/* ===== Audio (variety via WebAudio synth) ===== */
-let audioEnabled = true, audioCtx;
-function ensureAudio(){ try{ if(!audioCtx){ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); } if(audioCtx.state==='suspended'){ audioCtx.resume(); } }catch(e){} }
-function playTone({freq=440,type='sine',len=0.35,vol=0.06,attack=0.01,decay=0.3,pan=0}){
-  if(!audioEnabled) return;
-  ensureAudio(); if(!audioCtx||audioCtx.state!=='running') return;
-  const o=audioCtx.createOscillator(), g=audioCtx.createGain(), p = (audioCtx.createStereoPanner? audioCtx.createStereoPanner(): null);
-  o.type=type; o.frequency.value=freq;
-  const now=audioCtx.currentTime; g.gain.setValueAtTime(0.0001,now);
-  g.gain.exponentialRampToValueAtTime(vol, now+attack);
-  g.gain.exponentialRampToValueAtTime(0.0001, now+attack+decay);
-  if(p){ p.pan.value=pan; o.connect(g); g.connect(p); p.connect(audioCtx.destination);}
-  else { o.connect(g); g.connect(audioCtx.destination); }
-  o.start(now); o.stop(now+len);
+/* ===== Audio (file-based, drop your files into /sounds/) ===== */
+let audioEnabled = true;
+let SND_VOL = 0.9; // can be changed in Settings
+const SND = {
+  cpGain:  ["cp1.m4a","cp2.m4a","cp3.m4a"],  // change names to your files
+  plant:   ["plant1.m4a","plant2.m4a"],
+  level:   ["level1.m4a","level2.m4a"],
+  creature:["visit1.m4a","visit2.m4a","visit3.m4a"]
+};
+const _audioCache = new Map();
+function getAudio(path){
+  if(!_audioCache.has(path)){
+    const a = new Audio(path); a.preload="auto"; a.volume=SND_VOL; _audioCache.set(path,a);
+  }
+  const clone=_audioCache.get(path).cloneNode(); clone.volume=SND_VOL; return clone;
 }
-function sRand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function playFrom(list){
+  if(!audioEnabled || !Array.isArray(list) || !list.length) return;
+  const file=list[Math.floor(Math.random()*list.length)];
+  const a=getAudio(`sounds/${file}`); a.play().catch(()=>{});
+}
 const SOUND = {
-  cpGain(){ // soft wood/bronze chimes
-    const types=['sine','triangle']; const base = sRand([392,440,494,523,587,659]);
-    playTone({freq:base,type:sRand(types),pan:sRand([-0.2,0,0.2])});
-    setTimeout(()=>playTone({freq:base*1.25,type:sRand(types),vol:0.05,pan:sRand([-0.3,0.1])}), 60);
-  },
-  plant(){ const seq=[392,523,659]; seq.forEach((f,i)=>setTimeout(()=>playTone({freq:f,type:'triangle',vol:0.07}), i*90)); },
-  level(){ const seq=[523,659,784,987]; seq.forEach((f,i)=>setTimeout(()=>playTone({freq:f,type:'sine',vol:0.08}), i*80)); },
-  creature(){ playTone({freq:sRand([660,740,880]),type:'sine',vol:0.05}); },
+  cpGain(){ playFrom(SND.cpGain); },
+  plant(){  playFrom(SND.plant);  },
+  level(){  playFrom(SND.level);  },
+  creature(){ playFrom(SND.creature); }
 };
 
 /* ===== State ===== */
-const storeKey='acorn.super.master.v1';
+const storeKey='acorn.master.sage.v1';
 function todayMidnight(){const d=new Date(); d.setHours(0,0,0,0); return +d;}
 function ymd(ts){const d=new Date(ts); return d.toISOString().slice(0,10);}
 function randInt(min,max){return Math.floor(min+Math.random()*(max-min+1));}
@@ -397,12 +423,35 @@ function loadState(){
   return {date:d, planted:false, cycle:makeCycle(), cp:0, day:makeDay(), dots:0, forest:0, name:"", entries:[], dev:0, simNight:0,
           onb:{plant:0, leaves:0, journal:0, dots:0, menu:0, creature:0, never:0},
           gallery:{'🦋':0,'🐦':0,'🐜':0,'🐞':0,'🦊':0,'🦉':0},
-          ach:{}};
+          ach:{}, theme:{}, volume:0.9};
 }
-const state = loadState();
+const state = loadState(); SND_VOL = state.volume ?? 0.9;
 function saveState(){ localStorage.setItem(storeKey, JSON.stringify(state)); }
 
-/* ===== Stages & UI ===== */
+/* ===== Themes ===== */
+const PRESETS = {
+  sage:  { sky1:'#0f3a2f', sky2:'#0d3329', sky3:'#0a2b23', accent:'#bfe8cf', accent2:'#98d8bb', text:'#ecfff6' },
+  evergreen: { sky1:'#0e4434', sky2:'#0c3a2c', sky3:'#0a3327', accent:'#a3e3c2', accent2:'#8fe3bb', text:'#eafff3' },
+  dusk:  { sky1:'#15263a', sky2:'#112032', sky3:'#0d1928', accent:'#9ad0ff', accent2:'#75b8ff', text:'#e9f6ff' },
+  amber: { sky1:'#2b3326', sky2:'#222a1f', sky3:'#1a2218', accent:'#ffc47a', accent2:'#ffad4d', text:'#fff6e8' }
+};
+function setCSSVars(s1,s2,s3,acc1,acc2,txt){
+  const r=document.documentElement;
+  r.style.setProperty('--sky1', s1);
+  r.style.setProperty('--sky2', s2);
+  r.style.setProperty('--sky3', s3);
+  r.style.setProperty('--accent', acc1);
+  r.style.setProperty('--accent2', acc2);
+  r.style.setProperty('--text', txt);
+}
+function applyPreset(name){
+  const p = PRESETS[name]; if(!p) return;
+  setCSSVars(p.sky1,p.sky2,p.sky3,p.accent,p.accent2,p.text);
+  state.theme = { preset:name, custom:false }; saveState();
+}
+function getVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+/* ===== Stage & UI ===== */
 const STAGES = [
   {name:'Acorn',min:0},{name:'Sprout',min:5},{name:'Sapling',min:15},{name:'Young Tree',min:30},{name:'Full Tree',min:50},{name:'Grove',min:80}
 ];
@@ -416,27 +465,23 @@ function updateStageBar(){
   stageNameEl.textContent=stage.name; stageCPEl.textContent=`${Math.round(state.cp)} CP`; stageFillEl.style.width=pct+'%';
 }
 
-/* ===== Seasons & Parallax ===== */
-function seasonIndex(){ return Math.floor((state.forest||0)/3)%4; } // 0..3
+/* ===== Parallax & Seasons (based on forest size) ===== */
+function seasonIndex(){ return Math.floor((state.forest||0)/3)%4; }
 function applySeason(){
   const idx = seasonIndex();
-  const palettes = [
-    {sky1:'#0e4434',sky2:'#0c3a2c',sky3:'#0a3327'}, // spring
-    {sky1:'#194e3c',sky2:'#15543f',sky3:'#124537'}, // summer
-    {sky1:'#2c4430',sky2:'#2b3b2a',sky3:'#223220'}, // autumn
-    {sky1:'#18333a',sky2:'#142b32',sky3:'#10232a'}, // winter (cooler)
-  ];
-  const p = palettes[idx];
-  document.documentElement.style.setProperty('--sky1', p.sky1);
-  document.documentElement.style.setProperty('--sky2', p.sky2);
-  document.documentElement.style.setProperty('--sky3', p.sky3);
-  // simple shapes for parallax
+  const seasonPal = [
+    PRESETS.sage, PRESETS.evergreen, PRESETS.amber, PRESETS.dusk
+  ][idx];
+  // Only auto-apply season if user hasn't set a custom theme
+  if(!state.theme || !state.theme.custom){
+    setCSSVars(seasonPal.sky1, seasonPal.sky2, seasonPal.sky3, getVar('--accent'), getVar('--accent2'), getVar('--text'));
+  }
   layerBack.innerHTML = `<svg width="100%" height="100%"><ellipse cx="18%" cy="32%" rx="22%" ry="18%" fill="rgba(255,255,255,.04)"/></svg>`;
   layerMid.innerHTML  = `<svg width="100%" height="100%"><ellipse cx="74%" cy="24%" rx="18%" ry="14%" fill="rgba(255,255,255,.05)"/></svg>`;
   layerFront.innerHTML= `<svg width="100%" height="100%"><ellipse cx="42%" cy="18%" rx="16%" ry="12%" fill="rgba(255,255,255,.06)"/></svg>`;
 }
 
-/* ===== Forest dots & background trees ===== */
+/* ===== Dots & Forest background ===== */
 function updateDotsUI(){
   ringsEl.innerHTML=''; for(let i=0;i<5;i++){ const d=document.createElement('div'); d.className='ring'; if(i<state.dots) d.classList.add('filled'); ringsEl.appendChild(d); }
 }
@@ -444,8 +489,7 @@ function addBackgroundTree(){
   const wrap=document.createElement('div'); wrap.className='forestTree';
   const left = Math.random()<0.5 ? randInt(6,26) : randInt(58,86);
   const scale = (Math.random()*0.4 + 0.7);
-  wrap.style.left = left+'%';
-  wrap.style.transform = `translateX(-50%) scale(${scale})`;
+  wrap.style.left = left+'%'; wrap.style.transform = `translateX(-50%) scale(${scale})`;
   wrap.innerHTML = `
     <svg width="120" height="160" viewBox="0 0 120 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <defs>
@@ -499,11 +543,8 @@ function spawnCreature(def){
   else if(def.zone==='bark'){ el.style.left='50%'; el.style.bottom=(20+Math.random()*30)+'%'; el.style.transform='translateX(-50%)'; el.classList.add('crawl'); }
   else if(def.zone==='ground'){ el.classList.add('fox'); }
   creatureLayer.appendChild(el); setTimeout(()=>el.remove(), def.duration||8000);
-  // mark in gallery
-  state.gallery[def.icon]=1; saveState(); buildGallery();
-  // onboarding toast once
+  state.gallery[def.icon]=1; saveState(); buildGallery(); SOUND.creature();
   if(!state.onb.creature && !state.onb.never){ showToast("Visitors! As your tree grows, butterflies, birds, and foxes may appear."); state.onb.creature=1; saveState(); }
-  SOUND.creature();
   checkAchievements();
 }
 function maybeCreatureVisit(trigger='tap'){
@@ -568,15 +609,13 @@ function logTodayEntry(){
   checkAchievements();
 }
 function plant(){
-  ensureAudio();
   state.planted=true;
   const total=randInt(120,260), seed=Math.floor(Math.random()*2**31);
   let idx=Math.floor(Math.random()*QUOTES.length);
   if(state.cycle && idx===state.cycle.quoteIdx && QUOTES.length>1) idx=(idx+1)%QUOTES.length;
   state.cycle={seed,total,left:total,quoteIdx:idx,journal:""}; saveState();
   showTree(); SOUND.plant(); onPlanted();
-  // onboarding — leaves tip
-  setTimeout(()=>{ if(!state.onb.leaves && !state.onb.never){ coachTip('Tap the leaves to send them into the wind. Little taps add Care Points.', document.getElementById('stage'), 'center'); state.onb.leaves=1; saveState(); }}, 700);
+  setTimeout(()=>{ if(!state.onb.leaves && !state.onb.never){ coachTip('Tap or flick the leaves. Little taps add Care Points.', document.getElementById('stage'), 'center'); state.onb.leaves=1; saveState(); }}, 700);
 }
 function spawnLeafParticle(x,y,dx=0,dy=-1){
   const emoji = Math.random()<0.25 ? '🍂' : '🍃';
@@ -591,21 +630,21 @@ function spawnLeafParticle(x,y,dx=0,dy=-1){
     if(p<1) requestAnimationFrame(frame); else el.remove();
   } requestAnimationFrame(frame);
 }
-function pluckOne(pointer){
-  if(!state.planted || state.cycle.left<=0) return;
+let pointerStart=null;
+document.getElementById('stage').addEventListener('pointerdown',(e)=>{ if(!state.planted) return; pointerStart={x:e.clientX,y:e.clientY}; });
+document.getElementById('stage').addEventListener('pointerup',(e)=>{
+  if(!state.planted) return;
+  let dx=0, dy=-1;
+  if(pointerStart){ const vx=e.clientX-pointerStart.x, vy=e.clientY-pointerStart.y; const mag=Math.hypot(vx,vy)||1; dx=vx/mag; dy=vy/mag; pointerStart=null; }
+  // Pluck one leaf towards gesture
   const leaf=leavesLayer.lastElementChild; if(!leaf) return;
   const r=leaf.getBoundingClientRect(); const cx=r.left + r.width/2, cy=r.top + r.height/2;
-  leaf.remove(); state.cycle.left--; saveState(); updateCounts(); SOUND.cpGain();
-  const dx = pointer?.dx ?? 0, dy = pointer?.dy ?? -1;
-  spawnLeafParticle(cx, cy, dx, dy);
-  maybeCreatureVisit('tap');
-  const used = (state.cycle.total - state.cycle.left);
-  if(used>=2 && !state.onb.journal && !state.onb.never){
-    if(journalBox && journalBox.scrollIntoView) journalBox.scrollIntoView({behavior:'smooth', block:'center'});
-    setTimeout(()=>{ coachTip('Write a line about how the mantra felt. Journaling boosts growth.', journalBox, 'top'); state.onb.journal=1; saveState(); }, 180);
-  }
+  leaf.remove(); state.cycle.left--; saveState(); updateCounts(); SOUND.cpGain(); spawnLeafParticle(cx,cy,dx,dy); maybeCreatureVisit('tap');
+  const used=(state.cycle.total-state.cycle.left);
+  if(used>=2 && !state.onb.journal && !state.onb.never){ if(journalBox.scrollIntoView) journalBox.scrollIntoView({behavior:'smooth',block:'center'});
+    setTimeout(()=>{ coachTip('Write a line about how the mantra felt. Journaling boosts growth.', journalBox, 'top'); state.onb.journal=1; saveState(); }, 180); }
   if(state.cycle.left<=0){ logTodayEntry(); state.planted=false; saveState(); showAcorn(); SOUND.level(); }
-}
+}, {passive:true});
 
 /* ===== Gallery & Achievements UI ===== */
 function buildGallery(){
@@ -620,6 +659,9 @@ function buildGallery(){
 }
 function buildAchievements(){
   achGrid.innerHTML='';
+  const items = [
+    ...Object.values(ACH).map?ACH:ACH // ensure array
+  ];
   ACH.forEach(a=>{
     const ok = state.ach?.[a.id];
     const div=document.createElement('div'); div.className='card'+(ok?'':' locked');
@@ -643,10 +685,9 @@ function renderJournalPage(){
   entryCountStat.textContent = String((state.entries||[]).length);
   streakStat.textContent = String(calcStreak(state.entries||[]));
   entryList.innerHTML = '';
-  (state.entries||[]).forEach((e,i)=>{
+  (state.entries||[]).forEach((e)=>{
     const div=document.createElement('div'); div.className='entry';
-    div.innerHTML = `
-      <h4>${e.dateISO} • ${e.stage}</h4>
+    div.innerHTML = `<h4>${e.dateISO} • ${e.stage}</h4>
       <div class="meta">Mantra — ${e.quote ? e.quote : '—'}</div>
       <div class="note">${e.note ? e.note.replace(/</g,'&lt;') : '<em>No entry</em>'}</div>`;
     entryList.appendChild(div);
@@ -685,7 +726,7 @@ journalBox.addEventListener('input', ()=>{
   if(cmd==='/dev on'){ state.dev=1; saveState(); applyDevUI(); showToast('Dev tools enabled'); return; }
   if(cmd==='/dev off'){ state.dev=0; saveState(); applyDevUI(); showToast('Dev tools disabled'); return; }
   if(cmd==='/tips reset'){ state.onb={plant:0,leaves:0,journal:0,dots:0,menu:0,creature:0,never:0}; saveState(); showToast('Tips reset'); return; }
-  if(cmd==='/tip leaves'){ state.onb.leaves=0; saveState(); coachTip('Tap the leaves to send them into the wind. Little taps add Care Points.', document.getElementById('stage'), 'center'); return; }
+  if(cmd==='/tip leaves'){ state.onb.leaves=0; saveState(); coachTip('Tap or flick the leaves. Little taps add Care Points.', document.getElementById('stage'), 'center'); return; }
   if(cmd==='/tip journal'){ state.onb.journal=0; saveState(); coachTip('Write a line about how the mantra felt. Journaling boosts growth.', journalBox, 'top'); return; }
 
   saveNote.textContent='Saving...';
@@ -715,6 +756,13 @@ document.getElementById('devLeaves').addEventListener('click', ()=>{
 });
 document.getElementById('devNight').addEventListener('click', ()=>{ state.simNight = state.simNight?0:1; saveState(); });
 document.getElementById('devReset').addEventListener('click', ()=>{ doResetProgress(); });
+['devFox','devBird','devButterfly','devLady','devAnt','devOwl'].forEach(id=>{
+  document.getElementById(id).addEventListener('click', ()=>{
+    const key = {devFox:'🦊',devBird:'🐦',devButterfly:'🦋',devLady:'🐞',devAnt:'🐜',devOwl:'🦉'}[id];
+    const def = { '🦊':{icon:'🦊',zone:'ground',duration:16000}, '🐦':{icon:'🐦',zone:'sky',duration:6500}, '🦋':{icon:'🦋',zone:'sky',duration:6000}, '🐞':{icon:'🐞',zone:'bark',duration:12000}, '🐜':{icon:'🐜',zone:'bark',duration:12000}, '🦉':{icon:'🦉',zone:'sky',duration:6500} }[key];
+    spawnCreature(def);
+  });
+});
 menuReset.addEventListener('click', (e)=>{ e.preventDefault(); doResetProgress(); });
 
 /* ===== Reset ===== */
@@ -725,15 +773,14 @@ function doResetProgress(){
   const d=todayMidnight();
   Object.assign(state, {date:d, planted:false, cycle:makeCycle(), cp:0, day:makeDay(), dots:0, forest:0, name:"", entries:[], dev:keepDev?1:0, simNight:0,
                         onb:{plant:0, leaves:0, journal:0, dots:0, menu:0, creature:0, never:0},
-                        gallery:{'🦋':0,'🐦':0,'🐜':0,'🐞':0,'🦊':0,'🦉':0}, ach:{}});
+                        gallery:{'🦋':0,'🐦':0,'🐜':0,'🐞':0,'🦊':0,'🦉':0}, ach:{}, theme:{}, volume:0.9});
   saveState(); applyDevUI(); boot(); closeDrawer();
 }
 
-/* ===== Onboarding: hardened coachTip + toast ===== */
+/* ===== CoachTip + Toast (hardened) ===== */
 function coachTip(text, target, position='top'){
   if(state.onb?.never) return;
   coachText.textContent = text;
-
   function showAt(x, y, arrowX=null, arrowY=null, showArrow=true){
     coachCard.style.left = Math.max(12, Math.min(x, window.innerWidth - 272)) + 'px';
     coachCard.style.top  = Math.max(12, Math.min(y, window.innerHeight - 140)) + 'px';
@@ -758,43 +805,62 @@ function coachTip(text, target, position='top'){
 }
 function showToast(msg){ toast.textContent = msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'), 2200); }
 
-/* ===== Input handlers (tap + swipe-ish direction) ===== */
-let pointerStart=null;
-document.getElementById('stage').addEventListener('pointerdown', (e)=>{
-  if(!state.planted){ return; }
-  pointerStart = {x:e.clientX, y:e.clientY};
+/* ===== Settings: presets, pickers, volume ===== */
+const cSky1=document.getElementById('cSky1'), cSky2=document.getElementById('cSky2'), cSky3=document.getElementById('cSky3');
+const cAcc1=document.getElementById('cAcc1'), cAcc2=document.getElementById('cAcc2'), cText=document.getElementById('cText');
+const volRange=document.getElementById('volRange');
+function syncPickersFromVars(){
+  cSky1.value = rgb2hex(getVar('--sky1')); cSky2.value = rgb2hex(getVar('--sky2')); cSky3.value = rgb2hex(getVar('--sky3'));
+  cAcc1.value = rgb2hex(getVar('--accent')); cAcc2.value = rgb2hex(getVar('--accent2')); cText.value = rgb2hex(getVar('--text'));
+}
+function rgb2hex(rgb){ // handles rgb(a) or hex
+  rgb = rgb.trim();
+  if(rgb.startsWith('#')) return rgb;
+  const m = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/); if(!m) return '#ffffff';
+  const toHex = n => ('0'+parseInt(n,10).toString(16)).slice(-2);
+  return '#'+toHex(m[1])+toHex(m[2])+toHex(m[3]);
+}
+[cSky1,cSky2,cSky3,cAcc1,cAcc2,cText].forEach(inp=>{
+  inp.addEventListener('input', ()=>{
+    setCSSVars(cSky1.value,cSky2.value,cSky3.value,cAcc1.value,cAcc2.value,cText.value);
+    state.theme = { custom:true, preset:null, values:{sky1:cSky1.value,sky2:cSky2.value,sky3:cSky3.value,accent:cAcc1.value,accent2:cAcc2.value,text:cText.value} };
+    saveState();
+  });
 });
-document.getElementById('stage').addEventListener('pointerup', (e)=>{
-  if(!state.planted) return;
-  let dx=0, dy=-1;
-  if(pointerStart){ const vx = e.clientX-pointerStart.x, vy = e.clientY-pointerStart.y; const mag = Math.hypot(vx,vy)||1; dx=vx/mag; dy=vy/mag; pointerStart=null; }
-  pluckOne({dx,dy});
-}, {passive:true});
+document.querySelectorAll('.paletteBtn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{ applyPreset(btn.getAttribute('data-preset')); syncPickersFromVars(); showToast(`Theme set: ${btn.textContent.trim()}`); });
+});
+volRange.addEventListener('input', ()=>{ SND_VOL = parseFloat(volRange.value||'0.9'); state.volume=SND_VOL; saveState(); });
+
+/* ===== Boot ===== */
+function updateDotsAndForest(){ updateDotsUI(); renderForest(); }
+function updateQuote(){ mantraEl.textContent = (state.planted && state.cycle.quoteIdx>=0) ? QUOTES[state.cycle.quoteIdx] : ''; }
+function applyDevUI(){ document.getElementById('devPanel').style.display = state.dev ? 'block' : 'none'; menuReset.style.display = state.dev ? 'flex' : 'none'; }
+
+function boot(){
+  // Default theme on first run = Sage
+  if(!state.theme || (!state.theme.custom && !state.theme.preset)){ applyPreset('sage'); }
+  else if(state.theme.custom && state.theme.values){
+    const v=state.theme.values; setCSSVars(v.sky1,v.sky2,v.sky3,v.accent,v.accent2,v.text);
+  } else if(state.theme.preset){ applyPreset(state.theme.preset); }
+  syncPickersFromVars();
+
+  ensureForestName(); applySeason(); applyDevUI();
+  updateStageBar(); updateDotsAndForest();
+  journalBox.value = state.cycle.journal || ""; saveState(); saveNote.textContent='Saved';
+  forestNameLabel.textContent = state.name ? `• ${state.name}` : '';
+  if(state.planted && state.cycle.left>0){ showTree(); } else { showAcorn(); }
+  showPage('tree'); buildGallery(); buildAchievements();
+  if(!state.onb.plant && !state.onb.never){ setTimeout(()=>coachTip('Tap the acorn to plant your first tree. You’ll get a mantra for today.', plantBtn, 'top'), 300); state.onb.plant=1; saveState(); }
+}
 plantBtn.addEventListener('click', plant, {passive:true});
 resetBtn.addEventListener('click', ()=>{
   if(state.planted) logTodayEntry();
   state.planted=false; state.cycle=makeCycle(); state.day=makeDay();
   saveState(); boot();
 });
-soundToggle.addEventListener('click', ()=>{ audioEnabled=!audioEnabled; if(audioEnabled) ensureAudio();
-  soundToggle.setAttribute('aria-pressed',String(audioEnabled));
-  soundToggle.textContent='Sound. '+(audioEnabled?'On':'Off'); });
+soundToggle.addEventListener('click', ()=>{ audioEnabled=!audioEnabled; soundToggle.setAttribute('aria-pressed',String(audioEnabled)); soundToggle.textContent='Sound. '+(audioEnabled?'On':'Off'); });
 
-/* ===== Boot ===== */
-function updateDotsAndForest(){ updateDotsUI(); renderForest(); }
-function boot(){
-  ensureForestName(); applySeason(); applyDevUI();
-  updateStageBar(); updateDotsAndForest();
-  journalBox.value = state.cycle.journal || ""; saveNote.textContent='Saved';
-  forestNameLabel.textContent = state.name ? `• ${state.name}` : '';
-  if(state.planted && state.cycle.left>0){ showTree(); } else { showAcorn(); }
-  showPage('tree');
-  if(!state.onb.plant && !state.onb.never){
-    setTimeout(()=>coachTip('Tap the acorn to plant your first tree. You’ll get a mantra for today.', plantBtn, 'top'), 300);
-    state.onb.plant=1; saveState();
-  }
-  buildGallery(); buildAchievements();
-}
 boot();
 setInterval(()=>{ if(state.planted){ renderLeaves(); } }, 9*60*1000);
 </script>
