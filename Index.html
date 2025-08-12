@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Acorn — Daily Tree (Particles Fixed)</title>
+<meta name="theme-color" content="#0b3d2e">
+<style>
+*{box-sizing:border-box}html,body{height:100%;margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto}
+:root{--bg1:#0b3d2e;--bg2:#134c3a;--bg3:#1a583f;--accent:#a3e3c2;--glow:rgba(163,227,194,.25)}
+body{background:linear-gradient(180deg,var(--bg1) 0%,var(--bg2) 30%,var(--bg3) 100%);color:#f4fff8}
+
+main{max-width:520px;margin:0 auto;padding:16px 16px 40px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+h1{font-size:20px;margin:0;letter-spacing:.5px}
+.rings{display:flex;gap:4px}
+.ring{width:10px;height:10px;border:2px solid var(--accent);border-radius:50%;opacity:.85}
+
+#stage{position:relative;width:100%;aspect-ratio:3/4;border-radius:20px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.scene{width:100%;height:100%;display:grid;place-items:center;
+  background:
+    radial-gradient(ellipse at 50% 85%, rgba(0,0,0,.25) 0%, rgba(0,0,0,0) 40%),
+    radial-gradient(ellipse at 50% 15%, rgba(255,255,255,.15) 0%, rgba(255,255,255,0) 55%),
+    linear-gradient(180deg,#0e4434 0%,#0c3a2c 60%,#0a3327 100%);
+}
+svg{width:92%;height:auto;filter:drop-shadow(0 6px 18px rgba(0,0,0,.35))}
+.sway-slow{animation:sway 6s ease-in-out infinite}
+.sway-mid{animation:sway 4.5s ease-in-out infinite}
+.sway-fast{animation:sway 3.5s ease-in-out infinite}
+@keyframes sway{0%{transform:rotate(-1.2deg)}50%{transform:rotate(1.2deg)}100%{transform:rotate(-1.2deg)}}
+.ground{position:absolute;left:0;right:0;bottom:-6%;height:28%;
+  background:radial-gradient(ellipse at 50% 20%, #124a38 0%, #0e3f30 45%, #0b3528 100%);
+  box-shadow:0 -10px 40px inset rgba(0,0,0,.25)}
+.glow{position:absolute;inset:0;background:radial-gradient(circle at 50% 25%, var(--glow), transparent 45%)}
+
+/* ACORN SCREEN */
+#acornScreen{position:absolute;inset:0;display:grid;place-items:center;gap:14px;z-index:10}
+#acornBig{width:min(42vmin,220px);height:auto;filter:drop-shadow(0 10px 24px rgba(0,0,0,.4))}
+.cta{display:inline-flex;align-items:center;gap:10px;background:var(--accent);color:#0b3d2e;border:none;
+  border-radius:999px;padding:14px 18px;font-weight:800;font-size:16px;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.cta:active{transform:scale(.97)}
+.cta .sprout{font-size:20px}
+.tapHint{font-size:13px;opacity:.8}
+
+/* CONTROLS & TEXT */
+.controls{display:flex;justify-content:space-between;gap:8px;margin-top:10px}
+.ghost{background:transparent;color:#c8ffe1;border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:10px 14px}
+.mantra{min-height:52px;text-align:center;font-size:16px;line-height:1.35;margin:10px 0 0;color:#eafff3}
+.count{font-size:12px;opacity:.85;text-align:center;margin-top:6px}
+.small{font-size:12px;opacity:.78;text-align:center;margin-top:6px}
+
+/* JOURNAL */
+.journal{margin-top:14px}
+label{font-size:13px;opacity:.95}
+textarea{
+  width:100%;min-height:84px;margin-top:6px;border-radius:12px;border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.05);color:#eafff3;padding:12px;resize:vertical;outline:none
+}
+textarea::placeholder{color:#cdeede;opacity:.7}
+.saveNote{font-size:12px;opacity:.75;margin-top:6px}
+
+/* PARTICLES */
+.leafParticle{position:fixed;will-change:transform,opacity;pointer-events:none}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Acorn</h1>
+    <div class="rings" id="rings" aria-label="Streak rings"></div>
+  </header>
+
+  <section id="stage" aria-live="polite">
+    <div class="scene" id="scene">
+      <!-- ACORN + BUTTON -->
+      <div id="acornScreen">
+        <svg id="acornBig" viewBox="0 0 80 80" aria-hidden="true">
+          <defs>
+            <linearGradient id="acornNut" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#c7995a"/><stop offset="100%" stop-color="#a7783d"/>
+            </linearGradient>
+            <linearGradient id="acornCap" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stop-color="#6f5036"/><stop offset="100%" stop-color="#553b28"/>
+            </linearGradient>
+          </defs>
+          <ellipse cx="40" cy="48" rx="22" ry="26" fill="url(#acornNut)"/>
+          <ellipse cx="40" cy="38" rx="26" ry="12" fill="url(#acornCap)"/>
+          <rect x="42" y="24" width="10" height="6" rx="3" fill="#6b4b30" transform="rotate(-25 47 27)"/>
+        </svg>
+        <button id="plantBtn" class="cta"><span class="sprout">🌱</span>Plant Acorn</button>
+        <div class="tapHint">Get a random quote and today’s tree</div>
+      </div>
+
+      <!-- TREES (PHASED) -->
+      <svg id="treeMorning" viewBox="0 0 300 430" class="sway-slow" aria-hidden="true" style="display:none">
+        <defs>
+          <linearGradient id="barkGrad1" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#6b4b30"/><stop offset="100%" stop-color="#4e3525"/>
+          </linearGradient>
+          <radialGradient id="leafGrad1" cx="50%" cy="50%" r="60%">
+            <stop offset="0%" stop-color="#c8f7df"/><stop offset="100%" stop-color="#8fe3bb"/>
+          </radialGradient>
+          <clipPath id="canopyClip1"><ellipse cx="150" cy="170" rx="90" ry="60"/></clipPath>
+        </defs>
+        <path d="M150 400 C150 340 148 285 150 230 C152 190 154 150 150 110"
+              stroke="url(#barkGrad1)" stroke-width="20" stroke-linecap="round" fill="none"/>
+        <g id="leaves1" clip-path="url(#canopyClip1)"></g>
+      </svg>
+
+      <svg id="treeMidday" viewBox="0 0 300 430" class="sway-mid" aria-hidden="true" style="display:none">
+        <defs>
+          <linearGradient id="barkGrad2" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#7a5437"/><stop offset="100%" stop-color="#5a3e2b"/>
+          </linearGradient>
+          <radialGradient id="leafGrad2" cx="50%" cy="50%" r="65%">
+            <stop offset="0%" stop-color="#d4fbe6"/><stop offset="100%" stop-color="#8fe3bb"/>
+          </radialGradient>
+          <clipPath id="canopyClip2"><ellipse cx="150" cy="170" rx="95" ry="65"/></clipPath>
+        </defs>
+        <path d="M150 400 C150 330 148 270 150 210 C153 165 156 125 150 90"
+              stroke="url(#barkGrad2)" stroke-width="22" stroke-linecap="round" fill="none"/>
+        <g id="leaves2" clip-path="url(#canopyClip2)"></g>
+      </svg>
+
+      <svg id="treeEvening" viewBox="0 0 300 430" class="sway-fast" aria-hidden="true" style="display:none">
+        <defs>
+          <linearGradient id="barkGrad3" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#8a6041"/><stop offset="100%" stop-color="#5a3e2b"/>
+          </linearGradient>
+          <radialGradient id="leafGrad3" cx="50%" cy="50%" r="70%">
+            <stop offset="0%" stop-color="#e6ffef"/><stop offset="100%" stop-color="#9be8c6"/>
+          </radialGradient>
+          <clipPath id="canopyClip3"><ellipse cx="150" cy="170" rx="100" ry="70"/></clipPath>
+        </defs>
+        <path d="M150 400 C150 320 148 255 150 190 C155 145 160 110 150 75"
+              stroke="url(#barkGrad3)" stroke-width="24" stroke-linecap="round" fill="none"/>
+        <g id="leaves3" clip-path="url(#canopyClip3)"></g>
+      </svg>
+
+      <div class="ground"></div>
+      <div class="glow"></div>
+    </div>
+  </section>
+
+  <p id="mantra" class="mantra"></p>
+  <p class="count" id="leafCount"></p>
+  <p class="small">Tip. Tap the tree to send a leaf into the wind</p>
+
+  <div class="controls">
+    <button id="soundToggle" class="ghost" aria-pressed="false">Sound. On</button>
+    <button id="resetBtn" class="ghost" title="Debug new day">New day</button>
+  </div>
+
+  <div class="journal">
+    <label for="journalBox">Journal. How did today’s quote make you feel</label>
+    <textarea id="journalBox" placeholder="Write a few lines for future you"></textarea>
+    <div class="saveNote" id="saveNote">Saved</div>
+  </div>
+</main>
+
+<script>
+/* ====== DATA ====== */
+const QUOTES = [
+  "When preparation meets opportunity, success is inevitable.",
+  "We are individually and collectively the consciousness that makes up our simulation.",
+  "You are the greatest teacher, for you are responsible for everything you will ever know.",
+  "If you are not being authentic, silence the voices, for it is not time to project yourself.",
+  "Live in the now and you will be everfresh in every moment.",
+  "Set your table, take with you the utensils needed for the meal, do not just wait at tables, never be the waiter of all tables.",
+  "The problems arose when memory became the leader of progress, project forwards.",
+  "Within this world, do not be a senseless I, senseless eyes will not touch souls and change faces for the better.",
+  "Provoke healing within the world, before the world provokes death within you.",
+  "Touch Souls & Change faces, for the betterment of all, including oneself"
+];
+
+/* ====== ELEMENTS ====== */
+const scene = document.getElementById('scene');
+const ringsEl = document.getElementById('rings');
+const plantBtn = document.getElementById('plantBtn');
+const acornScreen = document.getElementById('acornScreen');
+const treeMorning = document.getElementById('treeMorning');
+const treeMidday  = document.getElementById('treeMidday');
+const treeEvening = document.getElementById('treeEvening');
+const leaves1 = document.getElementById('leaves1');
+const leaves2 = document.getElementById('leaves2');
+const leaves3 = document.getElementById('leaves3');
+const mantraEl = document.getElementById('mantra');
+const leafCountEl = document.getElementById('leafCount');
+const soundToggle = document.getElementById('soundToggle');
+const resetBtn = document.getElementById('resetBtn');
+const journalBox = document.getElementById('journalBox');
+const saveNote = document.getElementById('saveNote');
+
+/* ====== AUDIO (iOS-safe) ====== */
+let audioEnabled = true, audioCtx;
+function ensureAudio(){ try{ if(!audioCtx){ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); } if(audioCtx.state==='suspended'){ audioCtx.resume(); } }catch(e){} }
+function chime(){
+  if(!audioEnabled) return; ensureAudio(); if(!audioCtx||audioCtx.state!=='running') return;
+  const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type='sine';
+  const notes=[523.25,587.33,659.25,698.46]; o.frequency.value=notes[Math.floor(Math.random()*notes.length)];
+  const now=audioCtx.currentTime; g.gain.setValueAtTime(0.0001,now); g.gain.exponentialRampToValueAtTime(0.08,now+0.01); g.gain.exponentialRampToValueAtTime(0.0001,now+0.45);
+  o.connect(g); g.connect(audioCtx.destination); o.start(now); o.stop(now+0.46);
+}
+
+/* ====== UTIL ====== */
+const storeKey='acorn.v10.particles';
+function todayMidnight(){const d=new Date(); d.setHours(0,0,0,0); return +d;}
+function randInt(min,max){return Math.floor(min+Math.random()*(max-min+1));}
+function mulberry32(a){return function(){let t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296;}}
+
+/* ====== STATE ====== */
+function makeCycle(){ return {seed:Math.floor(Math.random()*2**31), total:randInt(100,300), left:0, quoteIdx:-1, journal:""}; }
+function loadState(){
+  const d=todayMidnight(), raw=localStorage.getItem(storeKey);
+  if(raw){ const s=JSON.parse(raw); if(s.date!==d){ const rings=s.planted?(s.rings||0)+1:(s.rings||0); return {date:d,rings,planted:false,cycle:makeCycle()}; } return s; }
+  return {date:d,rings:0,planted:false,cycle:makeCycle()};
+}
+const state = loadState();
+function saveState(){ localStorage.setItem(storeKey, JSON.stringify(state)); }
+
+/* ====== PHASED TREE ====== */
+function phase(){ const h=new Date().getHours(); return h<12?'morning':h<18?'midday':'evening'; }
+function setTreesVisible(on){
+  const p=phase();
+  treeMorning.style.display = (on && p==='morning') ? 'block' : 'none';
+  treeMidday .style.display = (on && p==='midday' ) ? 'block' : 'none';
+  treeEvening.style.display = (on && p==='evening') ? 'block' : 'none';
+}
+function currentLayer(){ return phase()==='morning'?leaves1:phase()==='midday'?leaves2:leaves3; }
+function canopy(){ return phase()==='morning'?{rx:90,ry:60}:phase()==='midday'?{rx:95,ry:65}:{rx:100,ry:70}; }
+function renderLeaves(){
+  const layer=currentLayer(); layer.innerHTML='';
+  const {rx,ry}=canopy(); const rnd=mulberry32(state.cycle.seed);
+  const pos=[]; for(let i=0;i<state.cycle.total;i++){ const a=2*Math.PI*rnd(); const r=Math.sqrt(rnd()); pos.push({x:150+r*rx*Math.cos(a), y:170+r*ry*Math.sin(a), s:0.8+rnd()*0.6}); }
+  const grad = phase()==='morning'?'url(#leafGrad1)':phase()==='midday'?'url(#leafGrad2)':'url(#leafGrad3)';
+  for(let i=0;i<state.cycle.left;i++){ const p=pos[i]; const e=document.createElementNS('http://www.w3.org/2000/svg','ellipse');
+    e.setAttribute('cx',p.x); e.setAttribute('cy',p.y); e.setAttribute('rx',4*p.s); e.setAttribute('ry',6*p.s); e.setAttribute('fill',grad); e.setAttribute('opacity',0.95); layer.appendChild(e); }
+}
+
+/* ====== PARTICLES ====== */
+function spawnLeafParticle(x,y){
+  const emoji = Math.random()<0.25 ? '🍂' : '🍃';
+  const el = document.createElement('div');
+  el.className='leafParticle';
+  el.textContent=emoji;
+  el.style.left=x+'px'; el.style.top=y+'px';
+  document.body.appendChild(el);
+
+  const start=performance.now();
+  const duration=1600+Math.random()*1300;
+  const driftX=(Math.random()*120+50)*(Math.random()<0.5?-1:1);
+  const driftY=-(80+Math.random()*90);
+
+  function frame(t){
+    const p=Math.min(1,(t-start)/duration);
+    const ease=1-Math.pow(1-p,2);
+    const tx=x+driftX*ease, ty=y+driftY*ease + 0.55*(p*220);
+    el.style.transform=`translate(${tx-x}px, ${ty-y}px) rotate(${p*260}deg)`;
+    el.style.opacity=String(1-p);
+    if(p<1) requestAnimationFrame(frame); else el.remove();
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ====== UI ====== */
+function updateRings(){ ringsEl.innerHTML=''; for(let i=0;i<Math.min(state.rings,12);i++){ const d=document.createElement('div'); d.className='ring'; ringsEl.appendChild(d);} }
+function updateCounts(){ leafCountEl.textContent = state.planted ? `Leaves left. ${state.cycle.left} of ${state.cycle.total}` : ''; }
+function updateQuote(){ mantraEl.textContent = (state.planted && state.cycle.quoteIdx>=0) ? QUOTES[state.cycle.quoteIdx] : ''; }
+function updateJournal(){ journalBox.value = state.cycle.journal || ""; saveNote.textContent='Saved'; }
+
+/* ====== SHOW/HIDE ====== */
+function showAcornScreen(){ acornScreen.style.display='grid'; setTreesVisible(false); updateQuote(); updateCounts(); }
+function showTreeScreen(){ acornScreen.style.display='none'; setTreesVisible(true); renderLeaves(); updateQuote(); updateCounts(); }
+
+/* ====== INTERACTION ====== */
+function plant(){
+  ensureAudio();
+  state.planted=true;
+  const total=randInt(100,300), seed=Math.floor(Math.random()*2**31);
+  let idx=Math.floor(Math.random()*QUOTES.length);
+  if(state.cycle && idx===state.cycle.quoteIdx && QUOTES.length>1) idx=(idx+1)%QUOTES.length;
+  state.cycle={seed,total,left:total,quoteIdx:idx,journal:""}; saveState();
+  showTreeScreen(); chime();
+}
+
+function pluckOne(ev){
+  if(!state.planted || state.cycle.left<=0) return;
+  const layer=currentLayer();
+  const leaf=layer.lastElementChild;
+  if(!leaf) return;
+  const r=leaf.getBoundingClientRect();
+  const cx=r.left + r.width/2, cy=r.top + r.height/2;
+
+  leaf.remove();
+  state.cycle.left--;
+  saveState();
+  updateCounts();
+  chime();
+  spawnLeafParticle(cx, cy);
+
+  if(state.cycle.left<=0){ state.planted=false; saveState(); showAcornScreen(); }
+}
+
+plantBtn.addEventListener('click', plant, {passive:true});
+scene.addEventListener('pointerdown', (ev)=>{ if(state.planted) pluckOne(ev); }, {passive:true});
+
+soundToggle.addEventListener('click', ()=>{ audioEnabled=!audioEnabled; if(audioEnabled) ensureAudio();
+  soundToggle.setAttribute('aria-pressed',String(audioEnabled));
+  soundToggle.textContent='Sound. '+(audioEnabled?'On':'Off'); });
+
+resetBtn.addEventListener('click', ()=>{ const rings = state.planted?state.rings+1:state.rings; state.date=todayMidnight(); state.rings=rings; state.planted=false; state.cycle=makeCycle(); saveState(); boot(); });
+
+let saveTimer=null;
+journalBox.addEventListener('input', ()=>{
+  saveNote.textContent='Saving...';
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{ state.cycle.journal = journalBox.value.slice(0,1000); saveState(); saveNote.textContent='Saved'; }, 400);
+});
+
+/* ====== BOOT ====== */
+function boot(){
+  if(state.date!==todayMidnight()){
+    const rings=state.planted?state.rings+1:state.rings;
+    state.date=todayMidnight(); state.rings=rings; state.planted=false; state.cycle=makeCycle(); saveState();
+  }
+  updateRings(); updateQuote(); updateCounts(); updateJournal();
+  if(state.planted && state.cycle.left>0){ showTreeScreen(); } else { showAcornScreen(); }
+}
+boot();
+setInterval(()=>{ if(state.planted){ setTreesVisible(true); renderLeaves(); } }, 10*60*1000);
+</script>
+</body>
+</html>
