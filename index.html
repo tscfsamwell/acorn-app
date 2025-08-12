@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Acorn — Menu Build</title>
+<title>Acorn — Onboarding Build</title>
 <meta name="theme-color" content="#0b3d2e">
 <style>
 *{box-sizing:border-box}html,body{height:100%;margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto}
@@ -78,7 +78,6 @@ svg{width:92%;height:auto;filter:drop-shadow(0 6px 18px rgba(0,0,0,.35)); z-inde
 .ghost{background:transparent;color:#c8ffe1;border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:10px 14px}
 .mantra{min-height:52px;text-align:center;font-size:16px;line-height:1.35;margin:10px 0 0;color:#eafff3}
 .count{font-size:12px;opacity:.85;text-align:center;margin-top:6px}
-.small{font-size:12px;opacity:.78;text-align:center;margin-top:6px}
 
 /* Journal input on Tree page */
 .journal{margin-top:14px}
@@ -141,6 +140,21 @@ textarea::placeholder{color:#cdeede;opacity:.7}
 #devPanel button{margin:2px 3px;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.25);
   background:rgba(255,255,255,.06);color:#eafff3;font-size:12px}
 .danger{border-color:rgba(255,120,120,.4)!important;color:#ffd7d7!important}
+
+/* ---------- Onboarding coachmarks ---------- */
+#coach{position:fixed;inset:0;pointer-events:none;z-index:10000}
+.coachMask{position:absolute;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(2px);opacity:0;transition:opacity .15s ease}
+#coach.show .coachMask{opacity:1}
+.coachCard{position:absolute;max-width:260px;background:rgba(8,37,30,.98);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:12px 12px;box-shadow:0 12px 30px rgba(0,0,0,.35);opacity:0;transform:translateY(6px);transition:opacity .18s ease, transform .18s ease;pointer-events:auto}
+#coach.show .coachCard{opacity:1;transform:translateY(0)}
+.coachText{font-size:14px;line-height:1.35;margin:0 0 8px}
+.coachBtns{display:flex;gap:8px;justify-content:flex-end}
+.coachBtn{background:var(--accent);color:#0b3d2e;border:none;border-radius:10px;padding:8px 10px;font-weight:700}
+.coachSkip{background:transparent;color:#eafff3;border:1px solid rgba(255,255,255,.25)}
+.coachArrow{position:absolute;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:10px solid rgba(8,37,30,.98)}
+/* Toast */
+#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:rgba(8,37,30,.98);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:10px 12px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:10001}
+#toast.show{opacity:1}
 </style>
 </head>
 <body>
@@ -240,7 +254,6 @@ textarea::placeholder{color:#cdeede;opacity:.7}
 
     <p id="mantra" class="mantra"></p>
     <p class="count" id="leafCount"></p>
-    <p class="small">Tip. Tap the tree to send a leaf into the wind</p>
 
     <div class="controls">
       <button id="soundToggle" class="ghost" aria-pressed="false">Sound. On</button>
@@ -288,6 +301,20 @@ textarea::placeholder{color:#cdeede;opacity:.7}
     </div>
   </div>
 </main>
+
+<!-- Onboarding overlay + toast -->
+<div id="coach" aria-hidden="true">
+  <div class="coachMask"></div>
+  <div class="coachCard" id="coachCard">
+    <p class="coachText" id="coachText"></p>
+    <div class="coachBtns">
+      <button class="coachBtn coachSkip" id="coachSkip">Skip</button>
+      <button class="coachBtn" id="coachOk">Got it</button>
+    </div>
+    <div class="coachArrow" id="coachArrow"></div>
+  </div>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
 
 <script>
 /* ===== Quotes ===== */
@@ -344,6 +371,15 @@ const menuSettings = document.getElementById('menuSettings');
 const menuReset = document.getElementById('menuReset');
 const devOnlyNote = document.getElementById('devOnlyNote');
 
+/* Onboarding elements */
+const coach = document.getElementById('coach');
+const coachText = document.getElementById('coachText');
+const coachCard = document.getElementById('coachCard');
+const coachArrow = document.getElementById('coachArrow');
+const coachOk = document.getElementById('coachOk');
+const coachSkip = document.getElementById('coachSkip');
+const toast = document.getElementById('toast');
+
 /* ===== Audio ===== */
 let audioEnabled = true, audioCtx;
 function ensureAudio(){ try{ if(!audioCtx){ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); } if(audioCtx.state==='suspended'){ audioCtx.resume(); } }catch(e){} }
@@ -355,7 +391,7 @@ function chime(){ if(!audioEnabled) return; ensureAudio(); if(!audioCtx||audioCt
 }
 
 /* ===== State ===== */
-const storeKey='acorn.menu.master.v1';
+const storeKey='acorn.onboard.master.v1';
 function todayMidnight(){const d=new Date(); d.setHours(0,0,0,0); return +d;}
 function ymd(ts){const d=new Date(ts); return d.toISOString().slice(0,10);}
 function randInt(min,max){return Math.floor(min+Math.random()*(max-min+1));}
@@ -365,7 +401,8 @@ function makeDay(){ return {leafCP:0, journalGiven:false, plantedGiven:false, lo
 function loadState(){
   const d=todayMidnight(), raw=localStorage.getItem(storeKey);
   if(raw){ const s=JSON.parse(raw); if(s.date!==d){ s.date=d; s.day=makeDay(); } return s; }
-  return {date:d, planted:false, cycle:makeCycle(), cp:0, day:makeDay(), dots:0, forest:0, name:"", entries:[], dev:0, simNight:0};
+  return {date:d, planted:false, cycle:makeCycle(), cp:0, day:makeDay(), dots:0, forest:0, name:"", entries:[], dev:0, simNight:0,
+          onb:{plant:0, leaves:0, journal:0, dots:0, menu:0, creature:0, never:0}};
 }
 const state = loadState();
 function saveState(){ localStorage.setItem(storeKey, JSON.stringify(state)); }
@@ -462,6 +499,8 @@ function spawnCreature(def){
   else if(def.zone==='bark'){ el.style.bottom=(20+Math.random()*30)+'%'; el.classList.add('crawl'); }
   else if(def.zone==='ground'){ el.classList.add('fox'); }
   creatureLayer.appendChild(el); setTimeout(()=>el.remove(), def.duration||8000);
+  // Onboarding toast for first creature
+  if(!state.onb.creature && !state.onb.never){ showToast("Visitors! As your tree grows, butterflies, birds, and foxes may appear."); state.onb.creature=1; saveState(); }
 }
 function maybeCreatureVisit(trigger='tap'){
   const pool = CREATURES.filter(c => state.cp >= c.minCP);
@@ -492,6 +531,9 @@ function onPlanted(){
   // CP & creatures
   if(!state.day.plantedGiven){ state.day.plantedGiven=true; addCP(1); }
   maybeCreatureVisit('plant');
+
+  // Onboarding dots tip (once)
+  if(!state.onb.dots && !state.onb.never){ coachTip('These 5 dots track planted trees. Fill all 5 to grow your background forest.', ringsEl, 'top'); state.onb.dots=1; saveState(); }
 }
 function logTodayEntry(){
   if(state.day.logged) return;
@@ -516,6 +558,12 @@ function plant(){
   if(state.cycle && idx===state.cycle.quoteIdx && QUOTES.length>1) idx=(idx+1)%QUOTES.length;
   state.cycle={seed,total,left:total,quoteIdx:idx,journal:""}; saveState();
   showTreeScreen(); chime(); onPlanted();
+
+  // Onboarding leaves tip (once)
+  if(!state.onb.leaves && !state.onb.never){
+    setTimeout(()=>coachTip('Tap the leaves to send them into the wind. Little taps add Care Points.', document.getElementById('stage'), 'center'), 350);
+    state.onb.leaves=1; saveState();
+  }
 }
 function pluckOne(){
   if(!state.planted || state.cycle.left<=0) return;
@@ -523,6 +571,13 @@ function pluckOne(){
   const r=leaf.getBoundingClientRect(); const cx=r.left + r.width/2, cy=r.top + r.height/2;
   leaf.remove(); state.cycle.left--; saveState(); updateCounts(); chime(); spawnLeafParticle(cx, cy);
   maybeCreatureVisit('tap');
+
+  // After a couple taps, show journal hint once
+  if(!state.onb.journal && !state.onb.never){
+    const used = (state.cycle.total - state.cycle.left);
+    if(used>=2){ coachTip('Write a line about how the mantra felt. Journaling boosts growth.', journalBox, 'top'); state.onb.journal=1; saveState(); }
+  }
+
   if(state.cycle.left<=0){ logTodayEntry(); state.planted=false; saveState(); showAcornScreen(); }
 }
 
@@ -554,17 +609,16 @@ function renderJournalPage(){
   });
 }
 
-/* ===== Tabs via Drawer ===== */
+/* ===== Pages via Drawer ===== */
 function showPage(which){
   const showTree = which==='tree';
-  document.getElementById('pageTree').setAttribute('aria-hidden', String(!showTree));
-  document.getElementById('pageJournal').setAttribute('aria-hidden', String(showTree));
+  pageTree.setAttribute('aria-hidden', String(!showTree));
+  pageJournal.setAttribute('aria-hidden', String(showTree));
   closeDrawer();
   if(!showTree) renderJournalPage();
 }
-
-/* ===== Drawer controls ===== */
-function openDrawer(){ drawer.classList.add('open'); drawerBackdrop.classList.add('open'); }
+function openDrawer(){ drawer.classList.add('open'); drawerBackdrop.classList.add('open');
+  if(!state.onb.menu && !state.onb.never){ coachTip('Your Journal & Settings live here. Browse past entries anytime.', drawer, 'inside'); state.onb.menu=1; saveState(); } }
 function closeDrawer(){ drawer.classList.remove('open'); drawerBackdrop.classList.remove('open'); }
 hamburger.addEventListener('click', openDrawer);
 drawerBackdrop.addEventListener('click', closeDrawer);
@@ -590,8 +644,8 @@ soundToggle.addEventListener('click', ()=>{ audioEnabled=!audioEnabled; if(audio
 let saveTimer=null;
 journalBox.addEventListener('input', ()=>{
   const cmd = journalBox.value.trim().toLowerCase();
-  if(cmd==='/dev on'){ state.dev=1; saveState(); applyDevUI(); return; }
-  if(cmd==='/dev off'){ state.dev=0; saveState(); applyDevUI(); return; }
+  if(cmd==='/dev on'){ state.dev=1; saveState(); applyDevUI(); showToast('Dev tools enabled'); return; }
+  if(cmd==='/dev off'){ state.dev=0; saveState(); applyDevUI(); showToast('Dev tools disabled'); return; }
   saveNote.textContent='Saving...';
   clearTimeout(saveTimer);
   saveTimer=setTimeout(()=>{
@@ -620,18 +674,63 @@ document.getElementById('devLeaves').addEventListener('click', ()=>{
 });
 document.getElementById('devNight').addEventListener('click', ()=>{ state.simNight = state.simNight?0:1; saveState(); setTreesVisible(state.planted); });
 document.getElementById('devReset').addEventListener('click', ()=>{ doResetProgress(); });
-
-/* Drawer reset (dev only) */
 menuReset.addEventListener('click', (e)=>{ e.preventDefault(); doResetProgress(); });
 
 function doResetProgress(){
   if(!confirm('Reset all local progress? This clears CP, journal entries, forest name, forest trees, dots.')) return;
   const keepDev = state.dev;
   localStorage.removeItem(storeKey);
-  // Recreate base state
   const d=todayMidnight();
-  Object.assign(state, {date:d, planted:false, cycle:makeCycle(), cp:0, day:makeDay(), dots:0, forest:0, name:"", entries:[], dev:keepDev?1:0, simNight:0});
+  Object.assign(state, {date:d, planted:false, cycle:makeCycle(), cp:0, day:makeDay(), dots:0, forest:0, name:"", entries:[], dev:keepDev?1:0, simNight:0,
+                        onb:{plant:0, leaves:0, journal:0, dots:0, menu:0, creature:0, never:0}});
   saveState(); applyDevUI(); boot(); closeDrawer();
+}
+
+/* ===== Onboarding (coachmarks + toast) ===== */
+function coachTip(text, target, position='top'){
+  if(state.onb.never) return;
+  const rect = target.getBoundingClientRect();
+  coachText.textContent = text;
+  coach.setAttribute('aria-hidden','false');
+  coach.classList.add('show');
+
+  const margin = 10;
+  let left = rect.left + rect.width/2 - 130; // center-ish (card width ~260)
+  left = Math.max(12, Math.min(left, window.innerWidth - 272));
+
+  let top;
+  if(position==='inside'){ // drawer
+    const drect = drawer.getBoundingClientRect();
+    left = drect.left + 14;
+    top = drect.top + 60;
+    coachArrow.style.display='none';
+  } else if(position==='center'){
+    top = rect.top + rect.height/2 - 20;
+    coachArrow.style.left = (rect.left + rect.width/2 - 8) + 'px';
+    coachArrow.style.top = (top-10) + 'px';
+    coachArrow.style.display='block';
+  } else { // top by default
+    top = rect.top - 70 - margin;
+    coachArrow.style.left = (rect.left + rect.width/2 - 8) + 'px';
+    coachArrow.style.top = (rect.top - 12) + 'px';
+    coachArrow.style.display='block';
+  }
+
+  coachCard.style.left = left + 'px';
+  coachCard.style.top = Math.max(12, top) + 'px';
+
+  function close(){
+    coach.classList.remove('show');
+    coach.setAttribute('aria-hidden','true');
+  }
+  coachOk.onclick = close;
+  coachSkip.onclick = ()=>{ state.onb.never=1; saveState(); close(); };
+  coach.querySelector('.coachMask').onclick = close;
+}
+function showToast(msg){
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'), 2600);
 }
 
 /* ===== Boot ===== */
@@ -641,8 +740,13 @@ function boot(){
   ensureForestName(); ensureForestNameLabels(); applyDevUI();
   updateStageBar(); updateDotsUIAndForest(); updateJournalBox();
   if(state.planted && state.cycle.left>0){ showTreeScreen(); } else { showAcornScreen(); }
-  // default to Tree page
   showPage('tree');
+
+  // First-run: Acorn tip
+  if(!state.onb.plant && !state.onb.never){
+    setTimeout(()=>coachTip('Tap the acorn to plant your first tree. You’ll get a mantra for today.', plantBtn, 'top'), 300);
+    state.onb.plant=1; saveState();
+  }
 }
 boot();
 setInterval(()=>{ if(state.planted){ setTreesVisible(true); renderLeaves(); } }, 10*60*1000);
