@@ -1,802 +1,612 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Acorn — Super Master</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Acorn — Under the Oak</title>
 <meta name="theme-color" content="#0b3d2e">
 <style>
-*{box-sizing:border-box}html,body{height:100%;margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto}
+/* ========= THEME (Under‑the‑Oak) ========= */
 :root{
-  --sky1:#0e4434; --sky2:#0c3a2c; --sky3:#0a3327;
-  --glow:rgba(163,227,194,.25);
-  --accent:#a3e3c2; --accent2:#8fe3bb;
-  --text:#eafff3;
+  --bg:#0b3d2e;               /* app background */
+  --bg2:#0c3a2c;              /* card/drawer */
+  --sunken:#08271e;           /* deeper panel */
+  --accent:#a3e3c2;           /* primary mint */
+  --accent2:#8fe3bb;          /* secondary mint */
+  --text:#eafff3;             /* strong text */
+  --muted:#c9ecdd;            /* muted text */
+  --line:rgba(255,255,255,.12);
+  --chip:rgba(255,255,255,.10);
+  --chipLine:rgba(255,255,255,.18);
+  --shadow:0 10px 35px rgba(0,0,0,.35);
 }
-body{background:linear-gradient(180deg,#0b3d2e 0%, #134c3a 30%, #1a583f 100%); color:var(--text)}
-main{max-width:560px;margin:0 auto;padding:16px 16px 44px}
-header{display:flex;justify-content:space-between;align-items:center}
-h1{font-size:20px;margin:0}
-.forestName{opacity:.9;font-size:13px;margin-left:8px}
 
-/* Menu / Drawer */
-.hamburger{border:1px solid rgba(255,255,255,.25);background:transparent;color:#c8ffe1;border-radius:10px;padding:8px 10px;font-size:18px}
-#drawerBackdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .2s;z-index:9998}
-#drawer{position:fixed;top:0;right:-280px;width:260px;height:100vh;background:rgba(7,33,27,.94);border-left:1px solid rgba(255,255,255,.12);box-shadow:-12px 0 30px rgba(0,0,0,.35);transition:transform .24s;z-index:9999;padding:16px}
-#drawer.open{transform:translateX(-280px)} #drawerBackdrop.open{opacity:1;pointer-events:auto}
-.menuItem{display:flex;justify-content:space-between;align-items:center;padding:10px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);border-radius:10px;margin-bottom:8px}
-.badge{font-size:11px;opacity:.85;background:rgba(255,255,255,.1);padding:2px 6px;border-radius:10px}
+/* ========= BASE ========= */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; font-family: ui-rounded, system-ui, -apple-system, "SF Pro Rounded", "SF Pro Text", Segoe UI, Roboto, Inter, sans-serif;
+  background: radial-gradient(120% 120% at 50% 0%, #0e4737, var(--bg));
+  color:var(--text);
+}
+a{color:inherit; text-decoration:none}
+button{font:inherit}
+.hidden{display:none!important}
+.mono{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
 
-/* Dots meter & stage bar */
-.rings{display:flex;gap:6px;align-items:center;margin:10px 0 6px}
-.ring{width:12px;height:12px;border:2px solid var(--accent);border-radius:50%}
-.ring.filled{background:var(--accent)}
-.stageWrap{display:flex;align-items:center;gap:10px}
-.stageBar{flex:1;height:10px;border-radius:999px;background:rgba(255,255,255,.12);overflow:hidden}
-.stageFill{height:100%;width:0%;background:linear-gradient(90deg,#baf2d8,#8fe3bb);transition:width .35s}
-.stageName{min-width:98px;font-size:13px;opacity:.9}
-.stageCP{font-size:12px;opacity:.85;min-width:74px;text-align:right}
+/* Layout */
+main{max-width:560px; margin:0 auto; padding:18px 14px 28px}
+header{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px}
+h1{font-size:28px; font-weight:800; margin:0}
+.badge{background:var(--chip); border:1px solid var(--chipLine); color:var(--muted); padding:3px 10px; border-radius:999px; font-weight:700; font-size:12px}
 
-/* Scene */
-#stage{position:relative;width:100%;aspect-ratio:3/4;border-radius:20px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.25);margin-top:6px}
-.scene{position:absolute;inset:0;display:grid;place-items:center;background:
-  radial-gradient(ellipse at 50% 85%, rgba(0,0,0,.25) 0%, rgba(0,0,0,0) 40%),
-  radial-gradient(ellipse at 50% 15%, rgba(255,255,255,.15) 0%, rgba(255,255,255,0) 55%),
-  linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 60%,var(--sky3) 100%)}
-.parallax{position:absolute;inset:0;pointer-events:none}
-.layer{position:absolute;inset:0;opacity:.35}
-.layer.back{animation:drift 18s ease-in-out infinite; transform:translateY(2%)}
-.layer.mid {animation:drift 14s ease-in-out infinite; opacity:.45}
-.layer.front{animation:drift 10s ease-in-out infinite; opacity:.55}
-@keyframes drift{0%{transform:translateY(1%)}50%{transform:translateY(-1%)}100%{transform:translateY(1%)}}
-.forestTree{position:absolute;bottom:8%;opacity:.32;filter:blur(.2px) drop-shadow(0 4px 10px rgba(0,0,0,.3))}
-.ground{position:absolute;left:0;right:0;bottom:-6%;height:28%;background:radial-gradient(ellipse at 50% 20%, #124a38 0%, #0e3f30 45%, #0b3528 100%);box-shadow:0 -10px 40px inset rgba(0,0,0,.25); z-index:1}
-.glow{position:absolute;inset:0;background:radial-gradient(circle at 50% 25%, var(--glow), transparent 45%); z-index:1}
+/* Stage / CP bar */
+.stageRow{display:flex; align-items:center; gap:12px}
+.stageName{font-weight:700; color:var(--muted)}
+.barWrap{position:relative; height:12px; flex:1; background:#113f31; border-radius:999px; overflow:hidden}
+.barFill{position:absolute; inset:0; width:0%; background:linear-gradient(90deg,var(--accent2),var(--accent)); box-shadow: inset 0 0 10px rgba(163,227,194,.5);}
 
-svg.tree{width:92%;height:auto;filter:drop-shadow(0 6px 18px rgba(0,0,0,.35)); z-index:2}
-.sway{animation:sway 6s ease-in-out infinite}
-@keyframes sway{0%{transform:rotate(-1.2deg)}50%{transform:rotate(1.2deg)}100%{transform:rotate(-1.2deg)}}
+/* Canvas card */
+.card{
+  position:relative; margin-top:10px; background: radial-gradient(120% 160% at 50% 0%, #0e4c39, var(--bg2));
+  border:1px solid var(--line); border-radius:22px; padding:8px; box-shadow:var(--shadow); overflow:hidden;
+  min-height:56vh;
+}
+#forestBG{position:absolute; inset:0; opacity:.18; pointer-events:none}
+#treeStage{position:absolute; inset:0; display:grid; place-items:center;}
+.treeArea{position:relative; width:100%; height:100%;}
+#canopy{position:absolute; left:50%; top:32%; width:54%; height:36%; transform:translateX(-50%); pointer-events:none;}
+#trunk{position:absolute; left:50%; bottom:10%; width:10%; height:58%; transform:translateX(-50%); background: #7f5236; border-radius:14px}
 
-/* Acorn screen */
-#acornScreen{position:absolute;inset:0;display:grid;place-items:center;gap:14px;z-index:3}
-#acornBig{width:min(42vmin,220px);height:auto;filter:drop-shadow(0 10px 24px rgba(0,0,0,.4))}
-.cta{display:inline-flex;align-items:center;gap:10px;background:var(--accent);color:#0b3d2e;border:none;border-radius:999px;padding:14px 18px;font-weight:800;font-size:16px;box-shadow:0 6px 18px rgba(0,0,0,.25)}
-.cta:active{transform:scale(.97)} .sprout{font-size:20px}
+.leaf{position:absolute; width:8px; height:12px; border-radius:6px 6px 2px 2px; background: #b7f7db; box-shadow:0 0 10px rgba(163,227,194,.6)}
+.fly{position:absolute; font-size:24px; filter: drop-shadow(0 6px 10px rgba(0,0,0,.35));}
+.ground{position:absolute; left:8%; right:8%; bottom:9%; height:26%; border-radius:20px; background:linear-gradient(#0b3a2e,#0a2c22); opacity:.28;}
 
-/* Controls & text */
-.controls{display:flex;justify-content:space-between;gap:8px;margin-top:10px}
-.ghost{background:transparent;color:#c8ffe1;border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:10px 14px}
-.mantra{min-height:52px;text-align:center;font-size:16px;line-height:1.35;margin:10px 0 0}
-.count{font-size:12px;opacity:.85;text-align:center;margin-top:6px}
+/* Plant button */
+.actionRow{display:flex; justify-content:center; margin:10px 0 0}
+.btn{
+  display:inline-flex; align-items:center; gap:10px; padding:12px 18px; border-radius:16px;
+  background:linear-gradient(180deg,var(--accent),var(--accent2));
+  color:#063122; font-weight:800; border:none; box-shadow:0 10px 25px rgba(0,0,0,.25); cursor:pointer;
+}
+.btn:active{transform:translateY(1px)}
+
+/* Quote + meta */
+.center{display:flex; flex-direction:column; align-items:center; text-align:center; gap:8px}
+.meta{color:var(--muted); font-weight:600}
+hr.sep{border:none; height:1px; background:var(--line); margin:10px 0}
 
 /* Journal */
-.journal{margin-top:14px}
-label{font-size:13px;opacity:.95}
-textarea{width:100%;min-height:84px;margin-top:6px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:#eafff3;padding:12px;resize:vertical}
-textarea::placeholder{color:#cdeede;opacity:.7}
-.saveNote{font-size:12px;opacity:.75;margin-top:6px}
-
-/* Creatures & particles */
-.leafParticle{position:fixed;will-change:transform,opacity;pointer-events:none}
-#creatureLayer{position:absolute;inset:0;pointer-events:none;z-index:4}
-.creature{position:absolute;opacity:0;filter:drop-shadow(0 4px 10px rgba(0,0,0,.35))}
-.creature.sky.fly{animation:fly 6s ease-in-out forwards}
-@keyframes fly{0%{transform:translateX(-30vw) translateY(0) rotate(-8deg);opacity:0}10%{opacity:1}50%{transform:translateX(25vw) translateY(-12px) rotate(6deg)}100%{transform:translateX(65vw) translateY(0) rotate(-4deg);opacity:0}}
-.creature.bark.crawl{animation:crawl 12s linear forwards}
-@keyframes crawl{from{transform:translate(-50%,0)} to{transform:translate(-50%,-140px)}}
-.creature.ground.fox{bottom:6%;left:50%;transform:translateX(-50%);font-size:30px;animation:fox 16s ease-in-out forwards}
-@keyframes fox{
-  0%{opacity:0; transform:translate(-50%,0) translateX(-12vw)}
-  8%{opacity:1} 22%{transform:translate(-50%,0) translateX(-4vw)}
-  30%{transform:translate(-50%,0) translateX(0)}
-  55%{transform:translate(-50%,0) translateX(10vw)}
-  86%{transform:translate(-50%,0) translateX(-6vw)}
-  100%{opacity:0; transform:translate(-50%,0) translateX(14vw)}
+.journal{margin-top:10px; background:var(--sunken); border:1px solid var(--line); border-radius:16px; padding:12px}
+.journal h3{margin:0 0 8px; font-size:16px}
+textarea{
+  width:100%; min-height:90px; resize:vertical; background:rgba(255,255,255,.06);
+  border:1px solid var(--chipLine); border-radius:12px; padding:12px; color:var(--text);
 }
+.saveNote{color:var(--muted); font-size:12px; margin-top:6px}
 
-/* Pages */
-.page{display:none} .page[aria-hidden="false"]{display:block}
+/* Footer controls */
+.footRow{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:10px}
+.toggle{background:var(--chip); border:1px solid var(--chipLine); border-radius:16px; padding:8px 12px; font-weight:700}
 
-/* Journal/Profile page */
-.jTop{display:flex;justify-content:space-between;align-items:center;margin:8px 0 12px}
-.editNameBtn{border:1px solid rgba(255,255,255,.25);background:transparent;color:#c8ffe1;border-radius:8px;padding:6px 10px;font-size:12px}
-.statRow{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 12px}
-.stat{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);padding:8px 10px;border-radius:10px;font-size:12px}
-.entry{border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);border-radius:12px;padding:10px;margin-bottom:10px}
-.entry h4{margin:0 0 6px;font-size:14px}
-.entry .meta{font-size:12px;opacity:.85;margin-bottom:6px}
-.entry .note{white-space:pre-wrap;line-height:1.35}
+/* Menu Drawer */
+#menuBtn{background:transparent; border:none; color:var(--text); font-size:26px}
+#drawerMask{position:fixed; inset:0; background:rgba(0,0,0,.35); opacity:0; pointer-events:none; transition:.25s}
+#drawer{position:fixed; top:0; bottom:0; right:-86%; width:86%; max-width:420px; background:var(--bg2);
+  border-left:1px solid var(--line); padding:18px 14px; box-shadow:var(--shadow); transition:.25s; overflow:auto}
+.drawerShow #drawer{right:0}
+.drawerShow #drawerMask{opacity:1; pointer-events:auto}
+.menuHdr{font-weight:800; font-size:20px; margin-bottom:8px}
+.menuItem{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; border-radius:14px;
+  background:rgba(255,255,255,.06); border:1px solid var(--chipLine); margin:10px 0}
+.menuItem:hover{background:rgba(255,255,255,.10)}
+.menuItem .label{display:flex; align-items:center; gap:10px; font-weight:700}
+.menuItem .badge{background:var(--chip); color:var(--muted); border:1px solid var(--chipLine);}
 
-/* Gallery & Achievements */
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.card{border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);border-radius:12px;padding:12px;text-align:center}
-.locked{opacity:.45;filter:grayscale(1)}
-.card small{display:block;opacity:.8;margin-top:6px;font-size:11px}
+/* Coach / tip */
+#coach{position:fixed; inset:0; display:grid; place-items:center; pointer-events:none}
+#coach[aria-hidden="true"]{display:none}
+.coachMask{position:fixed; inset:0; backdrop-filter: blur(4px); background:rgba(0,0,0,.2)}
+.coachCard{position:relative; width:min(92%,520px); background:var(--bg2); border:1px solid var(--line); padding:16px; border-radius:16px; box-shadow:var(--shadow)}
+.coachText{font-size:16px}
+.coachBtns{display:flex; gap:8px; margin-top:12px}
+.coachBtns button{flex:1; border-radius:12px; border:1px solid var(--chipLine); background:var(--chip); color:var(--text); padding:10px; font-weight:800}
+.coachBtns .ok{background:linear-gradient(180deg,var(--accent),var(--accent2)); color:#063122}
 
-/* Dev panel */
-#devPanel{position:fixed;right:10px;top:10px;z-index:9997;background:rgba(0,0,0,.55);
-  backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:8px;display:none}
-#devPanel h4{margin:0 0 6px;font-size:12px;letter-spacing:.3px;opacity:.8}
-#devPanel button{margin:2px 3px;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.25);
-  background:rgba(255,255,255,.06);color:#eafff3;font-size:12px}
-.danger{border-color:rgba(255,120,120,.4)!important;color:#ffd7d7!important}
-
-/* Coach & Toast */
-#coach{position:fixed;inset:0;pointer-events:none;z-index:10000}
-.coachMask{position:absolute;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(2px);opacity:0;transition:opacity .15s}
-#coach.show .coachMask{opacity:1}
-.coachCard{position:absolute;max-width:260px;background:rgba(8,37,30,.98);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:12px;box-shadow:0 12px 30px rgba(0,0,0,.35);opacity:0;transform:translateY(6px);transition:opacity .18s, transform .18s;pointer-events:auto}
-#coach.show .coachCard{opacity:1;transform:translateY(0)}
-.coachText{font-size:14px;line-height:1.35;margin:0 0 8px}
-.coachBtns{display:flex;gap:8px;justify-content:flex-end}
-.coachBtn{background:var(--accent);color:#0b3d2e;border:none;border-radius:10px;padding:8px 10px;font-weight:700}
-.coachSkip{background:transparent;color:#eafff3;border:1px solid rgba(255,255,255,.25)}
-.coachArrow{position:absolute;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:10px solid rgba(8,37,30,.98)}
-#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:rgba(8,37,30,.98);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:10px 12px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:10001}
-#toast.show{opacity:1}
+/* Dev tool pill */
+#devPill{position:fixed; bottom:12px; right:12px; background:#123d31; color:var(--text); border:1px solid var(--chipLine);
+  padding:10px 12px; border-radius:16px; display:none; gap:6px; z-index:50}
+#devPill button{background:var(--chip); border:1px solid var(--chipLine); border-radius:10px; padding:6px 10px; color:var(--text); font-weight:700}
+#devPill .danger{background:rgba(255,120,120,.1); border-color:rgba(255,120,120,.35); color:#ffd7d7}
 </style>
 </head>
 <body>
+
 <main>
   <header>
-    <div style="display:flex;align-items:center;gap:8px">
-      <h1>Acorn</h1><div class="forestName" id="forestNameLabel"></div>
+    <div>
+      <h1>Acorn</h1>
+      <div class="stageRow">
+        <div class="stageName" id="stageName">Sprout</div>
+        <div class="barWrap"><div class="barFill" id="barFill"></div></div>
+        <div class="badge mono" id="cpBadge">0 CP</div>
+      </div>
     </div>
-    <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
+    <button id="menuBtn" aria-label="Open menu">☰</button>
   </header>
 
-  <!-- Drawer -->
-  <div id="drawerBackdrop"></div>
-  <aside id="drawer" aria-label="Menu">
-    <div style="font-weight:800;margin:6px 0 14px">Menu</div>
-    <a href="#" class="menuItem" data-page="tree"><span>🌳 Tree</span><span class="badge">Home</span></a>
-    <a href="#" class="menuItem" data-page="journal"><span>📓 Journal</span><span class="badge">Entries</span></a>
-    <a href="#" class="menuItem" data-page="gallery"><span>🗂️ Gallery</span><span class="badge">Creatures</span></a>
-    <a href="#" class="menuItem" data-page="ach"><span>🏅 Achievements</span><span class="badge">Milestones</span></a>
-    <a href="#" class="menuItem" data-page="settings"><span>⚙️ Settings</span><span class="badge">Soon</span></a>
-    <a href="#" class="menuItem danger" id="menuReset" style="display:none"><span>🧹 Reset Progress</span></a>
-  </aside>
-
-  <!-- Dots + stage -->
-  <div class="rings" id="rings"></div>
-  <div class="stageWrap">
-    <div class="stageName" id="stageName">Acorn</div>
-    <div class="stageBar"><div class="stageFill" id="stageFill"></div></div>
-    <div class="stageCP" id="stageCP">0 CP</div>
+  <!-- DOTS meter -->
+  <div class="center" style="gap:6px;margin-top:-2px">
+    <div id="dots" aria-label="forest progress"></div>
   </div>
 
-  <!-- TREE PAGE -->
-  <section class="page" id="page-tree" aria-hidden="false">
-    <section id="stage" aria-live="polite">
-      <div class="scene" id="scene">
-        <!-- Parallax layers -->
-        <div class="parallax">
-          <div class="layer back" id="layerBack"></div>
-          <div class="layer mid" id="layerMid"></div>
-          <div class="layer front" id="layerFront"></div>
-        </div>
-
-        <!-- Background forest -->
-        <div id="forestLayer" class="parallax"></div>
-
-        <!-- Acorn screen -->
-        <div id="acornScreen">
-          <svg id="acornBig" viewBox="0 0 80 80" aria-hidden="true">
-            <defs>
-              <linearGradient id="acornNut" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stop-color="#c7995a"/><stop offset="100%" stop-color="#a7783d"/>
-              </linearGradient>
-              <linearGradient id="acornCap" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stop-color="#6f5036"/><stop offset="100%" stop-color="#553b28"/>
-              </linearGradient>
-            </defs>
-            <ellipse cx="40" cy="48" rx="22" ry="26" fill="url(#acornNut)"/>
-            <ellipse cx="40" cy="38" rx="26" ry="12" fill="url(#acornCap)"/>
-            <rect x="42" y="24" width="10" height="6" rx="3" fill="#6b4b30" transform="rotate(-25 47 27)"/>
-          </svg>
-          <button id="plantBtn" class="cta"><span class="sprout">🌱</span>Plant Acorn</button>
-        </div>
-
-        <!-- Tree -->
-        <svg id="tree" class="tree sway" viewBox="0 0 300 430" aria-hidden="true" style="display:none">
-          <defs>
-            <linearGradient id="bark" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#7a5437"/><stop offset="100%" stop-color="#5a3e2b"/></linearGradient>
-            <radialGradient id="leafGrad" cx="50%" cy="50%" r="65%"><stop offset="0%" stop-color="#d4fbe6"/><stop offset="100%" stop-color="#8fe3bb"/></radialGradient>
-            <clipPath id="canopyClip"><ellipse cx="150" cy="170" rx="95" ry="65"/></clipPath>
-          </defs>
-          <path d="M150 400 C150 330 148 270 150 210 C153 165 156 125 150 90" stroke="url(#bark)" stroke-width="22" stroke-linecap="round" fill="none"/>
-          <g id="leaves" clip-path="url(#canopyClip)"></g>
-        </svg>
-
+  <section class="card" id="playCard" aria-label="Tree area">
+    <canvas id="forestBG"></canvas>
+    <div id="treeStage">
+      <div class="treeArea" id="treeArea">
+        <div id="trunk"></div>
+        <div id="canopy"></div>
         <div class="ground"></div>
-        <div class="glow"></div>
-        <div id="creatureLayer" aria-hidden="true"></div>
       </div>
-    </section>
-
-    <p id="mantra" class="mantra"></p>
-    <p class="count" id="leafCount"></p>
-
-    <div class="controls">
-      <button id="soundToggle" class="ghost" aria-pressed="false">Sound. On</button>
-      <button id="resetBtn" class="ghost">New day</button>
     </div>
-
-    <div class="journal">
-      <label for="journalBox">Journal. How did today’s quote make you feel</label>
-      <textarea id="journalBox" placeholder="Write a few lines for future you"></textarea>
-      <div class="saveNote" id="saveNote">Saved</div>
+    <div class="actionRow">
+      <button id="plantBtn" class="btn">🌱 Plant Acorn</button>
     </div>
   </section>
 
-  <!-- JOURNAL PAGE -->
-  <section class="page" id="page-journal" aria-hidden="true">
-    <div class="jTop">
-      <div style="font-weight:700">Profile & Journal</div>
-      <button class="editNameBtn" id="editNameBtn">Edit name</button>
-    </div>
-    <div class="statRow">
-      <div class="stat">Forest: <span id="forestNameStat"></span></div>
-      <div class="stat">Streak: <span id="streakStat">0</span> days</div>
-      <div class="stat">Total CP: <span id="cpStat">0</span></div>
-      <div class="stat">Forest trees: <span id="forestCountStat">0</span></div>
-      <div class="stat">Entries: <span id="entryCountStat">0</span></div>
-    </div>
-    <div id="entryList"></div>
-  </section>
-
-  <!-- GALLERY PAGE -->
-  <section class="page" id="page-gallery" aria-hidden="true">
-    <div class="jTop"><div style="font-weight:700">Creature Gallery</div></div>
-    <div class="grid" id="galleryGrid"></div>
-  </section>
-
-  <!-- ACHIEVEMENTS PAGE -->
-  <section class="page" id="page-ach" aria-hidden="true">
-    <div class="jTop"><div style="font-weight:700">Achievements</div></div>
-    <div class="grid" id="achGrid"></div>
-  </section>
-
-  <!-- Settings placeholder -->
-  <section class="page" id="page-settings" aria-hidden="true">
-    <div class="jTop"><div style="font-weight:700">Settings</div></div>
-    <p>Coming soon ✨</p>
-  </section>
-
-  <!-- Dev tools -->
-  <div id="devPanel">
-    <h4>DEV</h4>
-    <div>
-      <button id="devAddCP">+5 CP</button>
-      <button id="devNextStage">Next Stage (fast)</button>
-      <button id="devLeaves">Full Leaves</button>
-      <button id="devNight">Toggle Night</button>
-      <button id="devReset" class="danger">Reset Progress</button><br>
-      <button id="devFox">🦊</button>
-      <button id="devBird">🐦</button>
-      <button id="devButterfly">🦋</button>
-      <button id="devLady">🐞</button>
-      <button id="devAnt">🐜</button>
-      <button id="devOwl">🦉</button>
-    </div>
+  <div class="center" style="margin-top:10px">
+    <div id="quote" style="font-size:18px;line-height:1.35; max-width:90%"></div>
+    <div class="meta"><span id="leavesMeta">Leaves left: –</span></div>
   </div>
+
+  <hr class="sep">
+
+  <div class="footRow">
+    <button id="soundBtn" class="toggle">Sound: On</button>
+    <button id="newDayBtn" class="toggle">New day</button>
+  </div>
+
+  <section class="journal">
+    <h3>Journal. How did today’s quote make you feel?</h3>
+    <textarea id="journalBox" placeholder="Write a few lines for future you…"></textarea>
+    <div class="saveNote" id="saveNote">Not saved yet</div>
+  </section>
 </main>
 
-<!-- Coach + toast -->
+<!-- Menu Drawer -->
+<div id="drawerMask"></div>
+<aside id="drawer" aria-hidden="true">
+  <div class="menuHdr">Menu</div>
+  <a href="#" class="menuItem" data-nav="tree">
+    <span class="label">🌳 Tree</span><span class="badge">Home</span>
+  </a>
+  <a href="#" class="menuItem" data-nav="journal">
+    <span class="label">📓 Journal</span><span class="badge">Entries</span>
+  </a>
+  <a href="#" class="menuItem" data-nav="gallery">
+    <span class="label">🗂️ Gallery</span><span class="badge">Creatures</span>
+  </a>
+  <a href="#" class="menuItem" data-nav="ach">
+    <span class="label">🏅 Achievements</span><span class="badge">Milestones</span>
+  </a>
+  <div class="menuItem danger" id="resetBtn">
+    <span class="label">♻️ Reset progress</span><span class="badge">Dev</span>
+  </div>
+</aside>
+
+<!-- Coach -->
 <div id="coach" aria-hidden="true">
   <div class="coachMask"></div>
-  <div class="coachCard" id="coachCard">
-    <p class="coachText" id="coachText"></p>
+  <div class="coachCard">
+    <div class="coachText" id="coachText">Tip goes here</div>
     <div class="coachBtns">
-      <button class="coachBtn coachSkip" id="coachSkip">Skip</button>
-      <button class="coachBtn" id="coachOk">Got it</button>
+      <button class="ok" id="coachOk">Got it</button>
+      <button id="coachSkip">Never show tips</button>
     </div>
-    <div class="coachArrow" id="coachArrow"></div>
   </div>
 </div>
-<div id="toast" role="status" aria-live="polite"></div>
+
+<!-- Dev pill -->
+<div id="devPill" class="mono">
+  <span>DEV</span>
+  <button id="devCP">+10 CP</button>
+  <button id="devStage">Next Stage</button>
+  <button id="devSpawn">Spawn</button>
+  <button id="devNight">Night</button>
+  <button class="danger" id="devReset">Reset</button>
+</div>
 
 <script>
-/* ===== Quotes (placeholder — replace with your list later) ===== */
-const QUOTES = [
-  "Roots grow deeper when you’re quiet inside.",
-  "Observation is love in practice.",
-  "Small actions carry long echoes.",
-  "Be kinder than you feel."
-];
+/* ===================== STATE ===================== */
+const $ = s=>document.querySelector(s);
+const state = JSON.parse(localStorage.getItem('acorn_state_v3')||'{}');
+state.cp ??= 0;
+state.stage ??= 0;   // 0 Sprout, 1 Sapling, 2 Young Tree, 3 Mature…
+state.dots ??= 0;    // 0..5 -> background tree
+state.seen ??= {};   // creature gallery
+state.sound ??= 1;
+state.onb ??= {};    // onboarding flags
+state.forest ??= 0;  // number of bg trees
+state.dayKey ??= todayKey();
+save();
 
-/* ===== Elements ===== */
-const ringsEl = document.getElementById('rings');
-const forestLayer = document.getElementById('forestLayer');
-const plantBtn = document.getElementById('plantBtn');
-const acornScreen = document.getElementById('acornScreen');
-const treeSVG = document.getElementById('tree');
-const leavesLayer = document.getElementById('leaves');
-const mantraEl = document.getElementById('mantra');
-const leafCountEl = document.getElementById('leafCount');
-const soundToggle = document.getElementById('soundToggle');
-const resetBtn = document.getElementById('resetBtn');
-const journalBox = document.getElementById('journalBox');
-const saveNote = document.getElementById('saveNote');
-const stageNameEl = document.getElementById('stageName');
-const stageFillEl = document.getElementById('stageFill');
-const stageCPEl   = document.getElementById('stageCP');
-const creatureLayer = document.getElementById('creatureLayer');
-const pageEls = {
-  tree: document.getElementById('page-tree'),
-  journal: document.getElementById('page-journal'),
-  gallery: document.getElementById('page-gallery'),
-  ach: document.getElementById('page-ach'),
-  settings: document.getElementById('page-settings')
-};
-const hamburger = document.getElementById('hamburger');
-const drawer = document.getElementById('drawer');
-const drawerBackdrop = document.getElementById('drawerBackdrop');
-const menuReset = document.getElementById('menuReset');
-const forestNameLabel = document.getElementById('forestNameLabel');
-const forestNameStat = document.getElementById('forestNameStat');
-const streakStat = document.getElementById('streakStat');
-const cpStat = document.getElementById('cpStat');
-const forestCountStat = document.getElementById('forestCountStat');
-const entryCountStat = document.getElementById('entryCountStat');
-const entryList = document.getElementById('entryList');
-const galleryGrid = document.getElementById('galleryGrid');
-const achGrid = document.getElementById('achGrid');
-const scene = document.getElementById('scene');
-const layerBack = document.getElementById('layerBack');
-const layerMid = document.getElementById('layerMid');
-const layerFront = document.getElementById('layerFront');
-
-/* Onboarding elements */
-const coach = document.getElementById('coach');
-const coachText = document.getElementById('coachText');
-const coachCard = document.getElementById('coachCard');
-const coachArrow = document.getElementById('coachArrow');
-const coachOk = document.getElementById('coachOk');
-const coachSkip = document.getElementById('coachSkip');
-const toast = document.getElementById('toast');
-
-/* ===== Audio (variety via WebAudio synth) ===== */
-let audioEnabled = true, audioCtx;
-function ensureAudio(){ try{ if(!audioCtx){ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); } if(audioCtx.state==='suspended'){ audioCtx.resume(); } }catch(e){} }
-function playTone({freq=440,type='sine',len=0.35,vol=0.06,attack=0.01,decay=0.3,pan=0}){
-  if(!audioEnabled) return;
-  ensureAudio(); if(!audioCtx||audioCtx.state!=='running') return;
-  const o=audioCtx.createOscillator(), g=audioCtx.createGain(), p = (audioCtx.createStereoPanner? audioCtx.createStereoPanner(): null);
-  o.type=type; o.frequency.value=freq;
-  const now=audioCtx.currentTime; g.gain.setValueAtTime(0.0001,now);
-  g.gain.exponentialRampToValueAtTime(vol, now+attack);
-  g.gain.exponentialRampToValueAtTime(0.0001, now+attack+decay);
-  if(p){ p.pan.value=pan; o.connect(g); g.connect(p); p.connect(audioCtx.destination);}
-  else { o.connect(g); g.connect(audioCtx.destination); }
-  o.start(now); o.stop(now+len);
-}
-function sRand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
-const SOUND = {
-  cpGain(){ // soft wood/bronze chimes
-    const types=['sine','triangle']; const base = sRand([392,440,494,523,587,659]);
-    playTone({freq:base,type:sRand(types),pan:sRand([-0.2,0,0.2])});
-    setTimeout(()=>playTone({freq:base*1.25,type:sRand(types),vol:0.05,pan:sRand([-0.3,0.1])}), 60);
-  },
-  plant(){ const seq=[392,523,659]; seq.forEach((f,i)=>setTimeout(()=>playTone({freq:f,type:'triangle',vol:0.07}), i*90)); },
-  level(){ const seq=[523,659,784,987]; seq.forEach((f,i)=>setTimeout(()=>playTone({freq:f,type:'sine',vol:0.08}), i*80)); },
-  creature(){ playTone({freq:sRand([660,740,880]),type:'sine',vol:0.05}); },
-};
-
-/* ===== State ===== */
-const storeKey='acorn.super.master.v1';
-function todayMidnight(){const d=new Date(); d.setHours(0,0,0,0); return +d;}
-function ymd(ts){const d=new Date(ts); return d.toISOString().slice(0,10);}
-function randInt(min,max){return Math.floor(min+Math.random()*(max-min+1));}
-function mulberry32(a){return function(){let t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;}}
-function makeCycle(){ return {seed:Math.floor(Math.random()*2**31), total:randInt(120,260), left:0, quoteIdx:-1, journal:""}; }
-function makeDay(){ return {leafCP:0, journalGiven:false, plantedGiven:false, logged:false}; }
-function loadState(){
-  const d=todayMidnight(), raw=localStorage.getItem(storeKey);
-  if(raw){ const s=JSON.parse(raw); if(s.date!==d){ s.date=d; s.day=makeDay(); } return s; }
-  return {date:d, planted:false, cycle:makeCycle(), cp:0, day:makeDay(), dots:0, forest:0, name:"", entries:[], dev:0, simNight:0,
-          onb:{plant:0, leaves:0, journal:0, dots:0, menu:0, creature:0, never:0},
-          gallery:{'🦋':0,'🐦':0,'🐜':0,'🐞':0,'🦊':0,'🦉':0},
-          ach:{}};
-}
-const state = loadState();
-function saveState(){ localStorage.setItem(storeKey, JSON.stringify(state)); }
-
-/* ===== Stages & UI ===== */
 const STAGES = [
-  {name:'Acorn',min:0},{name:'Sprout',min:5},{name:'Sapling',min:15},{name:'Young Tree',min:30},{name:'Full Tree',min:50},{name:'Grove',min:80}
+  {name:'Sprout', need:15},
+  {name:'Sapling', need:30},
+  {name:'Young Tree', need:60},
+  {name:'Mature', need:120},
+  {name:'Ancient', need:240},
 ];
-function currentStageIndex(cp){ let i=0; for(let k=0;k<STAGES.length;k++) if(cp>=STAGES[k].min) i=k; return i; }
-function nextStageTarget(cp){ const i=currentStageIndex(cp); return i>=STAGES.length-1 ? STAGES[i].min+20 : STAGES[i+1].min; }
-function updateStageBar(){
-  const idx=currentStageIndex(state.cp);
-  const stage=STAGES[idx], next=STAGES[Math.min(idx+1,STAGES.length-1)];
-  const rangeMax= next.min===stage.min ? stage.min+20 : next.min;
-  const pct = Math.max(0, Math.min(100, ((state.cp-stage.min)/(rangeMax-stage.min))*100));
-  stageNameEl.textContent=stage.name; stageCPEl.textContent=`${Math.round(state.cp)} CP`; stageFillEl.style.width=pct+'%';
-}
 
-/* ===== Seasons & Parallax ===== */
-function seasonIndex(){ return Math.floor((state.forest||0)/3)%4; } // 0..3
-function applySeason(){
-  const idx = seasonIndex();
-  const palettes = [
-    {sky1:'#0e4434',sky2:'#0c3a2c',sky3:'#0a3327'}, // spring
-    {sky1:'#194e3c',sky2:'#15543f',sky3:'#124537'}, // summer
-    {sky1:'#2c4430',sky2:'#2b3b2a',sky3:'#223220'}, // autumn
-    {sky1:'#18333a',sky2:'#142b32',sky3:'#10232a'}, // winter (cooler)
-  ];
-  const p = palettes[idx];
-  document.documentElement.style.setProperty('--sky1', p.sky1);
-  document.documentElement.style.setProperty('--sky2', p.sky2);
-  document.documentElement.style.setProperty('--sky3', p.sky3);
-  // simple shapes for parallax
-  layerBack.innerHTML = `<svg width="100%" height="100%"><ellipse cx="18%" cy="32%" rx="22%" ry="18%" fill="rgba(255,255,255,.04)"/></svg>`;
-  layerMid.innerHTML  = `<svg width="100%" height="100%"><ellipse cx="74%" cy="24%" rx="18%" ry="14%" fill="rgba(255,255,255,.05)"/></svg>`;
-  layerFront.innerHTML= `<svg width="100%" height="100%"><ellipse cx="42%" cy="18%" rx="16%" ry="12%" fill="rgba(255,255,255,.06)"/></svg>`;
-}
+let leavesTotal = rand(100,300);
+let leavesLeft = leavesTotal;
+let planted = false;
+let audio; // AudioContext
+let leafPool = []; // DOM leaves
+let pity=0; // creature pity timer
 
-/* ===== Forest dots & background trees ===== */
-function updateDotsUI(){
-  ringsEl.innerHTML=''; for(let i=0;i<5;i++){ const d=document.createElement('div'); d.className='ring'; if(i<state.dots) d.classList.add('filled'); ringsEl.appendChild(d); }
-}
-function addBackgroundTree(){
-  const wrap=document.createElement('div'); wrap.className='forestTree';
-  const left = Math.random()<0.5 ? randInt(6,26) : randInt(58,86);
-  const scale = (Math.random()*0.4 + 0.7);
-  wrap.style.left = left+'%';
-  wrap.style.transform = `translateX(-50%) scale(${scale})`;
-  wrap.innerHTML = `
-    <svg width="120" height="160" viewBox="0 0 120 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <defs>
-        <linearGradient id="barkSoft" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stop-color="#5c4430"/><stop offset="100%" stop-color="#3f2e22"/>
-        </linearGradient>
-        <radialGradient id="leafSoft" cx="50%" cy="40%" r="60%">
-          <stop offset="0%" stop-color="#a5d9c1"/><stop offset="100%" stop-color="#6fb899"/>
-        </radialGradient>
-      </defs>
-      <path d="M60 150 L60 95" stroke="url(#barkSoft)" stroke-width="14" stroke-linecap="round"/>
-      <ellipse cx="60" cy="70" rx="44" ry="32" fill="url(#leafSoft)"/>
-    </svg>`;
-  forestLayer.appendChild(wrap);
-}
-function renderForest(){ forestLayer.innerHTML=''; for(let i=0;i<(state.forest||0); i++) addBackgroundTree(); }
+/* ===================== UI HOOKUP ===================== */
+const canopy = $('#canopy');
+const trunk = $('#trunk');
+const area = $('#treeArea');
+const quoteEl = $('#quote');
+const leavesMeta = $('#leavesMeta');
+const barFill = $('#barFill');
+const cpBadge = $('#cpBadge');
+const stageName = $('#stageName');
+const dots = $('#dots');
+const plantBtn = $('#plantBtn');
+const soundBtn = $('#soundBtn');
+const newDayBtn = $('#newDayBtn');
+const journalBox = $('#journalBox');
+const saveNote = $('#saveNote');
+const drawerMask = $('#drawerMask');
+const drawer = $('#drawer');
+const menuBtn = $('#menuBtn');
+const forestBG = $('#forestBG');
+const coach = $('#coach');
+const coachText = $('#coachText');
+const coachOk = $('#coachOk');
+const coachSkip = $('#coachSkip');
+const devPill = $('#devPill');
 
-/* ===== Tree & Leaves ===== */
-function setTreeVisible(on){ treeSVG.style.display = on ? 'block' : 'none'; }
-function renderLeaves(){
-  leavesLayer.innerHTML='';
-  const cx=150, cy=170, rx=95, ry=65;
-  const rnd=mulberry32(state.cycle.seed);
-  const grad='url(#leafGrad)';
-  const N = state.cycle.left;
-  for(let i=0;i<N;i++){
-    const a=2*Math.PI*rnd(); const r=Math.sqrt(rnd());
-    const x=cx+r*rx*Math.cos(a), y=cy+r*ry*Math.sin(a);
-    const s=0.8+rnd()*0.6;
-    const e=document.createElementNS('http://www.w3.org/2000/svg','ellipse');
-    e.setAttribute('cx',x); e.setAttribute('cy',y);
-    e.setAttribute('rx',4*s); e.setAttribute('ry',6*s); e.setAttribute('fill',grad); e.setAttribute('opacity',0.95);
-    leavesLayer.appendChild(e);
-  }
-}
-function showAcorn(){ acornScreen.style.display='grid'; setTreeVisible(false); updateQuote(); updateCounts(); }
-function showTree(){ acornScreen.style.display='none'; setTreeVisible(true); renderLeaves(); updateQuote(); updateCounts(); }
-
-/* ===== Creatures ===== */
-const CREATURES = [
-  {icon:'🦋', key:'butterfly', minCP:5,  zone:'sky',   chance:0.30, duration:6000},
-  {icon:'🐦', key:'bird',      minCP:15, zone:'sky',   chance:0.25, duration:6500},
-  {icon:'🐜', key:'ant',       minCP:10, zone:'bark',  chance:0.18, duration:12000},
-  {icon:'🐞', key:'lady',      minCP:12, zone:'bark',  chance:0.18, duration:12000},
-  {icon:'🦊', key:'fox',       minCP:30, zone:'ground',chance:0.14, duration:16000}
+/* ===================== QUOTES (short one‑liners) ===================== */
+const QUOTES = [
+  "Live in the now; be ever‑fresh.",
+  "When preparation meets opportunity, success blooms.",
+  "You are the greatest teacher you’ll ever have.",
+  "Provoke healing before the world provokes harm.",
+  "Touch souls & change faces.",
+  "Project forwards; don’t let memory lead progress.",
+  "Set your table—bring the right tools.",
+  "Silence the inauthentic voices.",
+  "Be the observer; let kindness speak.",
 ];
-function nightAllowed(){ return (state.simNight || (new Date().getHours()>=20 || new Date().getHours()<6)) && state.cp>=30; }
-function spawnCreature(def){
-  const el = document.createElement('div'); el.className = `creature ${def.zone}`; el.textContent = def.icon;
-  if(def.zone==='sky'){ el.style.top=(18+Math.random()*36)+'%'; el.classList.add('fly'); }
-  else if(def.zone==='bark'){ el.style.left='50%'; el.style.bottom=(20+Math.random()*30)+'%'; el.style.transform='translateX(-50%)'; el.classList.add('crawl'); }
-  else if(def.zone==='ground'){ el.classList.add('fox'); }
-  creatureLayer.appendChild(el); setTimeout(()=>el.remove(), def.duration||8000);
-  // mark in gallery
-  state.gallery[def.icon]=1; saveState(); buildGallery();
-  // onboarding toast once
-  if(!state.onb.creature && !state.onb.never){ showToast("Visitors! As your tree grows, butterflies, birds, and foxes may appear."); state.onb.creature=1; saveState(); }
-  SOUND.creature();
-  checkAchievements();
-}
-function maybeCreatureVisit(trigger='tap'){
-  let pool = CREATURES.filter(c => state.cp >= c.minCP);
-  if(nightAllowed()) pool = pool.concat([{icon:'🦉', key:'owl', minCP:30, zone:'sky', chance:0.22, duration:6500}]);
-  if(pool.length===0) return;
-  const mult = trigger==='plant' ? 1.8 : 1.0;
-  const pick = pool[Math.floor(Math.random()*pool.length)];
-  if(Math.random() <= (pick.chance*mult)) spawnCreature(pick);
+
+/* ===================== INIT ===================== */
+updateUI();
+drawForestBG();
+coachTipOnce('Tap the 🌱 button to plant your first tree.', plantBtn);
+
+menuBtn.onclick=()=>document.body.classList.add('drawerShow');
+drawerMask.onclick=()=>document.body.classList.remove('drawerShow');
+drawer.querySelectorAll('[data-nav]').forEach(a=>a.onclick=(e)=>{e.preventDefault(); document.body.classList.remove('drawerShow'); /* stubs for future pages */});
+
+/* Reset (dev) */
+$('#resetBtn').onclick = hardReset;
+$('#devReset').onclick = hardReset;
+function hardReset(){
+  if(!confirm('Reset all progress?'))return;
+  localStorage.removeItem('acorn_state_v3');
+  location.reload();
 }
 
-/* ===== Counts & Quote ===== */
-function updateCounts(){ leafCountEl.textContent = state.planted ? `Leaves left. ${state.cycle.left} of ${state.cycle.total}` : ''; }
-function updateQuote(){ mantraEl.textContent = (state.planted && state.cycle.quoteIdx>=0) ? QUOTES[state.cycle.quoteIdx] : ''; }
+/* Dev mode toggle via journal */
+journalBox.addEventListener('input', e=>{
+  const v = e.target.value.trim();
+  if(v.endsWith('/dev on')) { devPill.style.display='flex'; toast('Dev mode on'); e.target.value=v.replace('/dev on','').trim(); }
+  if(v.endsWith('/dev off')){ devPill.style.display='none'; toast('Dev mode off'); e.target.value=v.replace('/dev off','').trim(); }
+  // autosave
+  localStorage.setItem('acorn_journal_'+state.dayKey, v);
+  saveNote.textContent='Saved';
+});
 
-/* ===== CP & Achievements ===== */
-function addCP(amount){ state.cp += amount; saveState(); updateStageBar(); SOUND.cpGain(); checkAchievements(); }
+/* Dev buttons */
+$('#devCP').onclick = ()=>{ addCP(10); };
+$('#devStage').onclick = ()=>{ fastNextStage(); };
+$('#devSpawn').onclick = ()=>{ spawnRandom(); };
+$('#devNight').onclick = ()=>{ document.body.classList.toggle('night'); };
 
-/* ===== Achievements ===== */
-const ACH = [
-  {id:'firstPlant', name:'First Sprout', desc:'Plant your first acorn', test:s=>s.entries.length>=1},
-  {id:'journal10', name:'Pages Turned', desc:'Journal 10 times', test:s=>(s.entries||[]).filter(e=>e.note && e.note.trim().length>0).length>=10},
-  {id:'cp50', name:'Growing Strong', desc:'Reach 50 CP', test:s=>s.cp>=50},
-  {id:'forest5', name:'Tiny Grove', desc:'Grow 5 background trees', test:s=>s.forest>=5},
-  {id:'foxSeen', name:'Foxy Friend', desc:'See a fox', test:s=>s.gallery['🦊']===1}
-];
-function checkAchievements(){
-  state.ach = state.ach || {};
-  ACH.forEach(a=>{
-    if(!state.ach[a.id] && a.test(state)){
-      state.ach[a.id]=1; saveState();
-      showToast(`🏅 ${a.name}`);
-      SOUND.level();
-      buildAchievements();
-    }
-  });
+/* Sound toggle */
+soundBtn.onclick=()=>{
+  state.sound = state.sound?0:1; save();
+  soundBtn.textContent = 'Sound: ' + (state.sound?'On':'Off');
 }
 
-/* ===== Planting & Day flow ===== */
-function onPlanted(){
-  state.dots = (state.dots + 1);
-  if(state.dots >= 5){ state.dots = 0; state.forest = (state.forest||0)+1; addBackgroundTree(); applySeason(); checkAchievements(); }
-  saveState(); updateDotsUI();
-  if(!state.day.plantedGiven){ state.day.plantedGiven=true; addCP(1); }
-  maybeCreatureVisit('plant');
-  if(!state.onb.dots && !state.onb.never){ coachTip('These 5 dots track planted trees. Fill all 5 to grow your background forest.', ringsEl, 'top'); state.onb.dots=1; saveState(); }
-}
-function logTodayEntry(){
-  if(state.day.logged) return;
-  const ts = todayMidnight();
-  const entry = {
-    date: ts,
-    dateISO: ymd(ts),
-    stage: STAGES[currentStageIndex(state.cp)].name,
-    quote: (state.cycle.quoteIdx>=0? QUOTES[state.cycle.quoteIdx] : ""),
-    note: (state.cycle.journal||"").trim()
-  };
-  state.entries = state.entries || [];
-  state.entries.unshift(entry);
-  state.day.logged = true;
-  saveState();
-  checkAchievements();
-}
+/* Plant */
+plantBtn.onclick = plant;
 function plant(){
-  ensureAudio();
-  state.planted=true;
-  const total=randInt(120,260), seed=Math.floor(Math.random()*2**31);
-  let idx=Math.floor(Math.random()*QUOTES.length);
-  if(state.cycle && idx===state.cycle.quoteIdx && QUOTES.length>1) idx=(idx+1)%QUOTES.length;
-  state.cycle={seed,total,left:total,quoteIdx:idx,journal:""}; saveState();
-  showTree(); SOUND.plant(); onPlanted();
-  // onboarding — leaves tip
-  setTimeout(()=>{ if(!state.onb.leaves && !state.onb.never){ coachTip('Tap the leaves to send them into the wind. Little taps add Care Points.', document.getElementById('stage'), 'center'); state.onb.leaves=1; saveState(); }}, 700);
+  if(planted) return;
+  planted = true;
+  quoteEl.textContent = pick(QUOTES);
+  createLeaves();
+  playAcorn();
+  leavesTotal = rand(100,300);
+  leavesLeft = leavesTotal;
+  updateLeavesMeta();
+  coachTipOnce('Gently tap or swipe the canopy—leaves will float that way.', $('#playCard'));
 }
-function spawnLeafParticle(x,y,dx=0,dy=-1){
-  const emoji = Math.random()<0.25 ? '🍂' : '🍃';
-  const el = document.createElement('div'); el.className='leafParticle'; el.textContent=emoji; el.style.left=x+'px'; el.style.top=y+'px';
-  document.body.appendChild(el);
-  const start=performance.now(), duration=1500+Math.random()*1400;
-  const side = (Math.random()*120+50)*(Math.random()<0.5?-1:1);
-  const baseX = dx*80 + side*0.5, baseY = dy*(-120) - 40;
-  function frame(t){ const p=Math.min(1,(t-start)/duration), ease=1-Math.pow(1-p,2);
-    const tx = x + baseX*ease, ty = y + baseY*ease + 0.55*(p*220);
-    el.style.transform=`translate(${tx-x}px, ${ty-y}px) rotate(${p*240}deg)`; el.style.opacity=String(1-p);
-    if(p<1) requestAnimationFrame(frame); else el.remove();
-  } requestAnimationFrame(frame);
+
+/* New day */
+newDayBtn.onclick = ()=>{
+  // basic guard: you must plant once & write a journal line or finish leaves
+  const wrote = (localStorage.getItem('acorn_journal_'+state.dayKey)||'').trim().length>3;
+  if(!planted && !wrote){ toast('Plant once or jot one journal line to start a new day.'); return; }
+  state.dayKey = todayKey();
+  state.dots++;
+  if(state.dots>=5){ state.dots=0; state.forest++; drawForestBG(); }
+  save();
+  planted=false;
+  canopy.innerHTML='';
+  leafPool.length=0;
+  pity=0;
+  quoteEl.textContent = pick(QUOTES);
+  leavesLeft = leavesTotal = rand(100,300);
+  updateLeavesMeta();
+  updateDots();
+  coachTipOnce('Open the menu to find Journal entries & your Gallery.', menuBtn);
+};
+
+/* Taps / swipes on canopy */
+let lastPoint = null;
+area.addEventListener('touchstart', e=>{ lastPoint = getTouch(e); leafAction(e); }, {passive:true});
+area.addEventListener('touchmove', e=>{ lastPoint = getTouch(e); }, {passive:true});
+area.addEventListener('click', leafAction);
+
+function leafAction(ev){
+  if(!planted) return;
+  const pt = pointer(ev);
+  const dir = lastPoint? {x: pt.x-lastPoint.x, y: pt.y-lastPoint.y} : {x:0,y:-1};
+  releaseLeaf(pt, dir);
+  maybeSpawn();
 }
-function pluckOne(pointer){
-  if(!state.planted || state.cycle.left<=0) return;
-  const leaf=leavesLayer.lastElementChild; if(!leaf) return;
-  const r=leaf.getBoundingClientRect(); const cx=r.left + r.width/2, cy=r.top + r.height/2;
-  leaf.remove(); state.cycle.left--; saveState(); updateCounts(); SOUND.cpGain();
-  const dx = pointer?.dx ?? 0, dy = pointer?.dy ?? -1;
-  spawnLeafParticle(cx, cy, dx, dy);
-  maybeCreatureVisit('tap');
-  const used = (state.cycle.total - state.cycle.left);
-  if(used>=2 && !state.onb.journal && !state.onb.never){
-    if(journalBox && journalBox.scrollIntoView) journalBox.scrollIntoView({behavior:'smooth', block:'center'});
-    setTimeout(()=>{ coachTip('Write a line about how the mantra felt. Journaling boosts growth.', journalBox, 'top'); state.onb.journal=1; saveState(); }, 180);
+
+/* ===================== TREE / LEAVES ===================== */
+function createLeaves(){
+  canopy.innerHTML='';
+  leafPool.length=0;
+  const w = canopy.clientWidth, h=canopy.clientHeight;
+  const cx = w/2, cy = h/2, r = Math.min(w,h)/2.1;
+  for(let i=0;i<leavesTotal;i++){
+    const ang = Math.random()*Math.PI*2, rad = Math.sqrt(Math.random())*r;
+    const x = cx + Math.cos(ang)*rad, y = cy + Math.sin(ang)*rad;
+    const el = document.createElement('div');
+    el.className='leaf';
+    el.style.left = (x-4)+'px'; el.style.top=(y-6)+'px';
+    canopy.appendChild(el);
+    leafPool.push(el);
   }
-  if(state.cycle.left<=0){ logTodayEntry(); state.planted=false; saveState(); showAcorn(); SOUND.level(); }
 }
+function releaseLeaf(pt, dir){
+  if(leavesLeft<=0 || leafPool.length===0) return;
+  const L = leafPool.pop();
+  if(!L) return;
+  leavesLeft--; updateLeavesMeta();
+  // initial at click region near canopy center
+  L.style.left = (pt.x - canopy.getBoundingClientRect().left - 6) + 'px';
+  L.style.top  = (pt.y - canopy.getBoundingClientRect().top  - 6) + 'px';
+  L.style.pointerEvents='none';
+  const vx = clamp(dir.x,-40,40), vy = clamp(dir.y,-60,10);
+  const driftX = (vx*3) + rand(-40,40);
+  const driftY = (vy*2) + rand(50,140);
+  L.animate([
+    { transform:`translate(0,0) rotate(0)`, opacity:1 },
+    { transform:`translate(${driftX}px, ${driftY}px) rotate(${rand(-80,80)}deg)`, opacity:0 }
+  ],{ duration: 1200+Math.random()*1200, easing:'ease-out' })
+  .onfinish = ()=> L.remove();
 
-/* ===== Gallery & Achievements UI ===== */
-function buildGallery(){
-  const list = ['🦋','🐦','🐜','🐞','🦊','🦉'];
-  galleryGrid.innerHTML='';
-  list.forEach(icon=>{
-    const unlocked = state.gallery[icon]===1;
-    const div=document.createElement('div'); div.className='card'+(unlocked?'':' locked');
-    div.innerHTML = `<div style="font-size:28px">${icon}</div><small>${unlocked?'Seen':'Locked'}</small>`;
-    galleryGrid.appendChild(div);
-  });
-}
-function buildAchievements(){
-  achGrid.innerHTML='';
-  ACH.forEach(a=>{
-    const ok = state.ach?.[a.id];
-    const div=document.createElement('div'); div.className='card'+(ok?'':' locked');
-    div.innerHTML = `<div style="font-weight:700">${a.name}</div><small>${a.desc}</small>`;
-    achGrid.appendChild(div);
-  });
-}
-
-/* ===== Journal page ===== */
-function calcStreak(entries){
-  if(!entries || !entries.length) return 0;
-  const days = new Set(entries.map(e=>e.dateISO));
-  let streak = 0; let d = new Date(); d.setHours(0,0,0,0);
-  while(days.has(d.toISOString().slice(0,10))){ streak++; d.setDate(d.getDate()-1); }
-  return streak;
-}
-function renderJournalPage(){
-  ensureForestName();
-  forestCountStat.textContent = String(state.forest||0);
-  cpStat.textContent = String(Math.round(state.cp||0));
-  entryCountStat.textContent = String((state.entries||[]).length);
-  streakStat.textContent = String(calcStreak(state.entries||[]));
-  entryList.innerHTML = '';
-  (state.entries||[]).forEach((e,i)=>{
-    const div=document.createElement('div'); div.className='entry';
-    div.innerHTML = `
-      <h4>${e.dateISO} • ${e.stage}</h4>
-      <div class="meta">Mantra — ${e.quote ? e.quote : '—'}</div>
-      <div class="note">${e.note ? e.note.replace(/</g,'&lt;') : '<em>No entry</em>'}</div>`;
-    entryList.appendChild(div);
-  });
-}
-
-/* ===== Drawer / pages ===== */
-function showPage(which){
-  for(const k in pageEls){ pageEls[k].setAttribute('aria-hidden', String(k!==which)); }
-  closeDrawer();
-  if(which==='journal') renderJournalPage();
-  if(which==='gallery') buildGallery();
-  if(which==='ach') buildAchievements();
-}
-document.querySelectorAll('#drawer .menuItem').forEach(a=>{
-  a.addEventListener('click', (e)=>{ e.preventDefault(); const p=a.getAttribute('data-page'); if(p) showPage(p); });
-});
-function openDrawer(){ drawer.classList.add('open'); drawerBackdrop.classList.add('open');
-  if(!state.onb.menu && !state.onb.never){ coachTip('Your Journal, Gallery & Achievements live here.', drawer, 'inside'); state.onb.menu=1; saveState(); } }
-function closeDrawer(){ drawer.classList.remove('open'); drawerBackdrop.classList.remove('open'); }
-hamburger.addEventListener('click', openDrawer);
-drawerBackdrop.addEventListener('click', closeDrawer);
-
-/* ===== Journal typing + dev commands ===== */
-let saveTimer=null;
-function ensureForestName(){
-  if(!state.name){
-    const n=prompt("Name your forest 🌲", "My Forest");
-    if(n) { state.name=n.slice(0,24); saveState(); }
+  softLeaf();
+  addCP(1);
+  if(leavesLeft<=0){ // cycle complete → acorn ready again
+    planted=false;
+    state.dots++; if(state.dots>=5){ state.dots=0; state.forest++; drawForestBG(); }
+    save(); updateDots();
   }
-  forestNameLabel.textContent = state.name ? `• ${state.name}` : '';
-  forestNameStat.textContent = state.name || '—';
 }
-journalBox.addEventListener('input', ()=>{
-  const cmd = journalBox.value.trim().toLowerCase();
-  if(cmd==='/dev on'){ state.dev=1; saveState(); applyDevUI(); showToast('Dev tools enabled'); return; }
-  if(cmd==='/dev off'){ state.dev=0; saveState(); applyDevUI(); showToast('Dev tools disabled'); return; }
-  if(cmd==='/tips reset'){ state.onb={plant:0,leaves:0,journal:0,dots:0,menu:0,creature:0,never:0}; saveState(); showToast('Tips reset'); return; }
-  if(cmd==='/tip leaves'){ state.onb.leaves=0; saveState(); coachTip('Tap the leaves to send them into the wind. Little taps add Care Points.', document.getElementById('stage'), 'center'); return; }
-  if(cmd==='/tip journal'){ state.onb.journal=0; saveState(); coachTip('Write a line about how the mantra felt. Journaling boosts growth.', journalBox, 'top'); return; }
 
-  saveNote.textContent='Saving...';
-  clearTimeout(saveTimer);
-  saveTimer=setTimeout(()=>{
-    state.cycle.journal = journalBox.value.slice(0,1000); saveState(); saveNote.textContent='Saved';
-    if(!state.day.journalGiven && state.cycle.journal.trim().length >= 10){
-      state.day.journalGiven = true; addCP(2);
+/* ===================== CREATURES ===================== */
+const CREATURES = [
+  {id:'butterfly', emoji:'🦋', zone:'air', odds:.12},
+  {id:'bird',      emoji:'🐦', zone:'air', odds:.06},
+  {id:'lady',      emoji:'🐞', zone:'bark', odds:.07},
+  {id:'ant',       emoji:'🐜', zone:'bark', odds:.05},
+  {id:'fox',       emoji:'🦊', zone:'ground', odds:.02}
+];
+function maybeSpawn(){
+  pity++;
+  if(Math.random() < .10 || pity>18){ pity=0; spawnRandom(); }
+}
+function spawnRandom(){
+  const c = pickWeighted(CREATURES);
+  state.seen[c.id]=1; save();
+  if(c.zone==='air') spawnAir(c.emoji);
+  else if(c.zone==='bark') spawnBark(c.emoji);
+  else spawnFox(c.emoji);
+}
+function spawnAir(emoji){
+  const el = document.createElement('div');
+  el.className='fly'; el.textContent=emoji;
+  const y = rand(18, 140);
+  el.style.left='-40px'; el.style.top=y+'px';
+  area.appendChild(el);
+  el.animate([{transform:'translateX(0)'},{transform:'translateX(120%)'}],{duration: 5000+rand(0,2000), easing:'linear'})
+    .onfinish=()=>el.remove();
+}
+function spawnBark(emoji){
+  const el = document.createElement('div');
+  el.className='fly'; el.textContent=emoji;
+  const trunkRect = trunk.getBoundingClientRect();
+  const aRect = area.getBoundingClientRect();
+  const x = trunkRect.left - aRect.left + rand(-4,4);
+  const y = trunkRect.top - aRect.top + rand(80, 220);
+  el.style.left = (x)+'px'; el.style.top=y+'px';
+  area.appendChild(el);
+  el.animate([{transform:'translateY(0)'},{transform:'translateY(-60px)'}],{duration: 3000, easing:'ease-in-out'})
+    .onfinish=()=>el.remove();
+}
+function spawnFox(emoji){
+  const el = document.createElement('div');
+  el.className='fly'; el.textContent=emoji;
+  const y = area.clientHeight*0.78;
+  el.style.top = y+'px'; el.style.left='-40px';
+  area.appendChild(el);
+  el.animate([{transform:'translateX(0)'},{transform:'translateX(110%)'}],{duration: 6500, easing:'ease-in-out'})
+    .onfinish=()=>el.remove();
+}
+
+/* ===================== FOREST BACKGROUND ===================== */
+function drawForestBG(){
+  const c = forestBG, d = c.getContext('2d');
+  c.width = c.clientWidth; c.height = c.clientHeight;
+  d.clearRect(0,0,c.width,c.height);
+  const cols = 5, rows = 3;
+  let placed = state.forest;
+  const w = c.width/cols, h = c.height/rows;
+  d.fillStyle = '#0f4a3a';
+  for(let r=rows-1;r>=0;r--){
+    for(let col=0; col<cols; col++){
+      if(placed<=0) return;
+      placed--;
+      const x = col*w + w*.2 + rand(-10,10);
+      const y = r*h + h*.35 + rand(-6,6);
+      // trunk
+      d.fillStyle = '#6e4a34';
+      d.fillRect(x+w*.22, y, w*.06, h*.25);
+      // canopy
+      d.beginPath();
+      d.fillStyle = 'rgba(163,227,194,.9)';
+      d.ellipse(x+w*.25, y-8, w*.22, h*.18, 0, 0, Math.PI*2);
+      d.fill();
     }
-  }, 350);
-});
-
-/* ===== Dev UI ===== */
-function applyDevUI(){
-  document.getElementById('devPanel').style.display = state.dev ? 'block' : 'none';
-  menuReset.style.display = state.dev ? 'flex' : 'none';
+  }
 }
-document.getElementById('devAddCP').addEventListener('click', ()=> addCP(5));
-document.getElementById('devNextStage').addEventListener('click', ()=>{
-  const target = nextStageTarget(state.cp); const start=state.cp, delta=target-start, dur=1100, t0=performance.now();
-  (function step(t){ const p=Math.min(1,(t-t0)/dur); const ease=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2; state.cp=start+delta*ease; updateStageBar();
-    if(p<1) requestAnimationFrame(step); else {state.cp=target; saveState(); updateStageBar(); SOUND.level();}})(t0);
-});
-document.getElementById('devLeaves').addEventListener('click', ()=>{
-  state.cycle.total=randInt(220,320); state.cycle.left=state.cycle.total; state.cycle.seed=Math.floor(Math.random()*2**31);
-  saveState(); if(state.planted) renderLeaves(); updateCounts();
-});
-document.getElementById('devNight').addEventListener('click', ()=>{ state.simNight = state.simNight?0:1; saveState(); });
-document.getElementById('devReset').addEventListener('click', ()=>{ doResetProgress(); });
-menuReset.addEventListener('click', (e)=>{ e.preventDefault(); doResetProgress(); });
-
-/* ===== Reset ===== */
-function doResetProgress(){
-  if(!confirm('Reset all local progress? This clears CP, entries, name, forest, dots.')) return;
-  const keepDev = state.dev;
-  localStorage.removeItem(storeKey);
-  const d=todayMidnight();
-  Object.assign(state, {date:d, planted:false, cycle:makeCycle(), cp:0, day:makeDay(), dots:0, forest:0, name:"", entries:[], dev:keepDev?1:0, simNight:0,
-                        onb:{plant:0, leaves:0, journal:0, dots:0, menu:0, creature:0, never:0},
-                        gallery:{'🦋':0,'🐦':0,'🐜':0,'🐞':0,'🦊':0,'🦉':0}, ach:{}});
-  saveState(); applyDevUI(); boot(); closeDrawer();
+function updateDots(){
+  let html = '';
+  for(let i=0;i<5;i++){
+    html += `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;margin:0 4px;border:2px solid ${i<state.dots? 'var(--accent)':'#3d6b5c'}; background:${i<state.dots?'var(--accent)':'transparent'}"></span>`;
+  }
+  dots.innerHTML = html;
 }
 
-/* ===== Onboarding: hardened coachTip + toast ===== */
-function coachTip(text, target, position='top'){
+/* ===================== STAGE / CP ===================== */
+function addCP(n){
+  state.cp += n; save();
+  cpBadge.textContent = state.cp + ' CP';
+  const need = STAGES[state.stage].need;
+  const pct = Math.min(100, Math.round(state.cp/need*100));
+  barFill.style.width = pct+'%';
+  if(state.cp>=need) nextStage();
+}
+function nextStage(){
+  state.cp = 0; state.stage = Math.min(STAGES.length-1, state.stage+1); save();
+  stageName.textContent = STAGES[state.stage].name;
+  barFill.style.width='0%';
+  toast('Stage up: '+STAGES[state.stage].name+'!');
+}
+function fastNextStage(){ state.cp = STAGES[state.stage].need; addCP(0); }
+
+function updateUI(){
+  stageName.textContent = STAGES[state.stage].name;
+  cpBadge.textContent = state.cp+' CP';
+  barFill.style.width = Math.min(100, Math.round(state.cp/STAGES[state.stage].need*100))+'%';
+  updateDots();
+  soundBtn.textContent = 'Sound: ' + (state.sound?'On':'Off');
+  quoteEl.textContent = pick(QUOTES);
+  const j = localStorage.getItem('acorn_journal_'+state.dayKey)||'';
+  journalBox.value = j;
+  updateLeavesMeta();
+}
+
+/* ===================== AUDIO (soft + non‑retro) ===================== */
+function ctx(){ if(audio) return audio; try{ audio = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} return audio; }
+function playAcorn(){
+  if(!state.sound) return;
+  const ac = ctx(); if(!ac) return;
+  const o = ac.createOscillator(), g = ac.createGain();
+  o.type='triangle'; o.frequency.value=220;
+  const r = ac.createBiquadFilter(); r.type='lowshelf'; r.frequency.value=180; r.gain.value=8;
+  o.connect(r).connect(g).connect(ac.destination);
+  g.gain.setValueAtTime(0.0001, ac.currentTime);
+  g.gain.linearRampToValueAtTime(0.18, ac.currentTime+.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime+.35);
+  o.start(); o.stop(ac.currentTime+.36);
+}
+function softLeaf(){
+  if(!state.sound) return;
+  const ac = ctx(); if(!ac) return;
+  // gentle noise burst + low bell — softer, more meditative
+  const dur = 0.35;
+  // noise
+  const buffer = ac.createBuffer(1, ac.sampleRate*dur, ac.sampleRate);
+  const data = buffer.getChannelData(0);
+  for(let i=0;i<data.length;i++){ data[i] = (Math.random()*2-1) * Math.pow(1-i/data.length, 2); }
+  const src = ac.createBufferSource(); src.buffer=buffer;
+  const filt = ac.createBiquadFilter(); filt.type='bandpass'; filt.frequency.value=1200; filt.Q.value=0.6;
+  const g = ac.createGain(); g.gain.value=.06;
+  src.connect(filt).connect(g).connect(ac.destination);
+  src.start();
+
+  // bell
+  const o = ac.createOscillator(), b = ac.createGain();
+  o.type='sine'; o.frequency.value = pick([420, 480, 540, 640]);
+  o.connect(b).connect(ac.destination);
+  const t = ac.currentTime;
+  b.gain.setValueAtTime(0.0001,t);
+  b.gain.linearRampToValueAtTime(.06,t+.02);
+  b.gain.exponentialRampToValueAtTime(0.0001,t+.32);
+  o.start(t); o.stop(t+.34);
+}
+
+/* ===================== ONBOARDING COACH (hardened) ===================== */
+function coachTip(text, target){
   if(state.onb?.never) return;
-  coachText.textContent = text;
-
-  function showAt(x, y, arrowX=null, arrowY=null, showArrow=true){
-    coachCard.style.left = Math.max(12, Math.min(x, window.innerWidth - 272)) + 'px';
-    coachCard.style.top  = Math.max(12, Math.min(y, window.innerHeight - 140)) + 'px';
-    if(showArrow){
-      coachArrow.style.display = 'block';
-      coachArrow.style.left = Math.max(12, Math.min((arrowX ?? x)+8, window.innerWidth - 12)) + 'px';
-      coachArrow.style.top  = Math.max(8, Math.min((arrowY ?? y)-10, window.innerHeight - 8)) + 'px';
-    } else coachArrow.style.display = 'none';
-    coach.setAttribute('aria-hidden','false'); coach.classList.add('show');
-  }
-  let rect=null; try{ rect = target?.getBoundingClientRect?.() || null; }catch(e){ rect=null; }
-  const usable = rect && rect.width>0 && rect.height>0 && rect.bottom>0 && rect.right>0 && rect.top<window.innerHeight && rect.left<window.innerWidth;
-  setTimeout(()=>{
-    if(!usable){ const x=window.innerWidth/2 - 130, y=window.innerHeight/2 - 60; showAt(x,y,null,null,false); return; }
-    if(position==='inside'){ showAt(rect.left+14, rect.top+60, null,null,false); }
-    else if(position==='center'){ const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2; showAt(cx-130, cy-40, cx-8, cy-10, true); }
-    else { const cx=rect.left+rect.width/2; const topY=rect.top-80; showAt(cx-130, topY, cx-8, rect.top-12, true); }
-  }, 120);
-  function close(){ coach.classList.remove('show'); coach.setAttribute('aria-hidden','true'); }
-  coachOk.onclick = close; coachSkip.onclick = ()=>{ state.onb.never=1; saveState(); close(); };
-  coach.querySelector('.coachMask').onclick = close;
+  coachText.textContent=text;
+  coach.setAttribute('aria-hidden','false');
+  function close(){ coach.setAttribute('aria-hidden','true'); }
+  coachOk.onclick=close; coachSkip.onclick=()=>{ state.onb.never=1; save(); close(); };
+  // click mask to close
+  coach.querySelector('.coachMask').onclick=close;
 }
-function showToast(msg){ toast.textContent = msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'), 2200); }
-
-/* ===== Input handlers (tap + swipe-ish direction) ===== */
-let pointerStart=null;
-document.getElementById('stage').addEventListener('pointerdown', (e)=>{
-  if(!state.planted){ return; }
-  pointerStart = {x:e.clientX, y:e.clientY};
-});
-document.getElementById('stage').addEventListener('pointerup', (e)=>{
-  if(!state.planted) return;
-  let dx=0, dy=-1;
-  if(pointerStart){ const vx = e.clientX-pointerStart.x, vy = e.clientY-pointerStart.y; const mag = Math.hypot(vx,vy)||1; dx=vx/mag; dy=vy/mag; pointerStart=null; }
-  pluckOne({dx,dy});
-}, {passive:true});
-plantBtn.addEventListener('click', plant, {passive:true});
-resetBtn.addEventListener('click', ()=>{
-  if(state.planted) logTodayEntry();
-  state.planted=false; state.cycle=makeCycle(); state.day=makeDay();
-  saveState(); boot();
-});
-soundToggle.addEventListener('click', ()=>{ audioEnabled=!audioEnabled; if(audioEnabled) ensureAudio();
-  soundToggle.setAttribute('aria-pressed',String(audioEnabled));
-  soundToggle.textContent='Sound. '+(audioEnabled?'On':'Off'); });
-
-/* ===== Boot ===== */
-function updateDotsAndForest(){ updateDotsUI(); renderForest(); }
-function boot(){
-  ensureForestName(); applySeason(); applyDevUI();
-  updateStageBar(); updateDotsAndForest();
-  journalBox.value = state.cycle.journal || ""; saveNote.textContent='Saved';
-  forestNameLabel.textContent = state.name ? `• ${state.name}` : '';
-  if(state.planted && state.cycle.left>0){ showTree(); } else { showAcorn(); }
-  showPage('tree');
-  if(!state.onb.plant && !state.onb.never){
-    setTimeout(()=>coachTip('Tap the acorn to plant your first tree. You’ll get a mantra for today.', plantBtn, 'top'), 300);
-    state.onb.plant=1; saveState();
-  }
-  buildGallery(); buildAchievements();
+function coachTipOnce(text, target){
+  const key = 't_'+text.slice(0,24);
+  if(state.onb[key]) return; state.onb[key]=1; save(); coachTip(text,target);
 }
-boot();
-setInterval(()=>{ if(state.planted){ renderLeaves(); } }, 9*60*1000);
+
+/* ===================== HELPERS ===================== */
+function save(){ localStorage.setItem('acorn_state_v3', JSON.stringify(state)); }
+function pick(a){ return a[Math.floor(Math.random()*a.length)] }
+function rand(a,b){ return Math.floor(Math.random()*(b-a+1))+a }
+function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+function pickWeighted(list){
+  let t = list.reduce((s,x)=>s+x.odds,0), r=Math.random()*t, acc=0;
+  for(const x of list){ acc+=x.odds; if(r<=acc) return x; }
+  return list[list.length-1];
+}
+function pointer(e){
+  const rect = canopy.getBoundingClientRect();
+  if(e.touches && e.touches[0]) return {x:e.touches[0].clientX, y:e.touches[0].clientY};
+  return {x: rect.left + rect.width/2, y: rect.top + rect.height/2};
+}
+function getTouch(e){ if(e.touches && e.touches[0]) return {x:e.touches[0].clientX, y:e.touches[0].clientY}; return null; }
+function todayKey(){ const d=new Date(); return d.toISOString().slice(0,10); }
+function updateLeavesMeta(){ leavesMeta.textContent = planted?`Leaves left: ${leavesLeft} of ${leavesTotal}`:'Tap 🌱 to plant a new tree'; }
+function toast(msg){
+  const t = document.createElement('div');
+  t.textContent=msg; t.style.cssText=`position:fixed;left:50%;bottom:20px;transform:translateX(-50%);
+  background:rgba(0,0,0,.6);padding:10px 12px;border-radius:12px;color:#fff;backdrop-filter:blur(4px);z-index:60`;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),1800);
+}
 </script>
 </body>
 </html>
