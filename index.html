@@ -3,124 +3,101 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Acorn — Seamless Onboarding</title>
+<title>Acorn — Super Master</title>
 <meta name="theme-color" content="#0b3d2e">
 <style>
 *{box-sizing:border-box}html,body{height:100%;margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto}
-:root{--bg1:#0b3d2e;--bg2:#134c3a;--bg3:#1a583f;--accent:#a3e3c2;--glow:rgba(163,227,194,.25)}
-body{background:linear-gradient(180deg,var(--bg1) 0%, var(--bg2) 30%, var(--bg3) 100%); color:#f4fff8}
-a{color:inherit;text-decoration:none}
+:root{
+  --sky1:#0e4434; --sky2:#0c3a2c; --sky3:#0a3327;
+  --glow:rgba(163,227,194,.25);
+  --accent:#a3e3c2; --accent2:#8fe3bb;
+  --text:#eafff3;
+}
+body{background:linear-gradient(180deg,#0b3d2e 0%, #134c3a 30%, #1a583f 100%); color:var(--text)}
+main{max-width:560px;margin:0 auto;padding:16px 16px 44px}
+header{display:flex;justify-content:space-between;align-items:center}
+h1{font-size:20px;margin:0}
+.forestName{opacity:.9;font-size:13px;margin-left:8px}
 
-/* Layout */
-main{max-width:560px;margin:0 auto;padding:16px 16px 40px}
-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.appTitle{display:flex;gap:10px;align-items:center}
-h1{font-size:20px;margin:0;letter-spacing:.5px}
-.forestName{opacity:.9;font-size:13px}
-
-/* Hamburger + Drawer */
-.hamburger{border:1px solid rgba(255,255,255,.25);background:transparent;color:#c8ffe1;border-radius:10px;padding:8px 10px;font-size:18px;line-height:1}
-.hamburger:active{transform:scale(.98)}
-#drawerBackdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:9998}
-#drawer{position:fixed;top:0;right:-280px;width:260px;height:100vh;background:rgba(7,33,27,.94);box-shadow:-12px 0 30px rgba(0,0,0,.35);
-  border-left:1px solid rgba(255,255,255,.12);transition:transform .24s ease;z-index:9999;padding:16px 14px 20px}
-#drawer.open{transform:translateX(-280px)}
-#drawerBackdrop.open{opacity:1;pointer-events:auto}
-.drawerTitle{font-weight:800;margin:6px 0 14px}
-.menuItem{display:flex;justify-content:space-between;align-items:center;padding:10px 10px;border-radius:10px;margin-bottom:8px;
-  border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06)}
-.menuItem .label{font-size:14px}
+/* Menu / Drawer */
+.hamburger{border:1px solid rgba(255,255,255,.25);background:transparent;color:#c8ffe1;border-radius:10px;padding:8px 10px;font-size:18px}
+#drawerBackdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .2s;z-index:9998}
+#drawer{position:fixed;top:0;right:-280px;width:260px;height:100vh;background:rgba(7,33,27,.94);border-left:1px solid rgba(255,255,255,.12);box-shadow:-12px 0 30px rgba(0,0,0,.35);transition:transform .24s;z-index:9999;padding:16px}
+#drawer.open{transform:translateX(-280px)} #drawerBackdrop.open{opacity:1;pointer-events:auto}
+.menuItem{display:flex;justify-content:space-between;align-items:center;padding:10px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);border-radius:10px;margin-bottom:8px}
 .badge{font-size:11px;opacity:.85;background:rgba(255,255,255,.1);padding:2px 6px;border-radius:10px}
-.menuSmall{font-size:12px;opacity:.8;margin:8px 10px}
 
-/* Dots meter */
-.rings{display:flex;gap:6px;align-items:center}
-.ring{width:12px;height:12px;border:2px solid var(--accent);border-radius:50%;opacity:.9}
+/* Dots meter & stage bar */
+.rings{display:flex;gap:6px;align-items:center;margin:10px 0 6px}
+.ring{width:12px;height:12px;border:2px solid var(--accent);border-radius:50%}
 .ring.filled{background:var(--accent)}
-
-/* Stage bar */
-.stageWrap{display:flex;align-items:center;gap:10px;margin:8px 0 6px}
-.stageName{min-width:98px;font-size:13px;opacity:.9}
+.stageWrap{display:flex;align-items:center;gap:10px}
 .stageBar{flex:1;height:10px;border-radius:999px;background:rgba(255,255,255,.12);overflow:hidden}
-.stageFill{height:100%;width:0%;background:linear-gradient(90deg,#baf2d8,#8fe3bb);transition:width .35s ease}
+.stageFill{height:100%;width:0%;background:linear-gradient(90deg,#baf2d8,#8fe3bb);transition:width .35s}
+.stageName{min-width:98px;font-size:13px;opacity:.9}
 .stageCP{font-size:12px;opacity:.85;min-width:74px;text-align:right}
 
 /* Scene */
 #stage{position:relative;width:100%;aspect-ratio:3/4;border-radius:20px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.25);margin-top:6px}
-.scene{width:100%;height:100%;display:grid;place-items:center;
-  background:
-    radial-gradient(ellipse at 50% 85%, rgba(0,0,0,.25) 0%, rgba(0,0,0,0) 40%),
-    radial-gradient(ellipse at 50% 15%, rgba(255,255,255,.15) 0%, rgba(255,255,255,0) 55%),
-    linear-gradient(180deg,#0e4434 0%,#0c3a2c 60%,#0a3327 100%);
-}
-#forestLayer{position:absolute;inset:0;z-index:0;pointer-events:none}
-.forestTree{position:absolute;bottom:8%;opacity:.3;filter:blur(.2px) drop-shadow(0 4px 10px rgba(0,0,0,.3))}
-.forestTree svg{display:block}
-
-svg{width:92%;height:auto;filter:drop-shadow(0 6px 18px rgba(0,0,0,.35)); z-index:2}
-.sway-slow{animation:sway 6s ease-in-out infinite}
-.sway-mid{animation:sway 4.5s ease-in-out infinite}
-.sway-fast{animation:sway 3.5s ease-in-out infinite}
-@keyframes sway{0%{transform:rotate(-1.2deg)}50%{transform:rotate(1.2deg)}100%{transform:rotate(-1.2deg)}}
+.scene{position:absolute;inset:0;display:grid;place-items:center;background:
+  radial-gradient(ellipse at 50% 85%, rgba(0,0,0,.25) 0%, rgba(0,0,0,0) 40%),
+  radial-gradient(ellipse at 50% 15%, rgba(255,255,255,.15) 0%, rgba(255,255,255,0) 55%),
+  linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 60%,var(--sky3) 100%)}
+.parallax{position:absolute;inset:0;pointer-events:none}
+.layer{position:absolute;inset:0;opacity:.35}
+.layer.back{animation:drift 18s ease-in-out infinite; transform:translateY(2%)}
+.layer.mid {animation:drift 14s ease-in-out infinite; opacity:.45}
+.layer.front{animation:drift 10s ease-in-out infinite; opacity:.55}
+@keyframes drift{0%{transform:translateY(1%)}50%{transform:translateY(-1%)}100%{transform:translateY(1%)}}
+.forestTree{position:absolute;bottom:8%;opacity:.32;filter:blur(.2px) drop-shadow(0 4px 10px rgba(0,0,0,.3))}
 .ground{position:absolute;left:0;right:0;bottom:-6%;height:28%;background:radial-gradient(ellipse at 50% 20%, #124a38 0%, #0e3f30 45%, #0b3528 100%);box-shadow:0 -10px 40px inset rgba(0,0,0,.25); z-index:1}
 .glow{position:absolute;inset:0;background:radial-gradient(circle at 50% 25%, var(--glow), transparent 45%); z-index:1}
+
+svg.tree{width:92%;height:auto;filter:drop-shadow(0 6px 18px rgba(0,0,0,.35)); z-index:2}
+.sway{animation:sway 6s ease-in-out infinite}
+@keyframes sway{0%{transform:rotate(-1.2deg)}50%{transform:rotate(1.2deg)}100%{transform:rotate(-1.2deg)}}
 
 /* Acorn screen */
 #acornScreen{position:absolute;inset:0;display:grid;place-items:center;gap:14px;z-index:3}
 #acornBig{width:min(42vmin,220px);height:auto;filter:drop-shadow(0 10px 24px rgba(0,0,0,.4))}
 .cta{display:inline-flex;align-items:center;gap:10px;background:var(--accent);color:#0b3d2e;border:none;border-radius:999px;padding:14px 18px;font-weight:800;font-size:16px;box-shadow:0 6px 18px rgba(0,0,0,.25)}
-.cta:active{transform:scale(.97)}
-.cta .sprout{font-size:20px}
+.cta:active{transform:scale(.97)} .sprout{font-size:20px}
 
 /* Controls & text */
 .controls{display:flex;justify-content:space-between;gap:8px;margin-top:10px}
 .ghost{background:transparent;color:#c8ffe1;border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:10px 14px}
-.mantra{min-height:52px;text-align:center;font-size:16px;line-height:1.35;margin:10px 0 0;color:#eafff3}
+.mantra{min-height:52px;text-align:center;font-size:16px;line-height:1.35;margin:10px 0 0}
 .count{font-size:12px;opacity:.85;text-align:center;margin-top:6px}
 
-/* Journal input on Tree page */
+/* Journal */
 .journal{margin-top:14px}
 label{font-size:13px;opacity:.95}
-textarea{width:100%;min-height:84px;margin-top:6px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:#eafff3;padding:12px;resize:vertical;outline:none}
+textarea{width:100%;min-height:84px;margin-top:6px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:#eafff3;padding:12px;resize:vertical}
 textarea::placeholder{color:#cdeede;opacity:.7}
 .saveNote{font-size:12px;opacity:.75;margin-top:6px}
 
-/* Particles & Creatures */
+/* Creatures & particles */
 .leafParticle{position:fixed;will-change:transform,opacity;pointer-events:none}
 #creatureLayer{position:absolute;inset:0;pointer-events:none;z-index:4}
-
-/* SKY flyers */
-.creature.sky{position:absolute;top:20%; font-size:26px; filter:drop-shadow(0 4px 10px rgba(0,0,0,.35)); opacity:0}
-.creature.sky.fly{animation:flyAcross 6s ease-in-out forwards}
-@keyframes flyAcross{0%{transform:translateX(-25vw) translateY(0) rotate(-6deg); opacity:0}
-10%{opacity:1}50%{transform:translateX(25vw) translateY(-12px) rotate(6deg)}
-100%{transform:translateX(65vw) translateY(0) rotate(-4deg); opacity:0}}
-
-/* BARK crawlers */
-.creature.bark{position:absolute;left:50%; transform:translateX(-50%); font-size:20px; opacity:.95}
-.creature.bark.crawl{animation:crawlUp 12s linear forwards}
-@keyframes crawlUp{from{transform:translate(-50%,0)} to{transform:translate(-50%,-140px)}}
-
-/* GROUND fox pacing */
-.creature.ground{position:absolute;bottom:6%;left:50%;font-size:30px;opacity:0;transform:translateX(-50%)}
-.creature.ground.fox{animation:foxPace 16s ease-in-out forwards}
-@keyframes foxPace{
+.creature{position:absolute;opacity:0;filter:drop-shadow(0 4px 10px rgba(0,0,0,.35))}
+.creature.sky.fly{animation:fly 6s ease-in-out forwards}
+@keyframes fly{0%{transform:translateX(-30vw) translateY(0) rotate(-8deg);opacity:0}10%{opacity:1}50%{transform:translateX(25vw) translateY(-12px) rotate(6deg)}100%{transform:translateX(65vw) translateY(0) rotate(-4deg);opacity:0}}
+.creature.bark.crawl{animation:crawl 12s linear forwards}
+@keyframes crawl{from{transform:translate(-50%,0)} to{transform:translate(-50%,-140px)}}
+.creature.ground.fox{bottom:6%;left:50%;transform:translateX(-50%);font-size:30px;animation:fox 16s ease-in-out forwards}
+@keyframes fox{
   0%{opacity:0; transform:translate(-50%,0) translateX(-12vw)}
-  8%{opacity:1}
-  22%{transform:translate(-50%,0) translateX(-4vw)}
+  8%{opacity:1} 22%{transform:translate(-50%,0) translateX(-4vw)}
   30%{transform:translate(-50%,0) translateX(0)}
-  38%{transform:translate(-50%,0) translateX(0)}
   55%{transform:translate(-50%,0) translateX(10vw)}
-  70%{transform:translate(-50%,0) translateX(6vw)}
   86%{transform:translate(-50%,0) translateX(-6vw)}
   100%{opacity:0; transform:translate(-50%,0) translateX(14vw)}
 }
 
 /* Pages */
-.page{display:none}
-.page[aria-hidden="false"]{display:block}
+.page{display:none} .page[aria-hidden="false"]{display:block}
 
-/* JOURNAL PAGE */
+/* Journal/Profile page */
 .jTop{display:flex;justify-content:space-between;align-items:center;margin:8px 0 12px}
 .editNameBtn{border:1px solid rgba(255,255,255,.25);background:transparent;color:#c8ffe1;border-radius:8px;padding:6px 10px;font-size:12px}
 .statRow{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 12px}
@@ -129,10 +106,14 @@ textarea::placeholder{color:#cdeede;opacity:.7}
 .entry h4{margin:0 0 6px;font-size:14px}
 .entry .meta{font-size:12px;opacity:.85;margin-bottom:6px}
 .entry .note{white-space:pre-wrap;line-height:1.35}
-.entry details summary{cursor:pointer;list-style:none}
-.entry summary::-webkit-details-marker{display:none}
 
-/* DEV PANEL */
+/* Gallery & Achievements */
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.card{border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);border-radius:12px;padding:12px;text-align:center}
+.locked{opacity:.45;filter:grayscale(1)}
+.card small{display:block;opacity:.8;margin-top:6px;font-size:11px}
+
+/* Dev panel */
 #devPanel{position:fixed;right:10px;top:10px;z-index:9997;background:rgba(0,0,0,.55);
   backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:8px;display:none}
 #devPanel h4{margin:0 0 6px;font-size:12px;letter-spacing:.3px;opacity:.8}
@@ -140,30 +121,26 @@ textarea::placeholder{color:#cdeede;opacity:.7}
   background:rgba(255,255,255,.06);color:#eafff3;font-size:12px}
 .danger{border-color:rgba(255,120,120,.4)!important;color:#ffd7d7!important}
 
-/* ---------- Onboarding coachmarks ---------- */
+/* Coach & Toast */
 #coach{position:fixed;inset:0;pointer-events:none;z-index:10000}
-.coachMask{position:absolute;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(2px);opacity:0;transition:opacity .15s ease}
+.coachMask{position:absolute;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(2px);opacity:0;transition:opacity .15s}
 #coach.show .coachMask{opacity:1}
-.coachCard{position:absolute;max-width:260px;background:rgba(8,37,30,.98);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:12px 12px;box-shadow:0 12px 30px rgba(0,0,0,.35);opacity:0;transform:translateY(6px);transition:opacity .18s ease, transform .18s ease;pointer-events:auto}
+.coachCard{position:absolute;max-width:260px;background:rgba(8,37,30,.98);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:12px;box-shadow:0 12px 30px rgba(0,0,0,.35);opacity:0;transform:translateY(6px);transition:opacity .18s, transform .18s;pointer-events:auto}
 #coach.show .coachCard{opacity:1;transform:translateY(0)}
 .coachText{font-size:14px;line-height:1.35;margin:0 0 8px}
 .coachBtns{display:flex;gap:8px;justify-content:flex-end}
 .coachBtn{background:var(--accent);color:#0b3d2e;border:none;border-radius:10px;padding:8px 10px;font-weight:700}
 .coachSkip{background:transparent;color:#eafff3;border:1px solid rgba(255,255,255,.25)}
 .coachArrow{position:absolute;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:10px solid rgba(8,37,30,.98)}
-/* Toast */
-#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:rgba(8,37,30,.98);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:10px 12px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:10001}
+#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:rgba(8,37,30,.98);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:10px 12px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:10001}
 #toast.show{opacity:1}
 </style>
 </head>
 <body>
 <main>
-
-  <!-- Header -->
   <header>
-    <div class="appTitle">
-      <h1>Acorn</h1>
-      <div class="forestName" id="forestNameLabel"></div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <h1>Acorn</h1><div class="forestName" id="forestNameLabel"></div>
     </div>
     <button class="hamburger" id="hamburger" aria-label="Menu">☰</button>
   </header>
@@ -171,18 +148,17 @@ textarea::placeholder{color:#cdeede;opacity:.7}
   <!-- Drawer -->
   <div id="drawerBackdrop"></div>
   <aside id="drawer" aria-label="Menu">
-    <div class="drawerTitle">Menu</div>
-    <a href="#" class="menuItem" id="menuTree"><span class="label">🌳 Tree</span><span class="badge">Home</span></a>
-    <a href="#" class="menuItem" id="menuJournal"><span class="label">📓 Journal</span><span class="badge">Entries</span></a>
-    <a href="#" class="menuItem" id="menuSettings"><span class="label">⚙️ Settings</span><span class="badge">Soon</span></a>
-    <div class="menuSmall" id="devOnlyNote" style="display:none">Dev tools</div>
-    <a href="#" class="menuItem danger" id="menuReset" style="display:none"><span class="label">🧹 Reset Progress</span></a>
+    <div style="font-weight:800;margin:6px 0 14px">Menu</div>
+    <a href="#" class="menuItem" data-page="tree"><span>🌳 Tree</span><span class="badge">Home</span></a>
+    <a href="#" class="menuItem" data-page="journal"><span>📓 Journal</span><span class="badge">Entries</span></a>
+    <a href="#" class="menuItem" data-page="gallery"><span>🗂️ Gallery</span><span class="badge">Creatures</span></a>
+    <a href="#" class="menuItem" data-page="ach"><span>🏅 Achievements</span><span class="badge">Milestones</span></a>
+    <a href="#" class="menuItem" data-page="settings"><span>⚙️ Settings</span><span class="badge">Soon</span></a>
+    <a href="#" class="menuItem danger" id="menuReset" style="display:none"><span>🧹 Reset Progress</span></a>
   </aside>
 
-  <!-- Planting dots -->
-  <div class="rings" id="rings" aria-label="Forest progress dots"></div>
-
-  <!-- Stage bar -->
+  <!-- Dots + stage -->
+  <div class="rings" id="rings"></div>
   <div class="stageWrap">
     <div class="stageName" id="stageName">Acorn</div>
     <div class="stageBar"><div class="stageFill" id="stageFill"></div></div>
@@ -190,12 +166,20 @@ textarea::placeholder{color:#cdeede;opacity:.7}
   </div>
 
   <!-- TREE PAGE -->
-  <section class="page" id="pageTree" aria-hidden="false">
+  <section class="page" id="page-tree" aria-hidden="false">
     <section id="stage" aria-live="polite">
       <div class="scene" id="scene">
-        <div id="forestLayer"></div>
+        <!-- Parallax layers -->
+        <div class="parallax">
+          <div class="layer back" id="layerBack"></div>
+          <div class="layer mid" id="layerMid"></div>
+          <div class="layer front" id="layerFront"></div>
+        </div>
 
-        <!-- ACORN + BUTTON -->
+        <!-- Background forest -->
+        <div id="forestLayer" class="parallax"></div>
+
+        <!-- Acorn screen -->
         <div id="acornScreen">
           <svg id="acornBig" viewBox="0 0 80 80" aria-hidden="true">
             <defs>
@@ -213,35 +197,15 @@ textarea::placeholder{color:#cdeede;opacity:.7}
           <button id="plantBtn" class="cta"><span class="sprout">🌱</span>Plant Acorn</button>
         </div>
 
-        <!-- TREES (PHASED) -->
-        <svg id="treeMorning" viewBox="0 0 300 430" class="sway-slow" aria-hidden="true" style="display:none">
+        <!-- Tree -->
+        <svg id="tree" class="tree sway" viewBox="0 0 300 430" aria-hidden="true" style="display:none">
           <defs>
-            <linearGradient id="barkGrad1" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#6b4b30"/><stop offset="100%" stop-color="#4e3525"/></linearGradient>
-            <radialGradient id="leafGrad1" cx="50%" cy="50%" r="60%"><stop offset="0%" stop-color="#c8f7df"/><stop offset="100%" stop-color="#8fe3bb"/></radialGradient>
-            <clipPath id="canopyClip1"><ellipse cx="150" cy="170" rx="90" ry="60"/></clipPath>
+            <linearGradient id="bark" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#7a5437"/><stop offset="100%" stop-color="#5a3e2b"/></linearGradient>
+            <radialGradient id="leafGrad" cx="50%" cy="50%" r="65%"><stop offset="0%" stop-color="#d4fbe6"/><stop offset="100%" stop-color="#8fe3bb"/></radialGradient>
+            <clipPath id="canopyClip"><ellipse cx="150" cy="170" rx="95" ry="65"/></clipPath>
           </defs>
-          <path d="M150 400 C150 340 148 285 150 230 C152 190 154 150 150 110" stroke="url(#barkGrad1)" stroke-width="20" stroke-linecap="round" fill="none"/>
-          <g id="leaves1" clip-path="url(#canopyClip1)"></g>
-        </svg>
-
-        <svg id="treeMidday" viewBox="0 0 300 430" class="sway-mid" aria-hidden="true" style="display:none">
-          <defs>
-            <linearGradient id="barkGrad2" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#7a5437"/><stop offset="100%" stop-color="#5a3e2b"/></linearGradient>
-            <radialGradient id="leafGrad2" cx="50%" cy="50%" r="65%"><stop offset="0%" stop-color="#d4fbe6"/><stop offset="100%" stop-color="#8fe3bb"/></radialGradient>
-            <clipPath id="canopyClip2"><ellipse cx="150" cy="170" rx="95" ry="65"/></clipPath>
-          </defs>
-          <path d="M150 400 C150 330 148 270 150 210 C153 165 156 125 150 90" stroke="url(#barkGrad2)" stroke-width="22" stroke-linecap="round" fill="none"/>
-          <g id="leaves2" clip-path="url(#canopyClip2)"></g>
-        </svg>
-
-        <svg id="treeEvening" viewBox="0 0 300 430" class="sway-fast" aria-hidden="true" style="display:none">
-          <defs>
-            <linearGradient id="barkGrad3" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#8a6041"/><stop offset="100%" stop-color="#5a3e2b"/></linearGradient>
-            <radialGradient id="leafGrad3" cx="50%" cy="50%" r="70%"><stop offset="0%" stop-color="#e6ffef"/><stop offset="100%" stop-color="#9be8c6"/></radialGradient>
-            <clipPath id="canopyClip3"><ellipse cx="150" cy="170" rx="100" ry="70"/></clipPath>
-          </defs>
-          <path d="M150 400 C150 320 148 255 150 190 C155 145 160 110 150 75" stroke="url(#barkGrad3)" stroke-width="24" stroke-linecap="round" fill="none"/>
-          <g id="leaves3" clip-path="url(#canopyClip3)"></g>
+          <path d="M150 400 C150 330 148 270 150 210 C153 165 156 125 150 90" stroke="url(#bark)" stroke-width="22" stroke-linecap="round" fill="none"/>
+          <g id="leaves" clip-path="url(#canopyClip)"></g>
         </svg>
 
         <div class="ground"></div>
@@ -266,7 +230,7 @@ textarea::placeholder{color:#cdeede;opacity:.7}
   </section>
 
   <!-- JOURNAL PAGE -->
-  <section class="page" id="pageJournal" aria-hidden="true">
+  <section class="page" id="page-journal" aria-hidden="true">
     <div class="jTop">
       <div style="font-weight:700">Profile & Journal</div>
       <button class="editNameBtn" id="editNameBtn">Edit name</button>
@@ -281,6 +245,24 @@ textarea::placeholder{color:#cdeede;opacity:.7}
     <div id="entryList"></div>
   </section>
 
+  <!-- GALLERY PAGE -->
+  <section class="page" id="page-gallery" aria-hidden="true">
+    <div class="jTop"><div style="font-weight:700">Creature Gallery</div></div>
+    <div class="grid" id="galleryGrid"></div>
+  </section>
+
+  <!-- ACHIEVEMENTS PAGE -->
+  <section class="page" id="page-ach" aria-hidden="true">
+    <div class="jTop"><div style="font-weight:700">Achievements</div></div>
+    <div class="grid" id="achGrid"></div>
+  </section>
+
+  <!-- Settings placeholder -->
+  <section class="page" id="page-settings" aria-hidden="true">
+    <div class="jTop"><div style="font-weight:700">Settings</div></div>
+    <p>Coming soon ✨</p>
+  </section>
+
   <!-- Dev tools -->
   <div id="devPanel">
     <h4>DEV</h4>
@@ -288,7 +270,7 @@ textarea::placeholder{color:#cdeede;opacity:.7}
       <button id="devAddCP">+5 CP</button>
       <button id="devNextStage">Next Stage (fast)</button>
       <button id="devLeaves">Full Leaves</button>
-      <button id="devNight">Toggle Night (sim)</button>
+      <button id="devNight">Toggle Night</button>
       <button id="devReset" class="danger">Reset Progress</button><br>
       <button id="devFox">🦊</button>
       <button id="devBird">🐦</button>
@@ -300,7 +282,7 @@ textarea::placeholder{color:#cdeede;opacity:.7}
   </div>
 </main>
 
-<!-- Onboarding overlay + toast -->
+<!-- Coach + toast -->
 <div id="coach" aria-hidden="true">
   <div class="coachMask"></div>
   <div class="coachCard" id="coachCard">
@@ -315,18 +297,12 @@ textarea::placeholder{color:#cdeede;opacity:.7}
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script>
-/* ===== Quotes ===== */
+/* ===== Quotes (placeholder — replace with your list later) ===== */
 const QUOTES = [
-  "When preparation meets opportunity, success is inevitable.",
-  "We are individually and collectively the consciousness that makes up our simulation.",
-  "You are the greatest teacher, for you are responsible for everything you will ever know.",
-  "If you are not being authentic, silence the voices, for it is not time to project yourself.",
-  "Live in the now and you will be everfresh in every moment.",
-  "Set your table, take with you the utensils needed for the meal, do not just wait at tables, never be the waiter of all tables.",
-  "The problems arose when memory became the leader of progress, project forwards.",
-  "Within this world, do not be a senseless I, senseless eyes will not touch souls and change faces for the better.",
-  "Provoke healing within the world, before the world provokes death within you.",
-  "Touch Souls & Change faces, for the betterment of all, including oneself"
+  "Roots grow deeper when you’re quiet inside.",
+  "Observation is love in practice.",
+  "Small actions carry long echoes.",
+  "Be kinder than you feel."
 ];
 
 /* ===== Elements ===== */
@@ -334,12 +310,8 @@ const ringsEl = document.getElementById('rings');
 const forestLayer = document.getElementById('forestLayer');
 const plantBtn = document.getElementById('plantBtn');
 const acornScreen = document.getElementById('acornScreen');
-const treeMorning = document.getElementById('treeMorning');
-const treeMidday  = document.getElementById('treeMidday');
-const treeEvening = document.getElementById('treeEvening');
-const leaves1 = document.getElementById('leaves1');
-const leaves2 = document.getElementById('leaves2');
-const leaves3 = document.getElementById('leaves3');
+const treeSVG = document.getElementById('tree');
+const leavesLayer = document.getElementById('leaves');
 const mantraEl = document.getElementById('mantra');
 const leafCountEl = document.getElementById('leafCount');
 const soundToggle = document.getElementById('soundToggle');
@@ -350,9 +322,17 @@ const stageNameEl = document.getElementById('stageName');
 const stageFillEl = document.getElementById('stageFill');
 const stageCPEl   = document.getElementById('stageCP');
 const creatureLayer = document.getElementById('creatureLayer');
-const pageTree = document.getElementById('pageTree');
-const pageJournal = document.getElementById('pageJournal');
-const devPanel = document.getElementById('devPanel');
+const pageEls = {
+  tree: document.getElementById('page-tree'),
+  journal: document.getElementById('page-journal'),
+  gallery: document.getElementById('page-gallery'),
+  ach: document.getElementById('page-ach'),
+  settings: document.getElementById('page-settings')
+};
+const hamburger = document.getElementById('hamburger');
+const drawer = document.getElementById('drawer');
+const drawerBackdrop = document.getElementById('drawerBackdrop');
+const menuReset = document.getElementById('menuReset');
 const forestNameLabel = document.getElementById('forestNameLabel');
 const forestNameStat = document.getElementById('forestNameStat');
 const streakStat = document.getElementById('streakStat');
@@ -360,14 +340,12 @@ const cpStat = document.getElementById('cpStat');
 const forestCountStat = document.getElementById('forestCountStat');
 const entryCountStat = document.getElementById('entryCountStat');
 const entryList = document.getElementById('entryList');
-const hamburger = document.getElementById('hamburger');
-const drawer = document.getElementById('drawer');
-const drawerBackdrop = document.getElementById('drawerBackdrop');
-const menuTree = document.getElementById('menuTree');
-const menuJournal = document.getElementById('menuJournal');
-const menuSettings = document.getElementById('menuSettings');
-const menuReset = document.getElementById('menuReset');
-const devOnlyNote = document.getElementById('devOnlyNote');
+const galleryGrid = document.getElementById('galleryGrid');
+const achGrid = document.getElementById('achGrid');
+const scene = document.getElementById('scene');
+const layerBack = document.getElementById('layerBack');
+const layerMid = document.getElementById('layerMid');
+const layerFront = document.getElementById('layerFront');
 
 /* Onboarding elements */
 const coach = document.getElementById('coach');
@@ -378,34 +356,53 @@ const coachOk = document.getElementById('coachOk');
 const coachSkip = document.getElementById('coachSkip');
 const toast = document.getElementById('toast');
 
-/* ===== Audio ===== */
+/* ===== Audio (variety via WebAudio synth) ===== */
 let audioEnabled = true, audioCtx;
 function ensureAudio(){ try{ if(!audioCtx){ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); } if(audioCtx.state==='suspended'){ audioCtx.resume(); } }catch(e){} }
-function chime(){ if(!audioEnabled) return; ensureAudio(); if(!audioCtx||audioCtx.state!=='running') return;
-  const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type='sine';
-  const notes=[523.25,587.33,659.25,698.46]; o.frequency.value=notes[Math.floor(Math.random()*notes.length)];
-  const now=audioCtx.currentTime; g.gain.setValueAtTime(0.0001,now); g.gain.exponentialRampToValueAtTime(0.08,now+0.01); g.gain.exponentialRampToValueAtTime(0.0001,now+0.45);
-  o.connect(g); g.connect(audioCtx.destination); o.start(now); o.stop(now+0.46);
+function playTone({freq=440,type='sine',len=0.35,vol=0.06,attack=0.01,decay=0.3,pan=0}){
+  if(!audioEnabled) return;
+  ensureAudio(); if(!audioCtx||audioCtx.state!=='running') return;
+  const o=audioCtx.createOscillator(), g=audioCtx.createGain(), p = (audioCtx.createStereoPanner? audioCtx.createStereoPanner(): null);
+  o.type=type; o.frequency.value=freq;
+  const now=audioCtx.currentTime; g.gain.setValueAtTime(0.0001,now);
+  g.gain.exponentialRampToValueAtTime(vol, now+attack);
+  g.gain.exponentialRampToValueAtTime(0.0001, now+attack+decay);
+  if(p){ p.pan.value=pan; o.connect(g); g.connect(p); p.connect(audioCtx.destination);}
+  else { o.connect(g); g.connect(audioCtx.destination); }
+  o.start(now); o.stop(now+len);
 }
+function sRand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+const SOUND = {
+  cpGain(){ // soft wood/bronze chimes
+    const types=['sine','triangle']; const base = sRand([392,440,494,523,587,659]);
+    playTone({freq:base,type:sRand(types),pan:sRand([-0.2,0,0.2])});
+    setTimeout(()=>playTone({freq:base*1.25,type:sRand(types),vol:0.05,pan:sRand([-0.3,0.1])}), 60);
+  },
+  plant(){ const seq=[392,523,659]; seq.forEach((f,i)=>setTimeout(()=>playTone({freq:f,type:'triangle',vol:0.07}), i*90)); },
+  level(){ const seq=[523,659,784,987]; seq.forEach((f,i)=>setTimeout(()=>playTone({freq:f,type:'sine',vol:0.08}), i*80)); },
+  creature(){ playTone({freq:sRand([660,740,880]),type:'sine',vol:0.05}); },
+};
 
 /* ===== State ===== */
-const storeKey='acorn.seamless.master.v1';
+const storeKey='acorn.super.master.v1';
 function todayMidnight(){const d=new Date(); d.setHours(0,0,0,0); return +d;}
 function ymd(ts){const d=new Date(ts); return d.toISOString().slice(0,10);}
 function randInt(min,max){return Math.floor(min+Math.random()*(max-min+1));}
-function mulberry32(a){return function(){let t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296;}}
-function makeCycle(){ return {seed:Math.floor(Math.random()*2**31), total:randInt(100,300), left:0, quoteIdx:-1, journal:""}; }
+function mulberry32(a){return function(){let t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;}}
+function makeCycle(){ return {seed:Math.floor(Math.random()*2**31), total:randInt(120,260), left:0, quoteIdx:-1, journal:""}; }
 function makeDay(){ return {leafCP:0, journalGiven:false, plantedGiven:false, logged:false}; }
 function loadState(){
   const d=todayMidnight(), raw=localStorage.getItem(storeKey);
   if(raw){ const s=JSON.parse(raw); if(s.date!==d){ s.date=d; s.day=makeDay(); } return s; }
   return {date:d, planted:false, cycle:makeCycle(), cp:0, day:makeDay(), dots:0, forest:0, name:"", entries:[], dev:0, simNight:0,
-          onb:{plant:0, leaves:0, journal:0, dots:0, menu:0, creature:0, never:0}};
+          onb:{plant:0, leaves:0, journal:0, dots:0, menu:0, creature:0, never:0},
+          gallery:{'🦋':0,'🐦':0,'🐜':0,'🐞':0,'🦊':0,'🦉':0},
+          ach:{}};
 }
 const state = loadState();
 function saveState(){ localStorage.setItem(storeKey, JSON.stringify(state)); }
 
-/* ===== Stages ===== */
+/* ===== Stages & UI ===== */
 const STAGES = [
   {name:'Acorn',min:0},{name:'Sprout',min:5},{name:'Sapling',min:15},{name:'Young Tree',min:30},{name:'Full Tree',min:50},{name:'Grove',min:80}
 ];
@@ -419,33 +416,27 @@ function updateStageBar(){
   stageNameEl.textContent=stage.name; stageCPEl.textContent=`${Math.round(state.cp)} CP`; stageFillEl.style.width=pct+'%';
 }
 
-/* ===== Forest name ===== */
-function ensureForestName(){
-  if(!state.name){ const n=prompt("Name your forest 🌲", "My Forest"); if(n){ state.name=n.slice(0,24); saveState(); } }
-  forestNameLabel.textContent = state.name ? `• ${state.name}` : '';
-  forestNameStat.textContent = state.name || '—';
+/* ===== Seasons & Parallax ===== */
+function seasonIndex(){ return Math.floor((state.forest||0)/3)%4; } // 0..3
+function applySeason(){
+  const idx = seasonIndex();
+  const palettes = [
+    {sky1:'#0e4434',sky2:'#0c3a2c',sky3:'#0a3327'}, // spring
+    {sky1:'#194e3c',sky2:'#15543f',sky3:'#124537'}, // summer
+    {sky1:'#2c4430',sky2:'#2b3b2a',sky3:'#223220'}, // autumn
+    {sky1:'#18333a',sky2:'#142b32',sky3:'#10232a'}, // winter (cooler)
+  ];
+  const p = palettes[idx];
+  document.documentElement.style.setProperty('--sky1', p.sky1);
+  document.documentElement.style.setProperty('--sky2', p.sky2);
+  document.documentElement.style.setProperty('--sky3', p.sky3);
+  // simple shapes for parallax
+  layerBack.innerHTML = `<svg width="100%" height="100%"><ellipse cx="18%" cy="32%" rx="22%" ry="18%" fill="rgba(255,255,255,.04)"/></svg>`;
+  layerMid.innerHTML  = `<svg width="100%" height="100%"><ellipse cx="74%" cy="24%" rx="18%" ry="14%" fill="rgba(255,255,255,.05)"/></svg>`;
+  layerFront.innerHTML= `<svg width="100%" height="100%"><ellipse cx="42%" cy="18%" rx="16%" ry="12%" fill="rgba(255,255,255,.06)"/></svg>`;
 }
 
-/* ===== Trees & leaves ===== */
-function phase(){ if(state.simNight) return 'evening'; const h=new Date().getHours(); return h<12?'morning':h<18?'midday':'evening'; }
-function setTreesVisible(on){
-  const p=phase();
-  treeMorning.style.display = (on && p==='morning') ? 'block' : 'none';
-  treeMidday .style.display = (on && p==='midday' ) ? 'block' : 'none';
-  treeEvening.style.display = (on && p==='evening') ? 'block' : 'none';
-}
-function currentLayer(){ return phase()==='morning'?leaves1:phase()==='midday'?leaves2:leaves3; }
-function canopy(){ return phase()==='morning'?{rx:90,ry:60}:phase()==='midday'?{rx:95,ry:65}:{rx:100,ry:70}; }
-function renderLeaves(){
-  const layer=currentLayer(); layer.innerHTML='';
-  const {rx,ry}=canopy(); const rnd=mulberry32(state.cycle.seed);
-  const pos=[]; for(let i=0;i<state.cycle.total;i++){ const a=2*Math.PI*rnd(); const r=Math.sqrt(rnd()); pos.push({x:150+r*rx*Math.cos(a), y:170+r*ry*Math.sin(a), s:0.8+rnd()*0.6}); }
-  const grad = phase()==='morning'?'url(#leafGrad1)':phase()==='midday'?'url(#leafGrad2)':'url(#leafGrad3)';
-  for(let i=0;i<state.cycle.left;i++){ const p=pos[i]; const e=document.createElementNS('http://www.w3.org/2000/svg','ellipse');
-    e.setAttribute('cx',p.x); e.setAttribute('cy',p.y); e.setAttribute('rx',4*p.s); e.setAttribute('ry',6*p.s); e.setAttribute('fill',grad); e.setAttribute('opacity',0.95); layer.appendChild(e); }
-}
-
-/* ===== Background forest (5 dots → new tree) ===== */
+/* ===== Forest dots & background trees ===== */
 function updateDotsUI(){
   ringsEl.innerHTML=''; for(let i=0;i<5;i++){ const d=document.createElement('div'); d.className='ring'; if(i<state.dots) d.classList.add('filled'); ringsEl.appendChild(d); }
 }
@@ -472,63 +463,92 @@ function addBackgroundTree(){
 }
 function renderForest(){ forestLayer.innerHTML=''; for(let i=0;i<(state.forest||0); i++) addBackgroundTree(); }
 
-/* ===== Particles & Creatures ===== */
-function spawnLeafParticle(x,y){
-  const emoji = Math.random()<0.25 ? '🍂' : '🍃';
-  const el = document.createElement('div'); el.className='leafParticle'; el.textContent=emoji; el.style.left=x+'px'; el.style.top=y+'px';
-  document.body.appendChild(el);
-  const start=performance.now(), duration=1600+Math.random()*1300, driftX=(Math.random()*120+50)*(Math.random()<0.5?-1:1), driftY=-(80+Math.random()*90);
-  function frame(t){ const p=Math.min(1,(t-start)/duration), ease=1-Math.pow(1-p,2), tx=x+drX*ease, ty=y+drY*ease + 0.55*(p*220);
-    el.style.transform=`translate(${tx-x}px, ${ty-y}px) rotate(${p*260}deg)`; el.style.opacity=String(1-p);
-    if(p<1) requestAnimationFrame(frame); else el.remove();
+/* ===== Tree & Leaves ===== */
+function setTreeVisible(on){ treeSVG.style.display = on ? 'block' : 'none'; }
+function renderLeaves(){
+  leavesLayer.innerHTML='';
+  const cx=150, cy=170, rx=95, ry=65;
+  const rnd=mulberry32(state.cycle.seed);
+  const grad='url(#leafGrad)';
+  const N = state.cycle.left;
+  for(let i=0;i<N;i++){
+    const a=2*Math.PI*rnd(); const r=Math.sqrt(rnd());
+    const x=cx+r*rx*Math.cos(a), y=cy+r*ry*Math.sin(a);
+    const s=0.8+rnd()*0.6;
+    const e=document.createElementNS('http://www.w3.org/2000/svg','ellipse');
+    e.setAttribute('cx',x); e.setAttribute('cy',y);
+    e.setAttribute('rx',4*s); e.setAttribute('ry',6*s); e.setAttribute('fill',grad); e.setAttribute('opacity',0.95);
+    leavesLayer.appendChild(e);
   }
-  const drX = driftX, drY = driftY;
-  requestAnimationFrame(frame);
 }
+function showAcorn(){ acornScreen.style.display='grid'; setTreeVisible(false); updateQuote(); updateCounts(); }
+function showTree(){ acornScreen.style.display='none'; setTreeVisible(true); renderLeaves(); updateQuote(); updateCounts(); }
+
+/* ===== Creatures ===== */
 const CREATURES = [
-  {icon:'🦋', minCP:5,  zone:'sky',   baseChance:0.30, duration:6000},
-  {icon:'🐦', minCP:15, zone:'sky',   baseChance:0.25, duration:6500},
-  {icon:'🐜', minCP:10, zone:'bark',  baseChance:0.18, duration:12000},
-  {icon:'🐞', minCP:12, zone:'bark',  baseChance:0.18, duration:12000},
-  {icon:'🦊', minCP:30, zone:'ground',baseChance:0.14, duration:16000}
+  {icon:'🦋', key:'butterfly', minCP:5,  zone:'sky',   chance:0.30, duration:6000},
+  {icon:'🐦', key:'bird',      minCP:15, zone:'sky',   chance:0.25, duration:6500},
+  {icon:'🐜', key:'ant',       minCP:10, zone:'bark',  chance:0.18, duration:12000},
+  {icon:'🐞', key:'lady',      minCP:12, zone:'bark',  chance:0.18, duration:12000},
+  {icon:'🦊', key:'fox',       minCP:30, zone:'ground',chance:0.14, duration:16000}
 ];
 function nightAllowed(){ return (state.simNight || (new Date().getHours()>=20 || new Date().getHours()<6)) && state.cp>=30; }
 function spawnCreature(def){
   const el = document.createElement('div'); el.className = `creature ${def.zone}`; el.textContent = def.icon;
   if(def.zone==='sky'){ el.style.top=(18+Math.random()*36)+'%'; el.classList.add('fly'); }
-  else if(def.zone==='bark'){ el.style.bottom=(20+Math.random()*30)+'%'; el.classList.add('crawl'); }
+  else if(def.zone==='bark'){ el.style.left='50%'; el.style.bottom=(20+Math.random()*30)+'%'; el.style.transform='translateX(-50%)'; el.classList.add('crawl'); }
   else if(def.zone==='ground'){ el.classList.add('fox'); }
   creatureLayer.appendChild(el); setTimeout(()=>el.remove(), def.duration||8000);
+  // mark in gallery
+  state.gallery[def.icon]=1; saveState(); buildGallery();
+  // onboarding toast once
   if(!state.onb.creature && !state.onb.never){ showToast("Visitors! As your tree grows, butterflies, birds, and foxes may appear."); state.onb.creature=1; saveState(); }
+  SOUND.creature();
+  checkAchievements();
 }
 function maybeCreatureVisit(trigger='tap'){
-  const pool = CREATURES.filter(c => state.cp >= c.minCP);
-  if(nightAllowed()) pool.push({icon:'🦉',minCP:30,zone:'sky',baseChance:0.22,duration:6500});
+  let pool = CREATURES.filter(c => state.cp >= c.minCP);
+  if(nightAllowed()) pool = pool.concat([{icon:'🦉', key:'owl', minCP:30, zone:'sky', chance:0.22, duration:6500}]);
   if(pool.length===0) return;
   const mult = trigger==='plant' ? 1.8 : 1.0;
   const pick = pool[Math.floor(Math.random()*pool.length)];
-  if(Math.random() <= pick.baseChance*mult) spawnCreature(pick);
+  if(Math.random() <= (pick.chance*mult)) spawnCreature(pick);
 }
 
-/* ===== UI helpers ===== */
+/* ===== Counts & Quote ===== */
 function updateCounts(){ leafCountEl.textContent = state.planted ? `Leaves left. ${state.cycle.left} of ${state.cycle.total}` : ''; }
 function updateQuote(){ mantraEl.textContent = (state.planted && state.cycle.quoteIdx>=0) ? QUOTES[state.cycle.quoteIdx] : ''; }
-function updateJournalBox(){ journalBox.value = state.cycle.journal || ""; saveNote.textContent='Saved'; }
-function showAcornScreen(){ acornScreen.style.display='grid'; setTreesVisible(false); updateQuote(); updateCounts(); }
-function showTreeScreen(){ acornScreen.style.display='none'; setTreesVisible(true); renderLeaves(); updateQuote(); updateCounts(); }
 
-/* ===== CP ===== */
-function addCP(amount){ state.cp += amount; saveState(); updateStageBar(); }
+/* ===== CP & Achievements ===== */
+function addCP(amount){ state.cp += amount; saveState(); updateStageBar(); SOUND.cpGain(); checkAchievements(); }
 
-/* ===== Planting & day flow ===== */
+/* ===== Achievements ===== */
+const ACH = [
+  {id:'firstPlant', name:'First Sprout', desc:'Plant your first acorn', test:s=>s.entries.length>=1},
+  {id:'journal10', name:'Pages Turned', desc:'Journal 10 times', test:s=>(s.entries||[]).filter(e=>e.note && e.note.trim().length>0).length>=10},
+  {id:'cp50', name:'Growing Strong', desc:'Reach 50 CP', test:s=>s.cp>=50},
+  {id:'forest5', name:'Tiny Grove', desc:'Grow 5 background trees', test:s=>s.forest>=5},
+  {id:'foxSeen', name:'Foxy Friend', desc:'See a fox', test:s=>s.gallery['🦊']===1}
+];
+function checkAchievements(){
+  state.ach = state.ach || {};
+  ACH.forEach(a=>{
+    if(!state.ach[a.id] && a.test(state)){
+      state.ach[a.id]=1; saveState();
+      showToast(`🏅 ${a.name}`);
+      SOUND.level();
+      buildAchievements();
+    }
+  });
+}
+
+/* ===== Planting & Day flow ===== */
 function onPlanted(){
   state.dots = (state.dots + 1);
-  if(state.dots >= 5){ state.dots = 0; state.forest = (state.forest||0)+1; addBackgroundTree(); }
+  if(state.dots >= 5){ state.dots = 0; state.forest = (state.forest||0)+1; addBackgroundTree(); applySeason(); checkAchievements(); }
   saveState(); updateDotsUI();
-
   if(!state.day.plantedGiven){ state.day.plantedGiven=true; addCP(1); }
   maybeCreatureVisit('plant');
-
   if(!state.onb.dots && !state.onb.never){ coachTip('These 5 dots track planted trees. Fill all 5 to grow your background forest.', ringsEl, 'top'); state.onb.dots=1; saveState(); }
 }
 function logTodayEntry(){
@@ -545,36 +565,70 @@ function logTodayEntry(){
   state.entries.unshift(entry);
   state.day.logged = true;
   saveState();
+  checkAchievements();
 }
 function plant(){
   ensureAudio();
   state.planted=true;
-  const total=randInt(100,300), seed=Math.floor(Math.random()*2**31);
+  const total=randInt(120,260), seed=Math.floor(Math.random()*2**31);
   let idx=Math.floor(Math.random()*QUOTES.length);
   if(state.cycle && idx===state.cycle.quoteIdx && QUOTES.length>1) idx=(idx+1)%QUOTES.length;
   state.cycle={seed,total,left:total,quoteIdx:idx,journal:""}; saveState();
-  showTreeScreen(); chime(); onPlanted();
-
-  // leaves tip (seamless)
-  setTimeout(()=>{ if(!state.onb.leaves && !state.onb.never){ coachTip('Tap the leaves to send them into the wind. Little taps add Care Points.', document.getElementById('stage'), 'center'); state.onb.leaves=1; saveState(); }}, 800);
+  showTree(); SOUND.plant(); onPlanted();
+  // onboarding — leaves tip
+  setTimeout(()=>{ if(!state.onb.leaves && !state.onb.never){ coachTip('Tap the leaves to send them into the wind. Little taps add Care Points.', document.getElementById('stage'), 'center'); state.onb.leaves=1; saveState(); }}, 700);
 }
-function pluckOne(){
+function spawnLeafParticle(x,y,dx=0,dy=-1){
+  const emoji = Math.random()<0.25 ? '🍂' : '🍃';
+  const el = document.createElement('div'); el.className='leafParticle'; el.textContent=emoji; el.style.left=x+'px'; el.style.top=y+'px';
+  document.body.appendChild(el);
+  const start=performance.now(), duration=1500+Math.random()*1400;
+  const side = (Math.random()*120+50)*(Math.random()<0.5?-1:1);
+  const baseX = dx*80 + side*0.5, baseY = dy*(-120) - 40;
+  function frame(t){ const p=Math.min(1,(t-start)/duration), ease=1-Math.pow(1-p,2);
+    const tx = x + baseX*ease, ty = y + baseY*ease + 0.55*(p*220);
+    el.style.transform=`translate(${tx-x}px, ${ty-y}px) rotate(${p*240}deg)`; el.style.opacity=String(1-p);
+    if(p<1) requestAnimationFrame(frame); else el.remove();
+  } requestAnimationFrame(frame);
+}
+function pluckOne(pointer){
   if(!state.planted || state.cycle.left<=0) return;
-  const layer=currentLayer(); const leaf=layer.lastElementChild; if(!leaf) return;
+  const leaf=leavesLayer.lastElementChild; if(!leaf) return;
   const r=leaf.getBoundingClientRect(); const cx=r.left + r.width/2, cy=r.top + r.height/2;
-  leaf.remove(); state.cycle.left--; saveState(); updateCounts(); chime(); spawnLeafParticle(cx, cy);
+  leaf.remove(); state.cycle.left--; saveState(); updateCounts(); SOUND.cpGain();
+  const dx = pointer?.dx ?? 0, dy = pointer?.dy ?? -1;
+  spawnLeafParticle(cx, cy, dx, dy);
   maybeCreatureVisit('tap');
-
   const used = (state.cycle.total - state.cycle.left);
   if(used>=2 && !state.onb.journal && !state.onb.never){
     if(journalBox && journalBox.scrollIntoView) journalBox.scrollIntoView({behavior:'smooth', block:'center'});
     setTimeout(()=>{ coachTip('Write a line about how the mantra felt. Journaling boosts growth.', journalBox, 'top'); state.onb.journal=1; saveState(); }, 180);
   }
-
-  if(state.cycle.left<=0){ logTodayEntry(); state.planted=false; saveState(); showAcornScreen(); }
+  if(state.cycle.left<=0){ logTodayEntry(); state.planted=false; saveState(); showAcorn(); SOUND.level(); }
 }
 
-/* ===== Journal render ===== */
+/* ===== Gallery & Achievements UI ===== */
+function buildGallery(){
+  const list = ['🦋','🐦','🐜','🐞','🦊','🦉'];
+  galleryGrid.innerHTML='';
+  list.forEach(icon=>{
+    const unlocked = state.gallery[icon]===1;
+    const div=document.createElement('div'); div.className='card'+(unlocked?'':' locked');
+    div.innerHTML = `<div style="font-size:28px">${icon}</div><small>${unlocked?'Seen':'Locked'}</small>`;
+    galleryGrid.appendChild(div);
+  });
+}
+function buildAchievements(){
+  achGrid.innerHTML='';
+  ACH.forEach(a=>{
+    const ok = state.ach?.[a.id];
+    const div=document.createElement('div'); div.className='card'+(ok?'':' locked');
+    div.innerHTML = `<div style="font-weight:700">${a.name}</div><small>${a.desc}</small>`;
+    achGrid.appendChild(div);
+  });
+}
+
+/* ===== Journal page ===== */
 function calcStreak(entries){
   if(!entries || !entries.length) return 0;
   const days = new Set(entries.map(e=>e.dateISO));
@@ -594,47 +648,38 @@ function renderJournalPage(){
     div.innerHTML = `
       <h4>${e.dateISO} • ${e.stage}</h4>
       <div class="meta">Mantra — ${e.quote ? e.quote : '—'}</div>
-      <details ${i===0?'open':''}>
-        <summary style="opacity:.9">Show note</summary>
-        <div class="note">${e.note ? e.note.replace(/</g,'&lt;') : '<em>No entry</em>'}</div>
-      </details>`;
+      <div class="note">${e.note ? e.note.replace(/</g,'&lt;') : '<em>No entry</em>'}</div>`;
     entryList.appendChild(div);
   });
 }
 
-/* ===== Pages via Drawer ===== */
+/* ===== Drawer / pages ===== */
 function showPage(which){
-  const showTree = which==='tree';
-  pageTree.setAttribute('aria-hidden', String(!showTree));
-  pageJournal.setAttribute('aria-hidden', String(showTree));
+  for(const k in pageEls){ pageEls[k].setAttribute('aria-hidden', String(k!==which)); }
   closeDrawer();
-  if(!showTree) renderJournalPage();
+  if(which==='journal') renderJournalPage();
+  if(which==='gallery') buildGallery();
+  if(which==='ach') buildAchievements();
 }
+document.querySelectorAll('#drawer .menuItem').forEach(a=>{
+  a.addEventListener('click', (e)=>{ e.preventDefault(); const p=a.getAttribute('data-page'); if(p) showPage(p); });
+});
 function openDrawer(){ drawer.classList.add('open'); drawerBackdrop.classList.add('open');
-  if(!state.onb.menu && !state.onb.never){ coachTip('Your Journal & Settings live here. Browse past entries anytime.', drawer, 'inside'); state.onb.menu=1; saveState(); } }
+  if(!state.onb.menu && !state.onb.never){ coachTip('Your Journal, Gallery & Achievements live here.', drawer, 'inside'); state.onb.menu=1; saveState(); } }
 function closeDrawer(){ drawer.classList.remove('open'); drawerBackdrop.classList.remove('open'); }
 hamburger.addEventListener('click', openDrawer);
 drawerBackdrop.addEventListener('click', closeDrawer);
-menuTree.addEventListener('click', (e)=>{e.preventDefault(); showPage('tree');});
-menuJournal.addEventListener('click', (e)=>{e.preventDefault(); showPage('journal');});
-menuSettings.addEventListener('click', (e)=>{e.preventDefault(); alert('Settings coming soon ✨');});
 
-/* ===== New day ===== */
-resetBtn.addEventListener('click', ()=>{
-  if(state.planted) logTodayEntry();
-  state.planted=false; state.cycle=makeCycle(); state.day=makeDay();
-  saveState(); boot();
-});
-
-/* ===== Input handlers ===== */
-plantBtn.addEventListener('click', plant, {passive:true});
-document.getElementById('stage').addEventListener('pointerdown', ()=>{ if(state.planted) pluckOne(); }, {passive:true});
-soundToggle.addEventListener('click', ()=>{ audioEnabled=!audioEnabled; if(audioEnabled) ensureAudio();
-  soundToggle.setAttribute('aria-pressed',String(audioEnabled));
-  soundToggle.textContent='Sound. '+(audioEnabled?'On':'Off'); });
-
-/* ===== Journal typing (with /dev on/off and tip controls) ===== */
+/* ===== Journal typing + dev commands ===== */
 let saveTimer=null;
+function ensureForestName(){
+  if(!state.name){
+    const n=prompt("Name your forest 🌲", "My Forest");
+    if(n) { state.name=n.slice(0,24); saveState(); }
+  }
+  forestNameLabel.textContent = state.name ? `• ${state.name}` : '';
+  forestNameStat.textContent = state.name || '—';
+}
 journalBox.addEventListener('input', ()=>{
   const cmd = journalBox.value.trim().toLowerCase();
   if(cmd==='/dev on'){ state.dev=1; saveState(); applyDevUI(); showToast('Dev tools enabled'); return; }
@@ -650,43 +695,43 @@ journalBox.addEventListener('input', ()=>{
     if(!state.day.journalGiven && state.cycle.journal.trim().length >= 10){
       state.day.journalGiven = true; addCP(2);
     }
-  }, 400);
+  }, 350);
 });
 
-/* ===== Dev helpers & panel ===== */
+/* ===== Dev UI ===== */
 function applyDevUI(){
-  devPanel.style.display = state.dev ? 'block' : 'none';
+  document.getElementById('devPanel').style.display = state.dev ? 'block' : 'none';
   menuReset.style.display = state.dev ? 'flex' : 'none';
-  devOnlyNote.style.display = state.dev ? 'block' : 'none';
 }
 document.getElementById('devAddCP').addEventListener('click', ()=> addCP(5));
 document.getElementById('devNextStage').addEventListener('click', ()=>{
-  const target = nextStageTarget(state.cp); const start=state.cp, delta=target-start, dur=1200, t0=performance.now();
+  const target = nextStageTarget(state.cp); const start=state.cp, delta=target-start, dur=1100, t0=performance.now();
   (function step(t){ const p=Math.min(1,(t-t0)/dur); const ease=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2; state.cp=start+delta*ease; updateStageBar();
-    if(p<1) requestAnimationFrame(step); else {state.cp=target; saveState(); updateStageBar(); chime();}})(t0);
+    if(p<1) requestAnimationFrame(step); else {state.cp=target; saveState(); updateStageBar(); SOUND.level();}})(t0);
 });
 document.getElementById('devLeaves').addEventListener('click', ()=>{
   state.cycle.total=randInt(220,320); state.cycle.left=state.cycle.total; state.cycle.seed=Math.floor(Math.random()*2**31);
   saveState(); if(state.planted) renderLeaves(); updateCounts();
 });
-document.getElementById('devNight').addEventListener('click', ()=>{ state.simNight = state.simNight?0:1; saveState(); setTreesVisible(state.planted); });
+document.getElementById('devNight').addEventListener('click', ()=>{ state.simNight = state.simNight?0:1; saveState(); });
 document.getElementById('devReset').addEventListener('click', ()=>{ doResetProgress(); });
 menuReset.addEventListener('click', (e)=>{ e.preventDefault(); doResetProgress(); });
 
+/* ===== Reset ===== */
 function doResetProgress(){
-  if(!confirm('Reset all local progress? This clears CP, journal entries, forest name, forest trees, dots.')) return;
+  if(!confirm('Reset all local progress? This clears CP, entries, name, forest, dots.')) return;
   const keepDev = state.dev;
   localStorage.removeItem(storeKey);
   const d=todayMidnight();
   Object.assign(state, {date:d, planted:false, cycle:makeCycle(), cp:0, day:makeDay(), dots:0, forest:0, name:"", entries:[], dev:keepDev?1:0, simNight:0,
-                        onb:{plant:0, leaves:0, journal:0, dots:0, menu:0, creature:0, never:0}});
+                        onb:{plant:0, leaves:0, journal:0, dots:0, menu:0, creature:0, never:0},
+                        gallery:{'🦋':0,'🐦':0,'🐜':0,'🐞':0,'🦊':0,'🦉':0}, ach:{}});
   saveState(); applyDevUI(); boot(); closeDrawer();
 }
 
-/* ===== Onboarding (hardened coachTip + toast) ===== */
+/* ===== Onboarding: hardened coachTip + toast ===== */
 function coachTip(text, target, position='top'){
   if(state.onb?.never) return;
-
   coachText.textContent = text;
 
   function showAt(x, y, arrowX=null, arrowY=null, showArrow=true){
@@ -696,61 +741,62 @@ function coachTip(text, target, position='top'){
       coachArrow.style.display = 'block';
       coachArrow.style.left = Math.max(12, Math.min((arrowX ?? x)+8, window.innerWidth - 12)) + 'px';
       coachArrow.style.top  = Math.max(8, Math.min((arrowY ?? y)-10, window.innerHeight - 8)) + 'px';
-    } else {
-      coachArrow.style.display = 'none';
-    }
-    coach.setAttribute('aria-hidden','false');
-    coach.classList.add('show');
+    } else coachArrow.style.display = 'none';
+    coach.setAttribute('aria-hidden','false'); coach.classList.add('show');
   }
-
   let rect=null; try{ rect = target?.getBoundingClientRect?.() || null; }catch(e){ rect=null; }
-  const usable = rect && rect.width>0 && rect.height>0 &&
-    rect.bottom>0 && rect.right>0 && rect.top<window.innerHeight && rect.left<window.innerWidth;
-
+  const usable = rect && rect.width>0 && rect.height>0 && rect.bottom>0 && rect.right>0 && rect.top<window.innerHeight && rect.left<window.innerWidth;
   setTimeout(()=>{
-    if(!usable){
-      const x = window.innerWidth/2 - 130; const y = window.innerHeight/2 - 60;
-      showAt(x, y, null, null, false); return;
-    }
-    if(position==='inside'){
-      showAt(rect.left + 14, rect.top + 60, null, null, false);
-    }else if(position==='center'){
-      const cx = rect.left + rect.width/2, cy = rect.top + rect.height/2;
-      showAt(cx - 130, cy - 40, cx - 8, cy - 10, true);
-    }else{ // top
-      const cx = rect.left + rect.width/2;
-      const topY = rect.top - 70 - 10;
-      showAt(cx - 130, topY, cx - 8, rect.top - 12, true);
-    }
+    if(!usable){ const x=window.innerWidth/2 - 130, y=window.innerHeight/2 - 60; showAt(x,y,null,null,false); return; }
+    if(position==='inside'){ showAt(rect.left+14, rect.top+60, null,null,false); }
+    else if(position==='center'){ const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2; showAt(cx-130, cy-40, cx-8, cy-10, true); }
+    else { const cx=rect.left+rect.width/2; const topY=rect.top-80; showAt(cx-130, topY, cx-8, rect.top-12, true); }
   }, 120);
-
   function close(){ coach.classList.remove('show'); coach.setAttribute('aria-hidden','true'); }
-  coachOk.onclick = close;
-  coachSkip.onclick = ()=>{ state.onb.never=1; saveState(); close(); };
+  coachOk.onclick = close; coachSkip.onclick = ()=>{ state.onb.never=1; saveState(); close(); };
   coach.querySelector('.coachMask').onclick = close;
 }
-function showToast(msg){
-  toast.textContent = msg;
-  toast.classList.add('show');
-  setTimeout(()=>toast.classList.remove('show'), 2400);
-}
+function showToast(msg){ toast.textContent = msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'), 2200); }
+
+/* ===== Input handlers (tap + swipe-ish direction) ===== */
+let pointerStart=null;
+document.getElementById('stage').addEventListener('pointerdown', (e)=>{
+  if(!state.planted){ return; }
+  pointerStart = {x:e.clientX, y:e.clientY};
+});
+document.getElementById('stage').addEventListener('pointerup', (e)=>{
+  if(!state.planted) return;
+  let dx=0, dy=-1;
+  if(pointerStart){ const vx = e.clientX-pointerStart.x, vy = e.clientY-pointerStart.y; const mag = Math.hypot(vx,vy)||1; dx=vx/mag; dy=vy/mag; pointerStart=null; }
+  pluckOne({dx,dy});
+}, {passive:true});
+plantBtn.addEventListener('click', plant, {passive:true});
+resetBtn.addEventListener('click', ()=>{
+  if(state.planted) logTodayEntry();
+  state.planted=false; state.cycle=makeCycle(); state.day=makeDay();
+  saveState(); boot();
+});
+soundToggle.addEventListener('click', ()=>{ audioEnabled=!audioEnabled; if(audioEnabled) ensureAudio();
+  soundToggle.setAttribute('aria-pressed',String(audioEnabled));
+  soundToggle.textContent='Sound. '+(audioEnabled?'On':'Off'); });
 
 /* ===== Boot ===== */
-function updateDotsUIAndForest(){ updateDotsUI(); renderForest(); }
-function ensureForestNameLabels(){ forestNameLabel.textContent = state.name ? `• ${state.name}` : ''; forestNameStat.textContent = state.name || '—'; }
+function updateDotsAndForest(){ updateDotsUI(); renderForest(); }
 function boot(){
-  ensureForestName(); ensureForestNameLabels(); applyDevUI();
-  updateStageBar(); updateDotsUIAndForest(); updateJournalBox();
-  if(state.planted && state.cycle.left>0){ showTreeScreen(); } else { showAcornScreen(); }
+  ensureForestName(); applySeason(); applyDevUI();
+  updateStageBar(); updateDotsAndForest();
+  journalBox.value = state.cycle.journal || ""; saveNote.textContent='Saved';
+  forestNameLabel.textContent = state.name ? `• ${state.name}` : '';
+  if(state.planted && state.cycle.left>0){ showTree(); } else { showAcorn(); }
   showPage('tree');
-
   if(!state.onb.plant && !state.onb.never){
     setTimeout(()=>coachTip('Tap the acorn to plant your first tree. You’ll get a mantra for today.', plantBtn, 'top'), 300);
     state.onb.plant=1; saveState();
   }
+  buildGallery(); buildAchievements();
 }
 boot();
-setInterval(()=>{ if(state.planted){ setTreesVisible(true); renderLeaves(); } }, 10*60*1000);
+setInterval(()=>{ if(state.planted){ renderLeaves(); } }, 9*60*1000);
 </script>
 </body>
 </html>
