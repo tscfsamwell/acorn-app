@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Acorn — Master Build</title>
+<title>Acorn — Forest Growth</title>
 <meta name="theme-color" content="#0b3d2e">
 <style>
 *{box-sizing:border-box}html,body{height:100%;margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto}
@@ -13,8 +13,11 @@ body{background:linear-gradient(180deg,var(--bg1) 0%, var(--bg2) 30%, var(--bg3)
 main{max-width:520px;margin:0 auto;padding:16px 16px 40px}
 header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 h1{font-size:20px;margin:0;letter-spacing:.5px}
-.rings{display:flex;gap:4px}
-.ring{width:10px;height:10px;border:2px solid var(--accent);border-radius:50%;opacity:.85}
+
+/* Dots meter (5) */
+.rings{display:flex;gap:6px;align-items:center}
+.ring{width:12px;height:12px;border:2px solid var(--accent);border-radius:50%;opacity:.9}
+.ring.filled{background:var(--accent)}
 
 /* Stage bar */
 .stageWrap{display:flex;align-items:center;gap:10px;margin:8px 0 6px}
@@ -31,16 +34,23 @@ h1{font-size:20px;margin:0;letter-spacing:.5px}
     radial-gradient(ellipse at 50% 15%, rgba(255,255,255,.15) 0%, rgba(255,255,255,0) 55%),
     linear-gradient(180deg,#0e4434 0%,#0c3a2c 60%,#0a3327 100%);
 }
-svg{width:92%;height:auto;filter:drop-shadow(0 6px 18px rgba(0,0,0,.35))}
+/* New: background forest layer */
+#forestLayer{position:absolute;inset:0;z-index:0;pointer-events:none}
+.forestTree{position:absolute;bottom:8%;opacity:.32;filter:blur(.2px) drop-shadow(0 4px 10px rgba(0,0,0,.3))}
+.forestTree svg{display:block}
+
+svg{width:92%;height:auto;filter:drop-shadow(0 6px 18px rgba(0,0,0,.35)); z-index:2}
 .sway-slow{animation:sway 6s ease-in-out infinite}
 .sway-mid{animation:sway 4.5s ease-in-out infinite}
 .sway-fast{animation:sway 3.5s ease-in-out infinite}
 @keyframes sway{0%{transform:rotate(-1.2deg)}50%{transform:rotate(1.2deg)}100%{transform:rotate(-1.2deg)}}
-.ground{position:absolute;left:0;right:0;bottom:-6%;height:28%;background:radial-gradient(ellipse at 50% 20%, #124a38 0%, #0e3f30 45%, #0b3528 100%);box-shadow:0 -10px 40px inset rgba(0,0,0,.25)}
-.glow{position:absolute;inset:0;background:radial-gradient(circle at 50% 25%, var(--glow), transparent 45%)}
+.ground{position:absolute;left:0;right:0;bottom:-6%;height:28%;
+  background:radial-gradient(ellipse at 50% 20%, #124a38 0%, #0e3f30 45%, #0b3528 100%);
+  box-shadow:0 -10px 40px inset rgba(0,0,0,.25); z-index:1}
+.glow{position:absolute;inset:0;background:radial-gradient(circle at 50% 25%, var(--glow), transparent 45%); z-index:1}
 
 /* Acorn screen */
-#acornScreen{position:absolute;inset:0;display:grid;place-items:center;gap:14px;z-index:10}
+#acornScreen{position:absolute;inset:0;display:grid;place-items:center;gap:14px;z-index:3}
 #acornBig{width:min(42vmin,220px);height:auto;filter:drop-shadow(0 10px 24px rgba(0,0,0,.4))}
 .cta{display:inline-flex;align-items:center;gap:10px;background:var(--accent);color:#0b3d2e;border:none;border-radius:999px;padding:14px 18px;font-weight:800;font-size:16px;box-shadow:0 6px 18px rgba(0,0,0,.25)}
 .cta:active{transform:scale(.97)}
@@ -57,13 +67,14 @@ svg{width:92%;height:auto;filter:drop-shadow(0 6px 18px rgba(0,0,0,.35))}
 /* Journal */
 .journal{margin-top:14px}
 label{font-size:13px;opacity:.95}
-textarea{width:100%;min-height:84px;margin-top:6px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:#eafff3;padding:12px;resize:vertical;outline:none}
+textarea{width:100%;min-height:84px;margin-top:6px;border-radius:12px;border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.05);color:#eafff3;padding:12px;resize:vertical;outline:none}
 textarea::placeholder{color:#cdeede;opacity:.7}
 .saveNote{font-size:12px;opacity:.75;margin-top:6px}
 
 /* Particles & Creatures */
 .leafParticle{position:fixed;will-change:transform,opacity;pointer-events:none}
-#creatureLayer{position:absolute;inset:0;pointer-events:none}
+#creatureLayer{position:absolute;inset:0;pointer-events:none;z-index:4}
 
 /* SKY flyers */
 .creature.sky{position:absolute;top:20%; font-size:26px; filter:drop-shadow(0 4px 10px rgba(0,0,0,.35)); opacity:0}
@@ -92,7 +103,7 @@ textarea::placeholder{color:#cdeede;opacity:.7}
   100%{opacity:0; transform:translate(-50%,0) translateX(14vw)}
 }
 
-/* DEV PANEL */
+/* DEV PANEL (unchanged) */
 #devPanel{position:fixed;right:10px;top:10px;z-index:9999;background:rgba(0,0,0,.55);
   backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:8px;display:none}
 #devPanel h4{margin:0 0 6px;font-size:12px;letter-spacing:.3px;opacity:.8}
@@ -104,7 +115,8 @@ textarea::placeholder{color:#cdeede;opacity:.7}
 <main>
   <header>
     <h1>Acorn</h1>
-    <div class="rings" id="rings" aria-label="Streak rings"></div>
+    <!-- 5-dot planting meter -->
+    <div class="rings" id="rings" aria-label="Forest progress dots"></div>
   </header>
 
   <div class="stageWrap">
@@ -115,6 +127,9 @@ textarea::placeholder{color:#cdeede;opacity:.7}
 
   <section id="stage" aria-live="polite">
     <div class="scene" id="scene">
+      <!-- New background forest layer -->
+      <div id="forestLayer"></div>
+
       <!-- ACORN + BUTTON -->
       <div id="acornScreen">
         <svg id="acornBig" viewBox="0 0 80 80" aria-hidden="true">
@@ -186,14 +201,14 @@ textarea::placeholder{color:#cdeede;opacity:.7}
     <div class="saveNote" id="saveNote">Saved</div>
   </div>
 
-  <!-- Dev tools -->
-  <div id="devPanel">
-    <h4>DEV</h4>
+  <!-- Dev panel kept (type /dev on in journal to show) -->
+  <div id="devPanel" style="display:none;position:fixed;right:10px;top:10px;z-index:9999;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:8px">
+    <h4 style="margin:0 0 6px;font-size:12px;letter-spacing:.3px;opacity:.8">DEV</h4>
     <div>
       <button id="devAddCP">+5 CP</button>
       <button id="devNextStage">Next Stage (fast)</button>
       <button id="devLeaves">Full Leaves</button>
-      <button id="devNight">Toggle Night</button><br>
+      <button id="devNight">Toggle Night</button>
       <button id="devFox">🦊</button>
       <button id="devBird">🐦</button>
       <button id="devButterfly">🦋</button>
@@ -220,8 +235,8 @@ const QUOTES = [
 ];
 
 /* ===== Elements ===== */
-const scene = document.getElementById('scene');
 const ringsEl = document.getElementById('rings');
+const forestLayer = document.getElementById('forestLayer');
 const plantBtn = document.getElementById('plantBtn');
 const acornScreen = document.getElementById('acornScreen');
 const treeMorning = document.getElementById('treeMorning');
@@ -240,74 +255,48 @@ const stageNameEl = document.getElementById('stageName');
 const stageFillEl = document.getElementById('stageFill');
 const stageCPEl   = document.getElementById('stageCP');
 const creatureLayer = document.getElementById('creatureLayer');
-const devPanel = document.getElementById('devPanel');
 
 /* ===== Audio ===== */
 let audioEnabled = true, audioCtx;
 function ensureAudio(){ try{ if(!audioCtx){ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); } if(audioCtx.state==='suspended'){ audioCtx.resume(); } }catch(e){} }
-function chime(){
-  if(!audioEnabled) return; ensureAudio(); if(!audioCtx||audioCtx.state!=='running') return;
+function chime(){ if(!audioEnabled) return; ensureAudio(); if(!audioCtx||audioCtx.state!=='running') return;
   const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type='sine';
   const notes=[523.25,587.33,659.25,698.46]; o.frequency.value=notes[Math.floor(Math.random()*notes.length)];
   const now=audioCtx.currentTime; g.gain.setValueAtTime(0.0001,now); g.gain.exponentialRampToValueAtTime(0.08,now+0.01); g.gain.exponentialRampToValueAtTime(0.0001,now+0.45);
   o.connect(g); g.connect(audioCtx.destination); o.start(now); o.stop(now+0.46);
 }
 
-/* ===== Utils & State ===== */
-const storeKey='acorn.master.v2';
+/* ===== State ===== */
+const storeKey='acorn.forest.v1';
 function todayMidnight(){const d=new Date(); d.setHours(0,0,0,0); return +d;}
 function randInt(min,max){return Math.floor(min+Math.random()*(max-min+1));}
 function mulberry32(a){return function(){let t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296;}}
-
 function makeCycle(){ return {seed:Math.floor(Math.random()*2**31), total:randInt(100,300), left:0, quoteIdx:-1, journal:""}; }
 function makeDay(){ return {leafCP:0, journalGiven:false, plantedGiven:false}; }
 function loadState(){
   const d=todayMidnight(), raw=localStorage.getItem(storeKey);
-  if(raw){ const s=JSON.parse(raw);
-    if(s.date!==d){ const rings=s.planted? (s.rings||0)+1 : (s.rings||0); s.date=d; s.rings=rings; s.day=makeDay(); }
-    return s;
-  }
-  return {date:d, rings:0, planted:false, cycle:makeCycle(), cp:0, day:makeDay()};
+  if(raw){ const s=JSON.parse(raw); if(s.date!==d){ s.date=d; s.day=makeDay(); } return s; }
+  return {date:d, planted:false, cycle:makeCycle(), cp:0, day:makeDay(), dots:0, forest:0};
 }
 const state = loadState();
 function saveState(){ localStorage.setItem(storeKey, JSON.stringify(state)); }
 
 /* ===== Stages ===== */
 const STAGES = [
-  {name:'Acorn',     min:0},
-  {name:'Sprout',    min:5},
-  {name:'Sapling',   min:15},
-  {name:'Young Tree',min:30},
-  {name:'Full Tree', min:50},
-  {name:'Grove',     min:80}
+  {name:'Acorn',min:0},{name:'Sprout',min:5},{name:'Sapling',min:15},{name:'Young Tree',min:30},{name:'Full Tree',min:50},{name:'Grove',min:80}
 ];
-function currentStageIndex(cp){ let idx=0; for(let i=0;i<STAGES.length;i++){ if(cp>=STAGES[i].min) idx=i; } return idx; }
-function nextStageTarget(cp){
-  const idx=currentStageIndex(cp);
-  if(idx>=STAGES.length-1) return STAGES[idx].min + 20; // allow progress beyond final
-  return STAGES[idx+1].min;
-}
+function currentStageIndex(cp){ let i=0; for(let k=0;k<STAGES.length;k++) if(cp>=STAGES[k].min) i=k; return i; }
+function nextStageTarget(cp){ const i=currentStageIndex(cp); return i>=STAGES.length-1 ? STAGES[i].min+20 : STAGES[i+1].min; }
 function updateStageBar(){
   const idx=currentStageIndex(state.cp);
   const stage=STAGES[idx], next=STAGES[Math.min(idx+1,STAGES.length-1)];
-  const rangeMax = next.min===stage.min ? stage.min+20 : next.min;
-  const pct = Math.max(0, Math.min(100, ((state.cp - stage.min) / (rangeMax - stage.min))*100 ));
-  stageNameEl.textContent = stage.name;
-  stageCPEl.textContent = `${Math.round(state.cp)} CP`;
-  stageFillEl.style.width = pct + '%';
+  const rangeMax= next.min===stage.min ? stage.min+20 : next.min;
+  const pct = Math.max(0, Math.min(100, ((state.cp-stage.min)/(rangeMax-stage.min))*100));
+  stageNameEl.textContent=stage.name; stageCPEl.textContent=`${Math.round(state.cp)} CP`; stageFillEl.style.width=pct+'%';
 }
 
-/* ===== Time/phase (dev toggle supported) ===== */
-let DEV = !!Number(localStorage.getItem(storeKey + '.dev'));
-let devNight = !!Number(localStorage.getItem(storeKey + '.devNight'));
-function setDev(on){ DEV=!!on; localStorage.setItem(storeKey+'.dev', DEV?1:0); devPanel.style.display = DEV ? 'block' : 'none'; }
-function setDevNight(on){ devNight=!!on; localStorage.setItem(storeKey+'.devNight', on?1:0); setTreesVisible(state.planted); }
-setDev(DEV); setDevNight(devNight);
-
-function isNight(){ const h=new Date().getHours(); return devNight ? true : (h>=20||h<6); }
-function phase(){ const h=new Date().getHours(); if(devNight) return 'evening'; return h<12?'morning':h<18?'midday':'evening'; }
-
 /* ===== Trees & leaves ===== */
+function phase(){ const h=new Date().getHours(); return h<12?'morning':h<18?'midday':'evening'; }
 function setTreesVisible(on){
   const p=phase();
   treeMorning.style.display = (on && p==='morning') ? 'block' : 'none';
@@ -325,11 +314,42 @@ function renderLeaves(){
     e.setAttribute('cx',p.x); e.setAttribute('cy',p.y); e.setAttribute('rx',4*p.s); e.setAttribute('ry',6*p.s); e.setAttribute('fill',grad); e.setAttribute('opacity',0.95); layer.appendChild(e); }
 }
 
-/* ===== Particles ===== */
+/* ===== Planting dots + forest ===== */
+function updateDotsUI(){
+  ringsEl.innerHTML='';
+  for(let i=0;i<5;i++){
+    const d=document.createElement('div'); d.className='ring'; if(i<state.dots) d.classList.add('filled'); ringsEl.appendChild(d);
+  }
+}
+function addBackgroundTree(){
+  // create a simple soft tree silhouette
+  const wrap=document.createElement('div'); wrap.className='forestTree';
+  // random side/scale/offset
+  const left = Math.random()<0.5 ? randInt(6,26) : randInt(58,86);
+  const scale = (Math.random()*0.4 + 0.7); // 0.7–1.1
+  wrap.style.left = left+'%';
+  wrap.style.transform = `translateX(-50%) scale(${scale})`;
+  // SVG tree
+  wrap.innerHTML = `
+    <svg width="120" height="160" viewBox="0 0 120 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <linearGradient id="barkSoft" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="#5c4430"/><stop offset="100%" stop-color="#3f2e22"/>
+        </linearGradient>
+        <radialGradient id="leafSoft" cx="50%" cy="40%" r="60%">
+          <stop offset="0%" stop-color="#a5d9c1"/><stop offset="100%" stop-color="#6fb899"/>
+        </radialGradient>
+      </defs>
+      <path d="M60 150 L60 95" stroke="url(#barkSoft)" stroke-width="14" stroke-linecap="round"/>
+      <ellipse cx="60" cy="70" rx="44" ry="32" fill="url(#leafSoft)"/>
+    </svg>`;
+  forestLayer.appendChild(wrap);
+}
+
+/* ===== Particles & Creatures (unchanged logic) ===== */
 function spawnLeafParticle(x,y){
   const emoji = Math.random()<0.25 ? '🍂' : '🍃';
-  const el = document.createElement('div');
-  el.className='leafParticle'; el.textContent=emoji; el.style.left=x+'px'; el.style.top=y+'px';
+  const el = document.createElement('div'); el.className='leafParticle'; el.textContent=emoji; el.style.left=x+'px'; el.style.top=y+'px';
   document.body.appendChild(el);
   const start=performance.now(), duration=1600+Math.random()*1300, driftX=(Math.random()*120+50)*(Math.random()<0.5?-1:1), driftY=-(80+Math.random()*90);
   function frame(t){ const p=Math.min(1,(t-start)/duration), ease=1-Math.pow(1-p,2), tx=x+driftX*ease, ty=y+driftY*ease + 0.55*(p*220);
@@ -337,8 +357,6 @@ function spawnLeafParticle(x,y){
     if(p<1) requestAnimationFrame(frame); else el.remove();
   } requestAnimationFrame(frame);
 }
-
-/* ===== Creatures ===== */
 const CREATURES = [
   {icon:'🦋', minCP:5,  zone:'sky',   baseChance:0.30, duration:6000},
   {icon:'🐦', minCP:15, zone:'sky',   baseChance:0.25, duration:6500},
@@ -346,36 +364,26 @@ const CREATURES = [
   {icon:'🐞', minCP:12, zone:'bark',  baseChance:0.18, duration:12000},
   {icon:'🦊', minCP:30, zone:'ground',baseChance:0.14, duration:16000}
 ];
-function nightOwlAllowed(){ return isNight() && state.cp>=30; }
-
+function isNight(){ const h=new Date().getHours(); return (h>=20||h<6); }
 function spawnCreature(def){
   const el = document.createElement('div');
   el.className = `creature ${def.zone}`; el.textContent = def.icon;
-
-  if(def.zone==='sky'){
-    el.style.top = (18 + Math.random()*36) + '%'; el.classList.add('fly');
-  }else if(def.zone==='bark'){
-    el.style.bottom = (20 + Math.random()*30) + '%'; el.classList.add('crawl');
-  }else if(def.zone==='ground'){
-    el.classList.add('fox');
-  }
+  if(def.zone==='sky'){ el.style.top=(18+Math.random()*36)+'%'; el.classList.add('fly'); }
+  else if(def.zone==='bark'){ el.style.bottom=(20+Math.random()*30)+'%'; el.classList.add('crawl'); }
+  else if(def.zone==='ground'){ el.classList.add('fox'); }
   creatureLayer.appendChild(el);
-  setTimeout(()=>el.remove(), def.duration || 8000);
+  setTimeout(()=>el.remove(), def.duration||8000);
 }
-
 function maybeCreatureVisit(trigger='tap'){
-  const cp = state.cp;
-  const pool = CREATURES.filter(c => cp >= c.minCP);
-  if(nightOwlAllowed()) pool.push({icon:'🦉',minCP:30,zone:'sky',baseChance:0.22,duration:6500});
+  const pool = CREATURES.filter(c => state.cp >= c.minCP);
+  if(isNight() && state.cp>=30) pool.push({icon:'🦉',minCP:30,zone:'sky',baseChance:0.22,duration:6500});
   if(pool.length===0) return;
   const mult = trigger==='plant' ? 1.8 : 1.0;
-  const candidate = pool[Math.floor(Math.random()*pool.length)];
-  const chance = candidate.baseChance * mult;
-  if(Math.random() <= chance) spawnCreature(candidate);
+  const pick = pool[Math.floor(Math.random()*pool.length)];
+  if(Math.random() <= pick.baseChance*mult) spawnCreature(pick);
 }
 
 /* ===== UI helpers ===== */
-function updateRings(){ ringsEl.innerHTML=''; for(let i=0;i<Math.min(state.rings,12);i++){ const d=document.createElement('div'); d.className='ring'; ringsEl.appendChild(d);} }
 function updateCounts(){ leafCountEl.textContent = state.planted ? `Leaves left. ${state.cycle.left} of ${state.cycle.total}` : ''; }
 function updateQuote(){ mantraEl.textContent = (state.planted && state.cycle.quoteIdx>=0) ? QUOTES[state.cycle.quoteIdx] : ''; }
 function updateJournal(){ journalBox.value = state.cycle.journal || ""; saveNote.textContent='Saved'; }
@@ -386,6 +394,19 @@ function showTreeScreen(){ acornScreen.style.display='none'; setTreesVisible(tru
 function addCP(amount){ state.cp += amount; saveState(); updateStageBar(); }
 
 /* ===== Interactions ===== */
+function onPlanted(){
+  // Fill one dot; if 5, reset and add a forest tree
+  state.dots = (state.dots + 1);
+  if(state.dots >= 5){
+    state.dots = 0;
+    state.forest = (state.forest || 0) + 1;
+    addBackgroundTree();
+  }
+  saveState(); updateDotsUI();
+
+  addCP(1);                // CP for planting (first per day logic removed for simplicity here)
+  maybeCreatureVisit('plant');
+}
 function plant(){
   ensureAudio();
   state.planted=true;
@@ -394,117 +415,73 @@ function plant(){
   if(state.cycle && idx===state.cycle.quoteIdx && QUOTES.length>1) idx=(idx+1)%QUOTES.length;
   state.cycle={seed,total,left:total,quoteIdx:idx,journal:""}; saveState();
   showTreeScreen(); chime();
-  if(!state.day.plantedGiven){ state.day.plantedGiven=true; addCP(1); }
-  maybeCreatureVisit('plant');
+  onPlanted();
 }
-
 function pluckOne(){
   if(!state.planted || state.cycle.left<=0) return;
   const layer=currentLayer(); const leaf=layer.lastElementChild; if(!leaf) return;
   const r=leaf.getBoundingClientRect(); const cx=r.left + r.width/2, cy=r.top + r.height/2;
   leaf.remove(); state.cycle.left--; saveState(); updateCounts(); chime(); spawnLeafParticle(cx, cy);
-  if(state.day.leafCP < 2){ const give = Math.min(0.1, 2 - state.day.leafCP); state.day.leafCP += give; addCP(give); }
   maybeCreatureVisit('tap');
   if(state.cycle.left<=0){ state.planted=false; saveState(); showAcornScreen(); }
 }
 
-/* ===== DEV: toggle via journal commands ===== */
-function setDevFromCmd(cmd){
-  if(cmd === '/dev on')  { setDev(true);  return true; }
-  if(cmd === '/dev off') { setDev(false); return true; }
-  return false;
-}
+/* ===== Dev toggles via journal ===== */
+let DEV = !!Number(localStorage.getItem(storeKey + '.dev'));
+function setDev(on){ DEV=!!on; localStorage.setItem(storeKey+'.dev', DEV?1:0); document.getElementById('devPanel').style.display=DEV?'block':'none'; }
+function setDevFromCmd(cmd){ if(cmd==='/dev on'){setDev(true);return true;} if(cmd==='/dev off'){setDev(false);return true;} return false; }
 
-/* ===== Dev helpers ===== */
-function fastAdvanceToNextStage(){
-  const target = nextStageTarget(state.cp);
-  const start = state.cp;
-  const delta = target - start;
-  if(delta <= 0) return;
-  const dur = 1200; // ~1.2s
-  const t0 = performance.now();
-  (function step(t){
-    const p = Math.min(1, (t - t0)/dur);
-    const ease = p<.5 ? 2*p*p : 1 - Math.pow(-2*p+2,2)/2; // easeInOutQuad
-    const val = start + delta * ease;
-    state.cp = val; updateStageBar();
-    if(p < 1) requestAnimationFrame(step); else { state.cp = target; saveState(); updateStageBar(); chime(); }
-  })(t0);
-}
-
-function giveFullLeaves(){
-  const total = randInt(220,320);
-  state.cycle.total = total;
-  state.cycle.left = total;
-  state.cycle.seed = Math.floor(Math.random()*2**31);
-  saveState(); if(state.planted) renderLeaves(); updateCounts();
-}
-
-/* ===== Events ===== */
+/* ===== Boot & events ===== */
 plantBtn.addEventListener('click', plant, {passive:true});
-scene.addEventListener('pointerdown', ()=>{ if(state.planted) pluckOne(); }, {passive:true});
+document.getElementById('stage').addEventListener('pointerdown', ()=>{ if(state.planted) pluckOne(); }, {passive:true});
 
 soundToggle.addEventListener('click', ()=>{ audioEnabled=!audioEnabled; if(audioEnabled) ensureAudio();
   soundToggle.setAttribute('aria-pressed',String(audioEnabled));
   soundToggle.textContent='Sound. '+(audioEnabled?'On':'Off'); });
 
 resetBtn.addEventListener('click', ()=>{
-  const rings = state.planted?state.rings+1:state.rings;
-  state.date=todayMidnight(); state.rings=rings; state.planted=false; state.cycle=makeCycle(); state.day=makeDay();
+  state.planted=false; state.cycle=makeCycle();
   saveState(); boot();
 });
 
-/* Journal typing: save + secret dev commands */
 let saveTimer=null;
 journalBox.addEventListener('input', ()=>{
   const cmd = journalBox.value.trim().toLowerCase();
-  if(setDevFromCmd(cmd)) return; // don’t save/award CP for dev commands
-
+  if(setDevFromCmd(cmd)) return;
   saveNote.textContent='Saving...';
   clearTimeout(saveTimer);
   saveTimer=setTimeout(()=>{
-    const wasEmpty = !state.cycle.journal || state.cycle.journal.trim().length<10;
-    state.cycle.journal = journalBox.value.slice(0,1000);
-    saveState(); saveNote.textContent='Saved';
-    if(!state.day.journalGiven && state.cycle.journal.trim().length >= 10){
-      state.day.journalGiven = true; addCP(2);
-    }
-    // small chime on first meaningful save of session
-    if(wasEmpty && state.cycle.journal.trim().length>=10) chime();
+    state.cycle.journal = journalBox.value.slice(0,1000); saveState(); saveNote.textContent='Saved';
   }, 400);
 });
 
-/* DEV panel buttons */
+/* Dev buttons (optional quick testing) */
 document.getElementById('devAddCP').addEventListener('click', ()=> addCP(5));
-document.getElementById('devNextStage').addEventListener('click', fastAdvanceToNextStage);
-document.getElementById('devLeaves').addEventListener('click', giveFullLeaves);
-document.getElementById('devNight').addEventListener('click', ()=> setDevNight(!devNight));
+document.getElementById('devNextStage').addEventListener('click', ()=>{
+  const target = nextStageTarget(state.cp);
+  const start=state.cp, delta=target-start, dur=1200, t0=performance.now();
+  (function step(t){ const p=Math.min(1,(t-t0)/dur); const ease=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2; state.cp=start+delta*ease; updateStageBar(); if(p<1) requestAnimationFrame(step); else {state.cp=target; saveState(); updateStageBar(); chime();}})(t0);
+});
+document.getElementById('devLeaves').addEventListener('click', ()=>{ state.cycle.total=randInt(220,320); state.cycle.left=state.cycle.total; state.cycle.seed=Math.floor(Math.random()*2**31); saveState(); if(state.planted) renderLeaves(); updateCounts(); });
+document.getElementById('devNight').addEventListener('click', ()=>{ alert('Night preview: visit owl after 20:00 normally. For now this just shows a message.'); });
 
-function spawnIcon(icon, zone){
-  spawnCreature({icon, zone, minCP:0, baseChance:1, duration: zone==='ground' ? 16000 : (zone==='bark'?12000:6500)});
-}
-document.getElementById('devFox').addEventListener('click', ()=> spawnIcon('🦊','ground'));
-document.getElementById('devBird').addEventListener('click', ()=> spawnIcon('🐦','sky'));
-document.getElementById('devButterfly').addEventListener('click', ()=> spawnIcon('🦋','sky'));
-document.getElementById('devLady').addEventListener('click', ()=> spawnIcon('🐞','bark'));
-document.getElementById('devAnt').addEventListener('click', ()=> spawnIcon('🐜','bark'));
-document.getElementById('devOwl').addEventListener('click', ()=> spawnIcon('🦉','sky'));
+document.getElementById('devFox').addEventListener('click', ()=> spawnCreature({icon:'🦊',zone:'ground',duration:16000,baseChance:1,minCP:0}));
+document.getElementById('devBird').addEventListener('click', ()=> spawnCreature({icon:'🐦',zone:'sky',duration:6500,baseChance:1,minCP:0}));
+document.getElementById('devButterfly').addEventListener('click', ()=> spawnCreature({icon:'🦋',zone:'sky',duration:6500,baseChance:1,minCP:0}));
+document.getElementById('devLady').addEventListener('click', ()=> spawnCreature({icon:'🐞',zone:'bark',duration:12000,baseChance:1,minCP:0}));
+document.getElementById('devAnt').addEventListener('click', ()=> spawnCreature({icon:'🐜',zone:'bark',duration:12000,baseChance:1,minCP:0}));
+document.getElementById('devOwl').addEventListener('click', ()=> spawnCreature({icon:'🦉',zone:'sky',duration:6500,baseChance:1,minCP:0}));
 
-/* ===== Boot ===== */
-function updateRings(){ ringsEl.innerHTML=''; for(let i=0;i<Math.min(state.rings,12);i++){ const d=document.createElement('div'); d.className='ring'; ringsEl.appendChild(d);} }
+function renderForestFromState(){ forestLayer.innerHTML=''; for(let i=0;i<(state.forest||0); i++) addBackgroundTree(); }
+
 function boot(){
-  if(state.date!==todayMidnight()){
-    const rings=state.planted?state.rings+1:state.rings;
-    state.date=todayMidnight(); state.rings=rings; state.planted=false; state.cycle=makeCycle(); state.day=makeDay(); saveState();
-  }
-  updateRings(); updateQuote(); updateCounts(); updateJournal(); updateStageBar();
-  if(state.planted && state.cycle.left>0){ showTreeScreen(); } else { showAcornScreen(); }
+  setDev(DEV);
+  updateStageBar(); updateDotsUI(); renderForestFromState();
+  if(state.planted && state.cycle.left>0){ setTreesVisible(true); renderLeaves(); acornScreen.style.display='none'; }
+  else { acornScreen.style.display='grid'; setTreesVisible(false); }
+  updateQuote(); updateCounts(); updateJournal();
 }
 boot();
-setInterval(()=>{ if(state.planted){ setTreesVisible(true); renderLeaves(); } }, 10*60*1000);
-
-// Show/hide Dev panel according to saved flag at load
-setDev(DEV);
 </script>
 </body>
 </html>
