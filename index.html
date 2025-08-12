@@ -3,13 +3,12 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-<title>Acorn — Master (Sage + Sound Fix)</title>
+<title>Acorn — Master (Sound Fixed)</title>
 <meta name="theme-color" content="#0f3a2f"/>
 <style>
 *{box-sizing:border-box}html,body{height:100%;margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto}
 :root{
-  /* ==== SAGE DEFAULT ==== */
-  --sky1:#0f3a2f; --sky2:#0d3329; --sky3:#0a2b23;
+  --sky1:#0f3a2f; --sky2:#0d3329; --sky3:#0a2b23; /* Sage */
   --accent:#bfe8cf; --accent2:#98d8bb; --text:#ecfff6;
   --card:#08251e; --line:rgba(255,255,255,.15); --glow:rgba(163,227,194,.25);
 }
@@ -381,14 +380,13 @@ const coachOk = document.getElementById('coachOk');
 const coachSkip = document.getElementById('coachSkip');
 const toast = document.getElementById('toast');
 
-/* ===== Audio (fixed: mobile unlock + master volume + fallbacks) ===== */
+/* ===== Audio (fixed: mobile unlock + master volume + safe fallback) ===== */
 let audioEnabled = true;
-let SND_VOL = 0.9;                 // bound to the slider
-let _ctx = null, _gain = null;     // WebAudio master
-let _unlocked = false;
+let SND_VOL = 0.9;
+let _ctx = null, _gain = null, _unlocked = false;
 const _audioCache = new Map();
 
-// your file lists — change names when you add custom files
+// File lists — if you add custom files later, just edit these names
 const SND = {
   cpGain:  ["cp1.m4a","cp2.m4a","cp3.m4a"],
   plant:   ["plant1.m4a","plant2.m4a"],
@@ -398,7 +396,7 @@ const SND = {
 
 function ensureAudio(){
   if(_ctx) return;
-  _ctx = new (window.AudioContext || window.webkitAudioContext)();
+  _ctx = new (window.AudioContext||window.webkitAudioContext)();
   _gain = _ctx.createGain();
   _gain.gain.value = SND_VOL;
   _gain.connect(_ctx.destination);
@@ -407,58 +405,47 @@ function primeAudio(){
   ensureAudio();
   if(_unlocked) return;
   try{
-    const buf = _ctx.createBuffer(1, 1, 22050);
-    const src = _ctx.createBufferSource(); src.buffer = buf; src.connect(_gain); src.start(0);
-    _ctx.resume();
-    _unlocked = true;
+    const buf=_ctx.createBuffer(1,1,22050);
+    const src=_ctx.createBufferSource(); src.buffer=buf; src.connect(_gain); src.start(0);
+    _ctx.resume(); _unlocked = true;
   }catch(e){}
 }
 document.addEventListener('pointerdown', primeAudio, {once:true, passive:true});
 document.addEventListener('touchstart', primeAudio, {once:true, passive:true});
 
-function beep(freq=660, ms=140){
+function beep(freq=560, ms=120){
   if(!audioEnabled) return;
   ensureAudio();
   try{
     const o=_ctx.createOscillator(), g=_ctx.createGain();
     o.type='sine'; o.frequency.value=freq;
     g.gain.value=0.0001; g.gain.setTargetAtTime(0.25, _ctx.currentTime, 0.008);
-    o.connect(g); g.connect(_gain);
-    o.start();
-    setTimeout(()=>{ g.gain.setTargetAtTime(0.0001, _ctx.currentTime, 0.02); setTimeout(()=>o.stop(), 120); }, ms);
+    o.connect(g); g.connect(_gain); o.start();
+    setTimeout(()=>{ g.gain.setTargetAtTime(0.0001, _ctx.currentTime, 0.02); setTimeout(()=>o.stop(), 100); }, ms);
   }catch(e){}
 }
-
 function getHtmlAudio(path){
-  // cache base element, clone for overlap
   if(!_audioCache.has(path)){
-    const a = new Audio(path); a.preload='auto';
-    _audioCache.set(path, a);
+    const a=new Audio(path); a.preload='auto'; _audioCache.set(path,a);
   }
-  const base = _audioCache.get(path);
-  const el = base.cloneNode(true);
-  el.volume = SND_VOL;       // respect master slider
+  const base=_audioCache.get(path);
+  const el=base.cloneNode(true);
+  el.volume=SND_VOL; // respect master slider
   return el;
 }
-
 async function playFile(file){
   if(!audioEnabled) return;
   try{
-    const a = getHtmlAudio(`sounds/${file}`);
-    if(_ctx && _ctx.state === 'suspended') { await _ctx.resume(); }
+    const a = getHtmlAudio(file.startsWith('sounds/')?file:`sounds/${file}`);
+    if(_ctx && _ctx.state==='suspended') await _ctx.resume();
     await a.play();
-  }catch(err){
-    // fallback gentle tone instead of silence
-    beep(520, 130);
-  }
+  }catch(err){ beep(520, 130); }
 }
-
 function playFrom(list){
-  if(!Array.isArray(list) || list.length===0) return;
+  if(!Array.isArray(list)||!list.length) return;
   const pick = list[Math.floor(Math.random()*list.length)];
   playFile(pick);
 }
-
 const SOUND = {
   cpGain(){ playFrom(SND.cpGain); },
   plant(){  playFrom(SND.plant);  },
@@ -484,7 +471,7 @@ function loadState(){
 }
 const state = loadState(); SND_VOL = state.volume ?? 0.9;
 
-/* ===== Themes ===== */
+/* ===== Themes (unchanged visuals) ===== */
 const PRESETS = {
   sage:  { sky1:'#0f3a2f', sky2:'#0d3329', sky3:'#0a2b23', accent:'#bfe8cf', accent2:'#98d8bb', text:'#ecfff6' },
   evergreen: { sky1:'#0e4434', sky2:'#0c3a2c', sky3:'#0a3327', accent:'#a3e3c2', accent2:'#8fe3bb', text:'#eafff3' },
@@ -521,14 +508,13 @@ function updateStageBar(){
   stageNameEl.textContent=stage.name; stageCPEl.textContent=`${Math.round(state.cp)} CP`; stageFillEl.style.width=pct+'%';
 }
 
-/* ===== Parallax & Seasons (based on forest size) ===== */
+/* ===== Parallax & Seasons ===== */
 function seasonIndex(){ return Math.floor((state.forest||0)/3)%4; }
 function applySeason(){
   const idx = seasonIndex();
   const seasonPal = [
     PRESETS.sage, PRESETS.evergreen, PRESETS.amber, PRESETS.dusk
   ][idx];
-  // Only auto-apply season if user hasn't set a custom theme
   if(!state.theme || !state.theme.custom){
     setCSSVars(seasonPal.sky1, seasonPal.sky2, seasonPal.sky3, getVar('--accent'), getVar('--accent2'), getVar('--text'));
   }
@@ -673,6 +659,10 @@ function plant(){
   showTree(); SOUND.plant(); onPlanted();
   setTimeout(()=>{ if(!state.onb.leaves && !state.onb.never){ coachTip('Tap or flick the leaves. Little taps add Care Points.', document.getElementById('stage'), 'center'); state.onb.leaves=1; saveState(); }}, 700);
 }
+
+/* ===== Leaf tap / flick (kept as your working version) ===== */
+const stageEl = document.getElementById('stage');
+let pointerStart=null;
 function spawnLeafParticle(x,y,dx=0,dy=-1){
   const emoji = Math.random()<0.25 ? '🍂' : '🍃';
   const el = document.createElement('div'); el.className='leafParticle'; el.textContent=emoji; el.style.left=x+'px'; el.style.top=y+'px';
@@ -686,19 +676,19 @@ function spawnLeafParticle(x,y,dx=0,dy=-1){
     if(p<1) requestAnimationFrame(frame); else el.remove();
   } requestAnimationFrame(frame);
 }
-let pointerStart=null;
-document.getElementById('stage').addEventListener('pointerdown',(e)=>{ if(!state.planted) return; pointerStart={x:e.clientX,y:e.clientY}; });
-document.getElementById('stage').addEventListener('pointerup',(e)=>{
+stageEl.addEventListener('pointerdown',(e)=>{ if(!state.planted) return; pointerStart={x:e.clientX,y:e.clientY}; });
+stageEl.addEventListener('pointerup',(e)=>{
   if(!state.planted) return;
   let dx=0, dy=-1;
-  if(pointerStart){ const vx=e.clientX-pointerStart.x, vy=e.clientY-pointerStart.y; const mag=Math.hypot(vx,vy)||1; dx=vx/mag; dy=vy/mag; pointerStart=null; }
-  // Pluck one leaf towards gesture
+  if(pointerStart){ const vx=e.clientX-pointerStart.x, vy=e.clientY-pointerStart.y; const m=Math.hypot(vx,vy)||1; dx=vx/m; dy=vy/m; pointerStart=null; }
   const leaf=leavesLayer.lastElementChild; if(!leaf) return;
   const r=leaf.getBoundingClientRect(); const cx=r.left + r.width/2, cy=r.top + r.height/2;
   leaf.remove(); state.cycle.left--; saveState(); updateCounts(); SOUND.cpGain(); spawnLeafParticle(cx,cy,dx,dy); maybeCreatureVisit('tap');
   const used=(state.cycle.total-state.cycle.left);
-  if(used>=2 && !state.onb.journal && !state.onb.never){ if(journalBox.scrollIntoView) journalBox.scrollIntoView({behavior:'smooth',block:'center'});
-    setTimeout(()=>{ coachTip('Write a line about how the mantra felt. Journaling boosts growth.', journalBox, 'top'); state.onb.journal=1; saveState(); }, 180); }
+  if(used>=2 && !state.onb.journal && !state.onb.never){
+    if(journalBox.scrollIntoView) journalBox.scrollIntoView({behavior:'smooth',block:'center'});
+    setTimeout(()=>{ coachTip('Write a line about how the mantra felt. Journaling boosts growth.', journalBox, 'top'); state.onb.journal=1; saveState(); }, 180);
+  }
   if(state.cycle.left<=0){ logTodayEntry(); state.planted=false; saveState(); showAcorn(); SOUND.level(); }
 }, {passive:true});
 
@@ -830,7 +820,7 @@ function doResetProgress(){
   saveState(); applyDevUI(); boot(); closeDrawer();
 }
 
-/* ===== CoachTip + Toast (hardened) ===== */
+/* ===== CoachTip + Toast ===== */
 function coachTip(text, target, position='top'){
   if(state.onb?.never) return;
   coachText.textContent = text;
@@ -890,12 +880,12 @@ volRange.addEventListener('input', ()=>{
   showToast(`Volume: ${Math.round(SND_VOL*100)}%`);
 });
 
+/* ===== Save/Load ===== */
+function saveState(){ try{ localStorage.setItem(storeKey, JSON.stringify(state)); }catch(e){} }
+
 /* ===== Boot ===== */
 function updateDotsAndForest(){ updateDotsUI(); renderForest(); }
-function applyDevUI(){ document.getElementById('devPanel').style.display = state.dev ? 'block' : 'none'; menuReset.style.display = state.dev ? 'flex' : 'none'; }
-
 function boot(){
-  // Theme default
   if(!state.theme || (!state.theme.custom && !state.theme.preset)){ applyPreset('sage'); }
   else if(state.theme.custom && state.theme.values){
     const v=state.theme.values; setCSSVars(v.sky1,v.sky2,v.sky3,v.accent,v.accent2,v.text);
@@ -906,7 +896,7 @@ function boot(){
   try{
     ensureAudio();
     SND_VOL = state.volume ?? 0.9;
-    volRange.value = String(SND_VOL);
+    const vr=document.getElementById('volRange'); if(vr) vr.value = String(SND_VOL);
     if(_gain) _gain.gain.value = SND_VOL;
   }catch(e){}
 
@@ -914,7 +904,6 @@ function boot(){
   updateStageBar(); updateDotsAndForest();
   journalBox.value = state.cycle.journal || ""; saveState(); saveNote.textContent='Saved';
   forestNameLabel.textContent = state.name ? `• ${state.name}` : '';
-  // Sound toggle initial label
   soundToggle.setAttribute('aria-pressed', String(audioEnabled));
   soundToggle.textContent = 'Sound. ' + (audioEnabled ? 'On' : 'Off');
 
@@ -935,7 +924,6 @@ soundToggle.addEventListener('click', ()=>{
 });
 
 boot();
-// Occasionally refresh leaves graphics to avoid SVG perf drift
 setInterval(()=>{ if(state.planted){ renderLeaves(); } }, 9*60*1000);
 </script>
 </body>
