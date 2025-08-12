@@ -3,18 +3,25 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Acorn — Forest Growth</title>
+<title>Acorn — Tree + Journal</title>
 <meta name="theme-color" content="#0b3d2e">
 <style>
 *{box-sizing:border-box}html,body{height:100%;margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto}
 :root{--bg1:#0b3d2e;--bg2:#134c3a;--bg3:#1a583f;--accent:#a3e3c2;--glow:rgba(163,227,194,.25)}
 body{background:linear-gradient(180deg,var(--bg1) 0%, var(--bg2) 30%, var(--bg3) 100%); color:#f4fff8}
+a{color:inherit}
 
-main{max-width:520px;margin:0 auto;padding:16px 16px 40px}
-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+/* Layout */
+main{max-width:560px;margin:0 auto;padding:16px 16px 40px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.appTitle{display:flex;gap:10px;align-items:center}
 h1{font-size:20px;margin:0;letter-spacing:.5px}
+.forestName{opacity:.9;font-size:13px}
+.topNav{display:flex;gap:8px}
+.tabBtn{border:1px solid rgba(255,255,255,.25);background:transparent;color:#c8ffe1;border-radius:999px;padding:8px 12px;font-size:13px}
+.tabBtn[aria-selected="true"]{background:rgba(255,255,255,.12)}
 
-/* Dots meter (5) */
+/* Dots meter (planting meter) */
 .rings{display:flex;gap:6px;align-items:center}
 .ring{width:12px;height:12px;border:2px solid var(--accent);border-radius:50%;opacity:.9}
 .ring.filled{background:var(--accent)}
@@ -34,9 +41,8 @@ h1{font-size:20px;margin:0;letter-spacing:.5px}
     radial-gradient(ellipse at 50% 15%, rgba(255,255,255,.15) 0%, rgba(255,255,255,0) 55%),
     linear-gradient(180deg,#0e4434 0%,#0c3a2c 60%,#0a3327 100%);
 }
-/* New: background forest layer */
 #forestLayer{position:absolute;inset:0;z-index:0;pointer-events:none}
-.forestTree{position:absolute;bottom:8%;opacity:.32;filter:blur(.2px) drop-shadow(0 4px 10px rgba(0,0,0,.3))}
+.forestTree{position:absolute;bottom:8%;opacity:.3;filter:blur(.2px) drop-shadow(0 4px 10px rgba(0,0,0,.3))}
 .forestTree svg{display:block}
 
 svg{width:92%;height:auto;filter:drop-shadow(0 6px 18px rgba(0,0,0,.35)); z-index:2}
@@ -44,9 +50,7 @@ svg{width:92%;height:auto;filter:drop-shadow(0 6px 18px rgba(0,0,0,.35)); z-inde
 .sway-mid{animation:sway 4.5s ease-in-out infinite}
 .sway-fast{animation:sway 3.5s ease-in-out infinite}
 @keyframes sway{0%{transform:rotate(-1.2deg)}50%{transform:rotate(1.2deg)}100%{transform:rotate(-1.2deg)}}
-.ground{position:absolute;left:0;right:0;bottom:-6%;height:28%;
-  background:radial-gradient(ellipse at 50% 20%, #124a38 0%, #0e3f30 45%, #0b3528 100%);
-  box-shadow:0 -10px 40px inset rgba(0,0,0,.25); z-index:1}
+.ground{position:absolute;left:0;right:0;bottom:-6%;height:28%;background:radial-gradient(ellipse at 50% 20%, #124a38 0%, #0e3f30 45%, #0b3528 100%);box-shadow:0 -10px 40px inset rgba(0,0,0,.25); z-index:1}
 .glow{position:absolute;inset:0;background:radial-gradient(circle at 50% 25%, var(--glow), transparent 45%); z-index:1}
 
 /* Acorn screen */
@@ -64,11 +68,10 @@ svg{width:92%;height:auto;filter:drop-shadow(0 6px 18px rgba(0,0,0,.35)); z-inde
 .count{font-size:12px;opacity:.85;text-align:center;margin-top:6px}
 .small{font-size:12px;opacity:.78;text-align:center;margin-top:6px}
 
-/* Journal */
+/* Journal input on Tree tab */
 .journal{margin-top:14px}
 label{font-size:13px;opacity:.95}
-textarea{width:100%;min-height:84px;margin-top:6px;border-radius:12px;border:1px solid rgba(255,255,255,.18);
-  background:rgba(255,255,255,.05);color:#eafff3;padding:12px;resize:vertical;outline:none}
+textarea{width:100%;min-height:84px;margin-top:6px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:#eafff3;padding:12px;resize:vertical;outline:none}
 textarea::placeholder{color:#cdeede;opacity:.7}
 .saveNote{font-size:12px;opacity:.75;margin-top:6px}
 
@@ -95,15 +98,31 @@ textarea::placeholder{color:#cdeede;opacity:.7}
   0%{opacity:0; transform:translate(-50%,0) translateX(-12vw)}
   8%{opacity:1}
   22%{transform:translate(-50%,0) translateX(-4vw)}
-  30%{transform:translate(-50%,0) translateX(0)}   /* sit */
+  30%{transform:translate(-50%,0) translateX(0)}
   38%{transform:translate(-50%,0) translateX(0)}
   55%{transform:translate(-50%,0) translateX(10vw)}
-  70%{transform:translate(-50%,0) translateX(6vw)} /* sniff */
+  70%{transform:translate(-50%,0) translateX(6vw)}
   86%{transform:translate(-50%,0) translateX(-6vw)}
   100%{opacity:0; transform:translate(-50%,0) translateX(14vw)}
 }
 
-/* DEV PANEL (unchanged) */
+/* Tabs: pages */
+.page{display:none}
+.page[aria-hidden="false"]{display:block}
+
+/* JOURNAL PAGE (list) */
+.jTop{display:flex;justify-content:space-between;align-items:center;margin:8px 0 12px}
+.editNameBtn{border:1px solid rgba(255,255,255,.25);background:transparent;color:#c8ffe1;border-radius:8px;padding:6px 10px;font-size:12px}
+.statRow{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 12px}
+.stat{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);padding:8px 10px;border-radius:10px;font-size:12px}
+.entry{border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);border-radius:12px;padding:10px;margin-bottom:10px}
+.entry h4{margin:0 0 6px;font-size:14px}
+.entry .meta{font-size:12px;opacity:.85;margin-bottom:6px}
+.entry .note{white-space:pre-wrap;line-height:1.35}
+.entry details summary{cursor:pointer;list-style:none}
+.entry summary::-webkit-details-marker{display:none}
+
+/* DEV PANEL */
 #devPanel{position:fixed;right:10px;top:10px;z-index:9999;background:rgba(0,0,0,.55);
   backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:8px;display:none}
 #devPanel h4{margin:0 0 6px;font-size:12px;letter-spacing:.3px;opacity:.8}
@@ -113,102 +132,130 @@ textarea::placeholder{color:#cdeede;opacity:.7}
 </head>
 <body>
 <main>
+
+  <!-- Header -->
   <header>
-    <h1>Acorn</h1>
-    <!-- 5-dot planting meter -->
-    <div class="rings" id="rings" aria-label="Forest progress dots"></div>
+    <div class="appTitle">
+      <h1>Acorn</h1>
+      <div class="forestName" id="forestNameLabel"></div>
+    </div>
+    <div class="topNav" role="tablist" aria-label="Pages">
+      <button class="tabBtn" id="tabTree" role="tab" aria-selected="true">Tree</button>
+      <button class="tabBtn" id="tabJournal" role="tab" aria-selected="false">Journal</button>
+    </div>
   </header>
 
+  <!-- Planting dots -->
+  <div class="rings" id="rings" aria-label="Forest progress dots"></div>
+
+  <!-- Stage bar -->
   <div class="stageWrap">
     <div class="stageName" id="stageName">Acorn</div>
     <div class="stageBar"><div class="stageFill" id="stageFill"></div></div>
     <div class="stageCP" id="stageCP">0 CP</div>
   </div>
 
-  <section id="stage" aria-live="polite">
-    <div class="scene" id="scene">
-      <!-- New background forest layer -->
-      <div id="forestLayer"></div>
+  <!-- TREE PAGE -->
+  <section class="page" id="pageTree" aria-hidden="false">
+    <section id="stage" aria-live="polite">
+      <div class="scene" id="scene">
+        <div id="forestLayer"></div>
 
-      <!-- ACORN + BUTTON -->
-      <div id="acornScreen">
-        <svg id="acornBig" viewBox="0 0 80 80" aria-hidden="true">
+        <!-- ACORN + BUTTON -->
+        <div id="acornScreen">
+          <svg id="acornBig" viewBox="0 0 80 80" aria-hidden="true">
+            <defs>
+              <linearGradient id="acornNut" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#c7995a"/><stop offset="100%" stop-color="#a7783d"/>
+              </linearGradient>
+              <linearGradient id="acornCap" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#6f5036"/><stop offset="100%" stop-color="#553b28"/>
+              </linearGradient>
+            </defs>
+            <ellipse cx="40" cy="48" rx="22" ry="26" fill="url(#acornNut)"/>
+            <ellipse cx="40" cy="38" rx="26" ry="12" fill="url(#acornCap)"/>
+            <rect x="42" y="24" width="10" height="6" rx="3" fill="#6b4b30" transform="rotate(-25 47 27)"/>
+          </svg>
+          <button id="plantBtn" class="cta"><span class="sprout">🌱</span>Plant Acorn</button>
+          <div class="tapHint">Get a random quote and today’s tree</div>
+        </div>
+
+        <!-- TREES (PHASED) -->
+        <svg id="treeMorning" viewBox="0 0 300 430" class="sway-slow" aria-hidden="true" style="display:none">
           <defs>
-            <linearGradient id="acornNut" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stop-color="#c7995a"/><stop offset="100%" stop-color="#a7783d"/>
-            </linearGradient>
-            <linearGradient id="acornCap" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stop-color="#6f5036"/><stop offset="100%" stop-color="#553b28"/>
-            </linearGradient>
+            <linearGradient id="barkGrad1" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#6b4b30"/><stop offset="100%" stop-color="#4e3525"/></linearGradient>
+            <radialGradient id="leafGrad1" cx="50%" cy="50%" r="60%"><stop offset="0%" stop-color="#c8f7df"/><stop offset="100%" stop-color="#8fe3bb"/></radialGradient>
+            <clipPath id="canopyClip1"><ellipse cx="150" cy="170" rx="90" ry="60"/></clipPath>
           </defs>
-          <ellipse cx="40" cy="48" rx="22" ry="26" fill="url(#acornNut)"/>
-          <ellipse cx="40" cy="38" rx="26" ry="12" fill="url(#acornCap)"/>
-          <rect x="42" y="24" width="10" height="6" rx="3" fill="#6b4b30" transform="rotate(-25 47 27)"/>
+          <path d="M150 400 C150 340 148 285 150 230 C152 190 154 150 150 110" stroke="url(#barkGrad1)" stroke-width="20" stroke-linecap="round" fill="none"/>
+          <g id="leaves1" clip-path="url(#canopyClip1)"></g>
         </svg>
-        <button id="plantBtn" class="cta"><span class="sprout">🌱</span>Plant Acorn</button>
-        <div class="tapHint">Get a random quote and today’s tree</div>
+
+        <svg id="treeMidday" viewBox="0 0 300 430" class="sway-mid" aria-hidden="true" style="display:none">
+          <defs>
+            <linearGradient id="barkGrad2" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#7a5437"/><stop offset="100%" stop-color="#5a3e2b"/></linearGradient>
+            <radialGradient id="leafGrad2" cx="50%" cy="50%" r="65%"><stop offset="0%" stop-color="#d4fbe6"/><stop offset="100%" stop-color="#8fe3bb"/></radialGradient>
+            <clipPath id="canopyClip2"><ellipse cx="150" cy="170" rx="95" ry="65"/></clipPath>
+          </defs>
+          <path d="M150 400 C150 330 148 270 150 210 C153 165 156 125 150 90" stroke="url(#barkGrad2)" stroke-width="22" stroke-linecap="round" fill="none"/>
+          <g id="leaves2" clip-path="url(#canopyClip2)"></g>
+        </svg>
+
+        <svg id="treeEvening" viewBox="0 0 300 430" class="sway-fast" aria-hidden="true" style="display:none">
+          <defs>
+            <linearGradient id="barkGrad3" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#8a6041"/><stop offset="100%" stop-color="#5a3e2b"/></linearGradient>
+            <radialGradient id="leafGrad3" cx="50%" cy="50%" r="70%"><stop offset="0%" stop-color="#e6ffef"/><stop offset="100%" stop-color="#9be8c6"/></radialGradient>
+            <clipPath id="canopyClip3"><ellipse cx="150" cy="170" rx="100" ry="70"/></clipPath>
+          </defs>
+          <path d="M150 400 C150 320 148 255 150 190 C155 145 160 110 150 75" stroke="url(#barkGrad3)" stroke-width="24" stroke-linecap="round" fill="none"/>
+          <g id="leaves3" clip-path="url(#canopyClip3)"></g>
+        </svg>
+
+        <div class="ground"></div>
+        <div class="glow"></div>
+        <div id="creatureLayer" aria-hidden="true"></div>
       </div>
+    </section>
 
-      <!-- TREES (PHASED) -->
-      <svg id="treeMorning" viewBox="0 0 300 430" class="sway-slow" aria-hidden="true" style="display:none">
-        <defs>
-          <linearGradient id="barkGrad1" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#6b4b30"/><stop offset="100%" stop-color="#4e3525"/></linearGradient>
-          <radialGradient id="leafGrad1" cx="50%" cy="50%" r="60%"><stop offset="0%" stop-color="#c8f7df"/><stop offset="100%" stop-color="#8fe3bb"/></radialGradient>
-          <clipPath id="canopyClip1"><ellipse cx="150" cy="170" rx="90" ry="60"/></clipPath>
-        </defs>
-        <path d="M150 400 C150 340 148 285 150 230 C152 190 154 150 150 110" stroke="url(#barkGrad1)" stroke-width="20" stroke-linecap="round" fill="none"/>
-        <g id="leaves1" clip-path="url(#canopyClip1)"></g>
-      </svg>
+    <p id="mantra" class="mantra"></p>
+    <p class="count" id="leafCount"></p>
+    <p class="small">Tip. Tap the tree to send a leaf into the wind</p>
 
-      <svg id="treeMidday" viewBox="0 0 300 430" class="sway-mid" aria-hidden="true" style="display:none">
-        <defs>
-          <linearGradient id="barkGrad2" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#7a5437"/><stop offset="100%" stop-color="#5a3e2b"/></linearGradient>
-          <radialGradient id="leafGrad2" cx="50%" cy="50%" r="65%"><stop offset="0%" stop-color="#d4fbe6"/><stop offset="100%" stop-color="#8fe3bb"/></radialGradient>
-          <clipPath id="canopyClip2"><ellipse cx="150" cy="170" rx="95" ry="65"/></clipPath>
-        </defs>
-        <path d="M150 400 C150 330 148 270 150 210 C153 165 156 125 150 90" stroke="url(#barkGrad2)" stroke-width="22" stroke-linecap="round" fill="none"/>
-        <g id="leaves2" clip-path="url(#canopyClip2)"></g>
-      </svg>
+    <div class="controls">
+      <button id="soundToggle" class="ghost" aria-pressed="false">Sound. On</button>
+      <button id="resetBtn" class="ghost">New day</button>
+    </div>
 
-      <svg id="treeEvening" viewBox="0 0 300 430" class="sway-fast" aria-hidden="true" style="display:none">
-        <defs>
-          <linearGradient id="barkGrad3" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#8a6041"/><stop offset="100%" stop-color="#5a3e2b"/></linearGradient>
-          <radialGradient id="leafGrad3" cx="50%" cy="50%" r="70%"><stop offset="0%" stop-color="#e6ffef"/><stop offset="100%" stop-color="#9be8c6"/></radialGradient>
-          <clipPath id="canopyClip3"><ellipse cx="150" cy="170" rx="100" ry="70"/></clipPath>
-        </defs>
-        <path d="M150 400 C150 320 148 255 150 190 C155 145 160 110 150 75" stroke="url(#barkGrad3)" stroke-width="24" stroke-linecap="round" fill="none"/>
-        <g id="leaves3" clip-path="url(#canopyClip3)"></g>
-      </svg>
-
-      <div class="ground"></div>
-      <div class="glow"></div>
-      <div id="creatureLayer" aria-hidden="true"></div>
+    <div class="journal">
+      <label for="journalBox">Journal. How did today’s quote make you feel</label>
+      <textarea id="journalBox" placeholder="Write a few lines for future you"></textarea>
+      <div class="saveNote" id="saveNote">Saved</div>
     </div>
   </section>
 
-  <p id="mantra" class="mantra"></p>
-  <p class="count" id="leafCount"></p>
-  <p class="small">Tip. Tap the tree to send a leaf into the wind</p>
+  <!-- JOURNAL PAGE -->
+  <section class="page" id="pageJournal" aria-hidden="true">
+    <div class="jTop">
+      <div style="font-weight:700">Profile & Journal</div>
+      <button class="editNameBtn" id="editNameBtn">Edit name</button>
+    </div>
+    <div class="statRow">
+      <div class="stat">Forest: <span id="forestNameStat"></span></div>
+      <div class="stat">Streak: <span id="streakStat">0</span> days</div>
+      <div class="stat">Total CP: <span id="cpStat">0</span></div>
+      <div class="stat">Forest trees: <span id="forestCountStat">0</span></div>
+      <div class="stat">Entries: <span id="entryCountStat">0</span></div>
+    </div>
+    <div id="entryList"></div>
+  </section>
 
-  <div class="controls">
-    <button id="soundToggle" class="ghost" aria-pressed="false">Sound. On</button>
-    <button id="resetBtn" class="ghost">New day</button>
-  </div>
-
-  <div class="journal">
-    <label for="journalBox">Journal. How did today’s quote make you feel</label>
-    <textarea id="journalBox" placeholder="Write a few lines for future you"></textarea>
-    <div class="saveNote" id="saveNote">Saved</div>
-  </div>
-
-  <!-- Dev panel kept (type /dev on in journal to show) -->
-  <div id="devPanel" style="display:none;position:fixed;right:10px;top:10px;z-index:9999;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:8px">
-    <h4 style="margin:0 0 6px;font-size:12px;letter-spacing:.3px;opacity:.8">DEV</h4>
+  <!-- Dev tools -->
+  <div id="devPanel">
+    <h4>DEV</h4>
     <div>
       <button id="devAddCP">+5 CP</button>
       <button id="devNextStage">Next Stage (fast)</button>
       <button id="devLeaves">Full Leaves</button>
-      <button id="devNight">Toggle Night</button>
       <button id="devFox">🦊</button>
       <button id="devBird">🐦</button>
       <button id="devButterfly">🦋</button>
@@ -255,11 +302,25 @@ const stageNameEl = document.getElementById('stageName');
 const stageFillEl = document.getElementById('stageFill');
 const stageCPEl   = document.getElementById('stageCP');
 const creatureLayer = document.getElementById('creatureLayer');
+const pageTree = document.getElementById('pageTree');
+const pageJournal = document.getElementById('pageJournal');
+const tabTree = document.getElementById('tabTree');
+const tabJournal = document.getElementById('tabJournal');
+const devPanel = document.getElementById('devPanel');
+const forestNameLabel = document.getElementById('forestNameLabel');
+const editNameBtn = document.getElementById('editNameBtn');
+const forestNameStat = document.getElementById('forestNameStat');
+const streakStat = document.getElementById('streakStat');
+const cpStat = document.getElementById('cpStat');
+const forestCountStat = document.getElementById('forestCountStat');
+const entryCountStat = document.getElementById('entryCountStat');
+const entryList = document.getElementById('entryList');
 
 /* ===== Audio ===== */
 let audioEnabled = true, audioCtx;
 function ensureAudio(){ try{ if(!audioCtx){ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); } if(audioCtx.state==='suspended'){ audioCtx.resume(); } }catch(e){} }
-function chime(){ if(!audioEnabled) return; ensureAudio(); if(!audioCtx||audioCtx.state!=='running') return;
+function chime(){
+  if(!audioEnabled) return; ensureAudio(); if(!audioCtx||audioCtx.state!=='running') return;
   const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type='sine';
   const notes=[523.25,587.33,659.25,698.46]; o.frequency.value=notes[Math.floor(Math.random()*notes.length)];
   const now=audioCtx.currentTime; g.gain.setValueAtTime(0.0001,now); g.gain.exponentialRampToValueAtTime(0.08,now+0.01); g.gain.exponentialRampToValueAtTime(0.0001,now+0.45);
@@ -267,16 +328,17 @@ function chime(){ if(!audioEnabled) return; ensureAudio(); if(!audioCtx||audioCt
 }
 
 /* ===== State ===== */
-const storeKey='acorn.forest.v1';
+const storeKey='acorn.journal.master.v1';
 function todayMidnight(){const d=new Date(); d.setHours(0,0,0,0); return +d;}
+function ymd(ts){const d=new Date(ts); return d.toISOString().slice(0,10);}
 function randInt(min,max){return Math.floor(min+Math.random()*(max-min+1));}
 function mulberry32(a){return function(){let t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296;}}
 function makeCycle(){ return {seed:Math.floor(Math.random()*2**31), total:randInt(100,300), left:0, quoteIdx:-1, journal:""}; }
-function makeDay(){ return {leafCP:0, journalGiven:false, plantedGiven:false}; }
+function makeDay(){ return {leafCP:0, journalGiven:false, plantedGiven:false, logged:false}; }
 function loadState(){
   const d=todayMidnight(), raw=localStorage.getItem(storeKey);
   if(raw){ const s=JSON.parse(raw); if(s.date!==d){ s.date=d; s.day=makeDay(); } return s; }
-  return {date:d, planted:false, cycle:makeCycle(), cp:0, day:makeDay(), dots:0, forest:0};
+  return {date:d, planted:false, cycle:makeCycle(), cp:0, day:makeDay(), dots:0, forest:0, name:"", entries:[]};
 }
 const state = loadState();
 function saveState(){ localStorage.setItem(storeKey, JSON.stringify(state)); }
@@ -294,6 +356,17 @@ function updateStageBar(){
   const pct = Math.max(0, Math.min(100, ((state.cp-stage.min)/(rangeMax-stage.min))*100));
   stageNameEl.textContent=stage.name; stageCPEl.textContent=`${Math.round(state.cp)} CP`; stageFillEl.style.width=pct+'%';
 }
+
+/* ===== Forest name ===== */
+function ensureForestName(){
+  if(!state.name){ const n=prompt("Name your forest 🌲", "My Forest"); if(n){ state.name=n.slice(0,24); saveState(); } }
+  forestNameLabel.textContent = state.name ? `• ${state.name}` : '';
+  forestNameStat.textContent = state.name || '—';
+}
+editNameBtn.addEventListener('click', ()=>{
+  const n=prompt("Rename your forest", state.name || "My Forest");
+  if(n!==null){ state.name=n.trim().slice(0,24); saveState(); ensureForestName(); }
+});
 
 /* ===== Trees & leaves ===== */
 function phase(){ const h=new Date().getHours(); return h<12?'morning':h<18?'midday':'evening'; }
@@ -314,22 +387,16 @@ function renderLeaves(){
     e.setAttribute('cx',p.x); e.setAttribute('cy',p.y); e.setAttribute('rx',4*p.s); e.setAttribute('ry',6*p.s); e.setAttribute('fill',grad); e.setAttribute('opacity',0.95); layer.appendChild(e); }
 }
 
-/* ===== Planting dots + forest ===== */
+/* ===== Background forest ===== */
 function updateDotsUI(){
-  ringsEl.innerHTML='';
-  for(let i=0;i<5;i++){
-    const d=document.createElement('div'); d.className='ring'; if(i<state.dots) d.classList.add('filled'); ringsEl.appendChild(d);
-  }
+  ringsEl.innerHTML=''; for(let i=0;i<5;i++){ const d=document.createElement('div'); d.className='ring'; if(i<state.dots) d.classList.add('filled'); ringsEl.appendChild(d); }
 }
 function addBackgroundTree(){
-  // create a simple soft tree silhouette
   const wrap=document.createElement('div'); wrap.className='forestTree';
-  // random side/scale/offset
   const left = Math.random()<0.5 ? randInt(6,26) : randInt(58,86);
-  const scale = (Math.random()*0.4 + 0.7); // 0.7–1.1
+  const scale = (Math.random()*0.4 + 0.7);
   wrap.style.left = left+'%';
   wrap.style.transform = `translateX(-50%) scale(${scale})`;
-  // SVG tree
   wrap.innerHTML = `
     <svg width="120" height="160" viewBox="0 0 120 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <defs>
@@ -345,8 +412,9 @@ function addBackgroundTree(){
     </svg>`;
   forestLayer.appendChild(wrap);
 }
+function renderForest(){ forestLayer.innerHTML=''; for(let i=0;i<(state.forest||0); i++) addBackgroundTree(); }
 
-/* ===== Particles & Creatures (unchanged logic) ===== */
+/* ===== Particles & Creatures ===== */
 function spawnLeafParticle(x,y){
   const emoji = Math.random()<0.25 ? '🍂' : '🍃';
   const el = document.createElement('div'); el.className='leafParticle'; el.textContent=emoji; el.style.left=x+'px'; el.style.top=y+'px';
@@ -364,19 +432,17 @@ const CREATURES = [
   {icon:'🐞', minCP:12, zone:'bark',  baseChance:0.18, duration:12000},
   {icon:'🦊', minCP:30, zone:'ground',baseChance:0.14, duration:16000}
 ];
-function isNight(){ const h=new Date().getHours(); return (h>=20||h<6); }
+function isNight(){ const h=new Date().getHours(); return (h>=20||h<6) && state.cp>=30; }
 function spawnCreature(def){
-  const el = document.createElement('div');
-  el.className = `creature ${def.zone}`; el.textContent = def.icon;
+  const el = document.createElement('div'); el.className = `creature ${def.zone}`; el.textContent = def.icon;
   if(def.zone==='sky'){ el.style.top=(18+Math.random()*36)+'%'; el.classList.add('fly'); }
   else if(def.zone==='bark'){ el.style.bottom=(20+Math.random()*30)+'%'; el.classList.add('crawl'); }
   else if(def.zone==='ground'){ el.classList.add('fox'); }
-  creatureLayer.appendChild(el);
-  setTimeout(()=>el.remove(), def.duration||8000);
+  creatureLayer.appendChild(el); setTimeout(()=>el.remove(), def.duration||8000);
 }
 function maybeCreatureVisit(trigger='tap'){
   const pool = CREATURES.filter(c => state.cp >= c.minCP);
-  if(isNight() && state.cp>=30) pool.push({icon:'🦉',minCP:30,zone:'sky',baseChance:0.22,duration:6500});
+  if(isNight()) pool.push({icon:'🦉',minCP:30,zone:'sky',baseChance:0.22,duration:6500});
   if(pool.length===0) return;
   const mult = trigger==='plant' ? 1.8 : 1.0;
   const pick = pool[Math.floor(Math.random()*pool.length)];
@@ -386,26 +452,38 @@ function maybeCreatureVisit(trigger='tap'){
 /* ===== UI helpers ===== */
 function updateCounts(){ leafCountEl.textContent = state.planted ? `Leaves left. ${state.cycle.left} of ${state.cycle.total}` : ''; }
 function updateQuote(){ mantraEl.textContent = (state.planted && state.cycle.quoteIdx>=0) ? QUOTES[state.cycle.quoteIdx] : ''; }
-function updateJournal(){ journalBox.value = state.cycle.journal || ""; saveNote.textContent='Saved'; }
+function updateJournalBox(){ journalBox.value = state.cycle.journal || ""; saveNote.textContent='Saved'; }
 function showAcornScreen(){ acornScreen.style.display='grid'; setTreesVisible(false); updateQuote(); updateCounts(); }
 function showTreeScreen(){ acornScreen.style.display='none'; setTreesVisible(true); renderLeaves(); updateQuote(); updateCounts(); }
 
 /* ===== CP ===== */
 function addCP(amount){ state.cp += amount; saveState(); updateStageBar(); }
 
-/* ===== Interactions ===== */
+/* ===== Planting & day flow ===== */
 function onPlanted(){
-  // Fill one dot; if 5, reset and add a forest tree
+  // dots & forest growth
   state.dots = (state.dots + 1);
-  if(state.dots >= 5){
-    state.dots = 0;
-    state.forest = (state.forest || 0) + 1;
-    addBackgroundTree();
-  }
+  if(state.dots >= 5){ state.dots = 0; state.forest = (state.forest||0)+1; addBackgroundTree(); }
   saveState(); updateDotsUI();
 
-  addCP(1);                // CP for planting (first per day logic removed for simplicity here)
+  // CP & creatures
+  if(!state.day.plantedGiven){ state.day.plantedGiven=true; addCP(1); }
   maybeCreatureVisit('plant');
+}
+function logTodayEntry(){
+  if(state.day.logged) return;
+  const ts = todayMidnight();
+  const entry = {
+    date: ts,
+    dateISO: ymd(ts),
+    stage: STAGES[currentStageIndex(state.cp)].name,
+    quote: (state.cycle.quoteIdx>=0? QUOTES[state.cycle.quoteIdx] : ""),
+    note: (state.cycle.journal||"").trim()
+  };
+  state.entries = state.entries || [];
+  state.entries.unshift(entry); // newest first
+  state.day.logged = true;
+  saveState();
 }
 function plant(){
   ensureAudio();
@@ -414,8 +492,7 @@ function plant(){
   let idx=Math.floor(Math.random()*QUOTES.length);
   if(state.cycle && idx===state.cycle.quoteIdx && QUOTES.length>1) idx=(idx+1)%QUOTES.length;
   state.cycle={seed,total,left:total,quoteIdx:idx,journal:""}; saveState();
-  showTreeScreen(); chime();
-  onPlanted();
+  showTreeScreen(); chime(); onPlanted();
 }
 function pluckOne(){
   if(!state.planted || state.cycle.left<=0) return;
@@ -423,65 +500,116 @@ function pluckOne(){
   const r=leaf.getBoundingClientRect(); const cx=r.left + r.width/2, cy=r.top + r.height/2;
   leaf.remove(); state.cycle.left--; saveState(); updateCounts(); chime(); spawnLeafParticle(cx, cy);
   maybeCreatureVisit('tap');
-  if(state.cycle.left<=0){ state.planted=false; saveState(); showAcornScreen(); }
+  if(state.cycle.left<=0){
+    // finishing a tree: log the day
+    logTodayEntry();
+    state.planted=false; saveState(); showAcornScreen();
+  }
 }
 
-/* ===== Dev toggles via journal ===== */
-let DEV = !!Number(localStorage.getItem(storeKey + '.dev'));
-function setDev(on){ DEV=!!on; localStorage.setItem(storeKey+'.dev', DEV?1:0); document.getElementById('devPanel').style.display=DEV?'block':'none'; }
-function setDevFromCmd(cmd){ if(cmd==='/dev on'){setDev(true);return true;} if(cmd==='/dev off'){setDev(false);return true;} return false; }
+/* ===== Tabs ===== */
+function showTab(which){
+  const tree = which==='tree';
+  pageTree.setAttribute('aria-hidden', String(!tree));
+  pageJournal.setAttribute('aria-hidden', String(tree));
+  tabTree.setAttribute('aria-selected', String(tree));
+  tabJournal.setAttribute('aria-selected', String(!tree));
+  if(!tree) renderJournalPage();
+}
+tabTree.addEventListener('click', ()=>showTab('tree'));
+tabJournal.addEventListener('click', ()=>showTab('journal'));
 
-/* ===== Boot & events ===== */
+/* ===== New day ===== */
+resetBtn.addEventListener('click', ()=>{
+  // log entry if we had a planted cycle
+  if(state.planted) logTodayEntry();
+  state.planted=false; state.cycle=makeCycle(); state.day=makeDay();
+  saveState(); boot();
+});
+
+/* ===== Input handlers ===== */
 plantBtn.addEventListener('click', plant, {passive:true});
 document.getElementById('stage').addEventListener('pointerdown', ()=>{ if(state.planted) pluckOne(); }, {passive:true});
-
 soundToggle.addEventListener('click', ()=>{ audioEnabled=!audioEnabled; if(audioEnabled) ensureAudio();
   soundToggle.setAttribute('aria-pressed',String(audioEnabled));
   soundToggle.textContent='Sound. '+(audioEnabled?'On':'Off'); });
 
-resetBtn.addEventListener('click', ()=>{
-  state.planted=false; state.cycle=makeCycle();
-  saveState(); boot();
-});
-
 let saveTimer=null;
 journalBox.addEventListener('input', ()=>{
   const cmd = journalBox.value.trim().toLowerCase();
-  if(setDevFromCmd(cmd)) return;
+  if(cmd==='/dev on'){ setDev(true); return; }
+  if(cmd==='/dev off'){ setDev(false); return; }
   saveNote.textContent='Saving...';
   clearTimeout(saveTimer);
   saveTimer=setTimeout(()=>{
     state.cycle.journal = journalBox.value.slice(0,1000); saveState(); saveNote.textContent='Saved';
+    if(!state.day.journalGiven && state.cycle.journal.trim().length >= 10){
+      state.day.journalGiven = true; addCP(2);
+    }
   }, 400);
 });
 
-/* Dev buttons (optional quick testing) */
+/* ===== Dev buttons ===== */
+function setDev(on){ localStorage.setItem(storeKey+'.dev', on?1:0); devPanel.style.display = on?'block':'none'; }
+(function(){ const on = !!Number(localStorage.getItem(storeKey+'.dev')); setDev(on); })();
 document.getElementById('devAddCP').addEventListener('click', ()=> addCP(5));
 document.getElementById('devNextStage').addEventListener('click', ()=>{
-  const target = nextStageTarget(state.cp);
-  const start=state.cp, delta=target-start, dur=1200, t0=performance.now();
-  (function step(t){ const p=Math.min(1,(t-t0)/dur); const ease=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2; state.cp=start+delta*ease; updateStageBar(); if(p<1) requestAnimationFrame(step); else {state.cp=target; saveState(); updateStageBar(); chime();}})(t0);
+  const target = nextStageTarget(state.cp); const start=state.cp, delta=target-start, dur=1200, t0=performance.now();
+  (function step(t){ const p=Math.min(1,(t-t0)/dur); const ease=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2; state.cp=start+delta*ease; updateStageBar();
+    if(p<1) requestAnimationFrame(step); else {state.cp=target; saveState(); updateStageBar(); chime();}})(t0);
 });
-document.getElementById('devLeaves').addEventListener('click', ()=>{ state.cycle.total=randInt(220,320); state.cycle.left=state.cycle.total; state.cycle.seed=Math.floor(Math.random()*2**31); saveState(); if(state.planted) renderLeaves(); updateCounts(); });
-document.getElementById('devNight').addEventListener('click', ()=>{ alert('Night preview: visit owl after 20:00 normally. For now this just shows a message.'); });
+document.getElementById('devLeaves').addEventListener('click', ()=>{
+  state.cycle.total=randInt(220,320); state.cycle.left=state.cycle.total; state.cycle.seed=Math.floor(Math.random()*2**31);
+  saveState(); if(state.planted) renderLeaves(); updateCounts();
+});
+function spawnIcon(icon, zone){ spawnCreature({icon, zone, minCP:0, baseChance:1, duration: zone==='ground' ? 16000 : (zone==='bark'?12000:6500)}); }
+document.getElementById('devFox').addEventListener('click', ()=> spawnIcon('🦊','ground'));
+document.getElementById('devBird').addEventListener('click', ()=> spawnIcon('🐦','sky'));
+document.getElementById('devButterfly').addEventListener('click', ()=> spawnIcon('🦋','sky'));
+document.getElementById('devLady').addEventListener('click', ()=> spawnIcon('🐞','bark'));
+document.getElementById('devAnt').addEventListener('click', ()=> spawnIcon('🐜','bark'));
+document.getElementById('devOwl').addEventListener('click', ()=> spawnIcon('🦉','sky'));
 
-document.getElementById('devFox').addEventListener('click', ()=> spawnCreature({icon:'🦊',zone:'ground',duration:16000,baseChance:1,minCP:0}));
-document.getElementById('devBird').addEventListener('click', ()=> spawnCreature({icon:'🐦',zone:'sky',duration:6500,baseChance:1,minCP:0}));
-document.getElementById('devButterfly').addEventListener('click', ()=> spawnCreature({icon:'🦋',zone:'sky',duration:6500,baseChance:1,minCP:0}));
-document.getElementById('devLady').addEventListener('click', ()=> spawnCreature({icon:'🐞',zone:'bark',duration:12000,baseChance:1,minCP:0}));
-document.getElementById('devAnt').addEventListener('click', ()=> spawnCreature({icon:'🐜',zone:'bark',duration:12000,baseChance:1,minCP:0}));
-document.getElementById('devOwl').addEventListener('click', ()=> spawnCreature({icon:'🦉',zone:'sky',duration:6500,baseChance:1,minCP:0}));
+/* ===== Journal page render ===== */
+function calcStreak(entries){
+  if(!entries || !entries.length) return 0;
+  const days = new Set(entries.map(e=>e.dateISO));
+  let streak = 0; let d = new Date(); d.setHours(0,0,0,0);
+  // count back from today
+  while(days.has(d.toISOString().slice(0,10))){ streak++; d.setDate(d.getDate()-1); }
+  return streak;
+}
+function renderJournalPage(){
+  ensureForestName();
+  forestCountStat.textContent = String(state.forest||0);
+  cpStat.textContent = String(Math.round(state.cp||0));
+  entryCountStat.textContent = String((state.entries||[]).length);
+  streakStat.textContent = String(calcStreak(state.entries||[]));
+  entryList.innerHTML = '';
+  (state.entries||[]).forEach((e,i)=>{
+    const div=document.createElement('div'); div.className='entry';
+    div.innerHTML = `
+      <h4>${e.dateISO} • ${e.stage}</h4>
+      <div class="meta">Mantra — ${e.quote ? e.quote : '—'}</div>
+      <details ${i===0?'open':''}>
+        <summary style="opacity:.9">Show note</summary>
+        <div class="note">${e.note ? e.note.replace(/</g,'&lt;') : '<em>No entry</em>'}</div>
+      </details>`;
+    entryList.appendChild(div);
+  });
+}
 
-function renderForestFromState(){ forestLayer.innerHTML=''; for(let i=0;i<(state.forest||0); i++) addBackgroundTree(); }
-
+/* ===== Boot ===== */
+function updateDotsUIAndForest(){ updateDotsUI(); renderForest(); }
 function boot(){
-  setDev(DEV);
-  updateStageBar(); updateDotsUI(); renderForestFromState();
-  if(state.planted && state.cycle.left>0){ setTreesVisible(true); renderLeaves(); acornScreen.style.display='none'; }
-  else { acornScreen.style.display='grid'; setTreesVisible(false); }
-  updateQuote(); updateCounts(); updateJournal();
+  ensureForestName();
+  updateStageBar(); updateDotsUIAndForest(); updateJournalBox();
+  if(state.planted && state.cycle.left>0){ showTreeScreen(); } else { showAcornScreen(); }
+  // default to Tree tab
+  showTab('tree');
 }
 boot();
+setInterval(()=>{ if(state.planted){ setTreesVisible(true); renderLeaves(); } }, 10*60*1000);
 </script>
 </body>
 </html>
