@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-<title>Acorn — Master (Sound Fixed)</title>
+<title>Acorn — Master (Breath + Fox Fix)</title>
 <meta name="theme-color" content="#0f3a2f"/>
 <style>
 *{box-sizing:border-box}html,body{height:100%;margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto}
@@ -78,7 +78,8 @@ textarea::placeholder{color:#cdeede;opacity:.7}
 /* Creatures & particles */
 .leafParticle{position:fixed;will-change:transform,opacity;pointer-events:none}
 #creatureLayer{position:absolute;inset:0;pointer-events:none;z-index:4}
-.creature{position:absolute;opacity:0;filter:drop-shadow(0 4px 10px rgba(0,0,0,.35))}
+/* FIX: use text-shadow (no emoji box in Safari) */
+.creature{position:absolute;opacity:0;text-shadow:0 3px 10px rgba(0,0,0,.35)}
 .creature.sky.fly{animation:fly 6s ease-in-out forwards}
 @keyframes fly{0%{transform:translateX(-30vw) translateY(0) rotate(-8deg);opacity:0}10%{opacity:1}50%{transform:translateX(25vw) translateY(-12px) rotate(6deg)}100%{transform:translateX(65vw) translateY(0) rotate(-4deg);opacity:0}}
 .creature.bark.crawl{animation:crawl 12s linear forwards}
@@ -137,6 +138,24 @@ textarea::placeholder{color:#cdeede;opacity:.7}
 .palette{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:8px 10px}
 .palette label{font-size:12px}
 .colorBox{width:18px;height:18px;border-radius:4px;border:1px solid rgba(255,255,255,.25)}
+
+/* Breath overlay */
+#breath{position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.55);backdrop-filter:blur(6px);z-index:10002}
+#breathCard{width:min(520px,90vw);background:var(--card);border:1px solid var(--line);
+  border-radius:16px;padding:18px 18px 16px;color:var(--text);text-align:center;box-shadow:0 14px 36px rgba(0,0,0,.4)}
+#bTitle{font-weight:700;margin:0 0 2px}
+#bSubtitle{margin:0 0 6px;opacity:.85;font-size:13px}
+#bCircle{width:180px;height:180px;border-radius:50%;margin:14px auto 10px;
+  background:radial-gradient(circle at 50% 40%, var(--accent), color-mix(in oklab, var(--accent) 65%, black 0%));
+  opacity:.95;transform:scale(.92);transition:transform 3.2s ease-in-out}
+#bText{margin:0 0 10px;opacity:.9}
+#bDots{display:flex;gap:6px;justify-content:center;margin-bottom:10px}
+.bDot{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.25)}
+.bDot.on{background:var(--accent)}
+.bBtns{display:flex;gap:8px;justify-content:center}
+.bBtn{border:1px solid var(--line);background:transparent;color:var(--text);padding:8px 12px;border-radius:10px}
+.bBtn.primary{background:var(--accent);color:#0b3d2e;font-weight:800}
 </style>
 </head>
 <body>
@@ -320,6 +339,21 @@ textarea::placeholder{color:#cdeede;opacity:.7}
   </div>
 </div>
 <div id="toast" role="status" aria-live="polite"></div>
+
+<!-- Breath overlay -->
+<div id="breath" aria-hidden="true">
+  <div id="breathCard" role="dialog" aria-modal="true" aria-labelledby="bTitle">
+    <h3 id="bTitle">Breathe with the tree</h3>
+    <div id="bSubtitle">4 easy cycles • ~30s</div>
+    <div id="bCircle" aria-hidden="true"></div>
+    <div id="bText">Inhale</div>
+    <div id="bDots"><span class="bDot"></span><span class="bDot"></span><span class="bDot"></span><span class="bDot"></span></div>
+    <div class="bBtns">
+      <button class="bBtn" id="bSkip">Skip</button>
+      <button class="bBtn primary" id="bFinish">Finish</button>
+    </div>
+  </div>
+</div>
 
 <script>
 /* ===== Quotes (placeholder) ===== */
@@ -625,6 +659,63 @@ function checkAchievements(){
   });
 }
 
+/* ===== Breath flow ===== */
+const breathEl = document.getElementById('breath');
+const bCircle = document.getElementById('bCircle');
+const bText = document.getElementById('bText');
+const bDots = Array.from(document.querySelectorAll('#bDots .bDot'));
+const bSkip = document.getElementById('bSkip');
+const bFinish = document.getElementById('bFinish');
+
+let breathTimer = null, breathStep = 0, breathRound = 0;
+const BREATH_STEPS = [
+  {label:'Inhale', scale:1.12, ms:3200},
+  {label:'Hold',   scale:1.12, ms:1200},
+  {label:'Exhale', scale:0.90, ms:3600},
+  {label:'Hold',   scale:0.90, ms:800}
+];
+const BREATH_ROUNDS = 4;
+
+function showBreath(){
+  breathRound = 0; breathStep = 0;
+  bDots.forEach(d=>d.classList.remove('on'));
+  updateBreathDot();
+  breathEl.style.display='flex';
+  breathEl.setAttribute('aria-hidden','false');
+  runBreathStep();
+}
+function hideBreath(){
+  clearTimeout(breathTimer); breathTimer=null;
+  breathEl.style.display='none';
+  breathEl.setAttribute('aria-hidden','true');
+}
+function updateBreathDot(){
+  bDots.forEach((d,i)=> d.classList.toggle('on', i<breathRound));
+}
+function runBreathStep(){
+  const s = BREATH_STEPS[breathStep];
+  bText.textContent = s.label;
+  bCircle.style.transform = `scale(${s.scale})`;
+  breathTimer = setTimeout(()=>{
+    breathStep = (breathStep+1) % BREATH_STEPS.length;
+    if(breathStep===0){
+      breathRound++;
+      updateBreathDot();
+      if(breathRound>=BREATH_ROUNDS){ finishDay(); return; }
+    }
+    runBreathStep();
+  }, s.ms);
+}
+bSkip.addEventListener('click', ()=> finishDay());
+bFinish.addEventListener('click', ()=> finishDay());
+
+function finishDay(){
+  hideBreath();
+  logTodayEntry();
+  state.planted=false; saveState();
+  showAcorn(); SOUND.level();
+}
+
 /* ===== Planting & Day flow ===== */
 function onPlanted(){
   state.dots = (state.dots + 1);
@@ -660,7 +751,7 @@ function plant(){
   setTimeout(()=>{ if(!state.onb.leaves && !state.onb.never){ coachTip('Tap or flick the leaves. Little taps add Care Points.', document.getElementById('stage'), 'center'); state.onb.leaves=1; saveState(); }}, 700);
 }
 
-/* ===== Leaf tap / flick (kept as your working version) ===== */
+/* ===== Leaf tap / flick ===== */
 const stageEl = document.getElementById('stage');
 let pointerStart=null;
 function spawnLeafParticle(x,y,dx=0,dy=-1){
@@ -689,7 +780,10 @@ stageEl.addEventListener('pointerup',(e)=>{
     if(journalBox.scrollIntoView) journalBox.scrollIntoView({behavior:'smooth',block:'center'});
     setTimeout(()=>{ coachTip('Write a line about how the mantra felt. Journaling boosts growth.', journalBox, 'top'); state.onb.journal=1; saveState(); }, 180);
   }
-  if(state.cycle.left<=0){ logTodayEntry(); state.planted=false; saveState(); showAcorn(); SOUND.level(); }
+  if(state.cycle.left<=0){
+    // Breath overlay at end of day
+    showBreath();
+  }
 }, {passive:true});
 
 /* ===== Gallery & Achievements UI ===== */
