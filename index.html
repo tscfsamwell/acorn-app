@@ -533,8 +533,104 @@ function plant(){ state.planted=true; const total=randInt(120,260); let idx=Math
 /* Leaf gestures */
 const stageEl=document.getElementById('stage'); let pointerStart=null;
 function spawnLeafParticle(x,y,dx=0,dy=-1){ const emoji=Math.random()<0.25?'🍂':'🍃'; const el=document.createElement('div'); el.className='leafParticle'; el.textContent=emoji; el.style.left=x+'px'; el.style.top=y+'px'; document.body.appendChild(el); const start=performance.now(), duration=1500+Math.random()*1400; const side=(Math.random()*120+50)*(Math.random()<0.5?-1:1); const baseX=dx*80 + side*0.5, baseY=dy*(-120)-40; function frame(t){ const p=Math.min(1,(t-start)/duration), ease=1-Math.pow(1-p,2); const tx=x+baseX*ease, ty=y+baseY*ease+0.55*(p*220); el.style.transform=`translate(${tx-x}px, ${ty-y}px) rotate(${p*240}deg)`; el.style.opacity=String(1-p); if(p<1) requestAnimationFrame(frame); else el.remove(); } requestAnimationFrame(frame); }
-stageEl.addEventListener('pointerdown',(e)=>{ if(!state.planted) return; pointerStart={x:e.clientX,y:e.clientY}; });
-stageEl.addEventListener('pointerup',(e)=>{ if(!state.planted) return; let dx=0,dy=-1; if(pointerStart){ const vx=e.clientX-pointerStart.x, vy=e.clientY-pointerStart.y; const m=Math.hypot(vx,vy)||1; dx=vx/m; dy=vy/m; pointerStart=null; } const leaf=leavesLayer.lastElementChild; if(!leaf) return; const r=leaf.getBoundingClientRect(); const cx=r.left+r.width/2, cy=r.top+r.height/2; leaf.remove(); state.cycle.left--; saveState(); updateCounts(); SOUND.cpGain(); spawnLeafParticle(cx,cy,dx,dy); maybeCreatureVisit('tap'); if(state.cycle.left<=0) showBreath(); }, {passive:true});
+<!-- ===== Leaf tap / flick (replace whole block) ===== -->
+<script>
+const stageEl = document.getElementById('stage');
+let pointerStart = null;
+
+function spawnLeafParticle(x,y,dx=0,dy=-1){
+  const emoji = Math.random()<0.25 ? '🍂' : '🍃';
+  const el = document.createElement('div');
+  el.className = 'leafParticle';
+  el.textContent = emoji;
+  el.style.left = x+'px';
+  el.style.top  = y+'px';
+  document.body.appendChild(el);
+
+  const start = performance.now();
+  const duration = 1500 + Math.random()*1400;
+  const side = (Math.random()*120+50)*(Math.random()<0.5?-1:1);
+  const baseX = dx*80 + side*0.5;
+  const baseY = dy*(-120) - 40;
+
+  function frame(t){
+    const p = Math.min(1,(t-start)/duration);
+    const ease = 1 - Math.pow(1-p,2);
+    const tx = x + baseX*ease;
+    const ty = y + baseY*ease + 0.55*(p*220);
+    el.style.transform = `translate(${tx-x}px, ${ty-y}px) rotate(${p*240}deg)`;
+    el.style.opacity = String(1-p);
+    if(p<1) requestAnimationFrame(frame); else el.remove();
+  }
+  requestAnimationFrame(frame);
+}
+
+function nearestLeafCenter(clientX, clientY){
+  const leaves = Array.from(document.querySelectorAll('#leaves ellipse'));
+  if(!leaves.length) return null;
+
+  let best = null, bestD = Infinity, bestEl = null;
+  for(const el of leaves){
+    const b = el.getBoundingClientRect();
+    const cx = b.left + b.width/2;
+    const cy = b.top  + b.height/2;
+    const d = (cx-clientX)*(cx-clientX) + (cy-clientY)*(cy-clientY);
+    if(d < bestD){ bestD = d; best = {cx, cy}; bestEl = el; }
+  }
+  return best ? { ...best, el: bestEl } : null;
+}
+
+stageEl.addEventListener('pointerdown', (e)=>{
+  if(!state.planted) return;
+  pointerStart = {x:e.clientX, y:e.clientY};
+}, {passive:true});
+
+stageEl.addEventListener('pointerup', (e)=>{
+  if(!state.planted) return;
+
+  // flick direction
+  let dx=0, dy=-1;
+  if(pointerStart){
+    const vx = e.clientX - pointerStart.x;
+    const vy = e.clientY - pointerStart.y;
+    const m = Math.hypot(vx,vy) || 1;
+    dx = vx/m; dy = vy/m;
+    pointerStart = null;
+  }
+
+  // choose the leaf nearest the tap
+  const pick = nearestLeafCenter(e.clientX, e.clientY);
+
+  // fallback: if somehow none, start from tap point
+  const cx = pick ? pick.cx : e.clientX;
+  const cy = pick ? pick.cy : e.clientY;
+
+  if(pick && pick.el){
+    pick.el.remove();
+    state.cycle.left = Math.max(0, state.cycle.left - 1);
+  } else {
+    // still decrement to keep the flow moving
+    if(state.cycle.left > 0) state.cycle.left--;
+  }
+
+  saveState();
+  updateCounts();
+  SOUND.cpGain();
+  spawnLeafParticle(cx, cy, dx, dy);
+  maybeCreatureVisit('tap');
+
+  const used = (state.cycle.total - state.cycle.left);
+  if(used>=2 && !state.onb.journal && !state.onb.never){
+    journalBox.scrollIntoView?.({behavior:'smooth',block:'center'});
+    setTimeout(()=>{
+      coachTip('Write a line about how the mantra felt. Journaling boosts growth.', journalBox, 'top');
+      state.onb.journal=1; saveState();
+    }, 180);
+  }
+
+  if(state.cycle.left<=0){ showBreath(); }
+}, {passive:true});
+</script>
 
 /* Profile UI builders */
 function buildGallery(){ if(!galleryGrid) return; const list=['🦋','🐦','🐜','🐞','🦊','🦉']; galleryGrid.innerHTML=''; list.forEach(icon=>{ const ok=state.gallery[icon]===1; const div=document.createElement('div'); div.className='card'+(ok?'':' locked'); div.innerHTML=`<div style="font-size:28px">${icon}</div><small>${ok?'Seen':'Locked'}</small>`; galleryGrid.appendChild(div); }); }
