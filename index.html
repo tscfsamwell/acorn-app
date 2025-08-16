@@ -576,7 +576,7 @@ async function buildYTFeed(limit = 8) {
       : (typeof NEL_ID !== 'undefined' ? NEL_ID : '');
 
     const rss = `https://www.youtube.com/feeds/videos.xml?channel_id=${channel}`;
-    const url = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rss)}&count=25`;
+    const url = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rss)}`;
 
     const res = await fetch(url);
     const data = await res.json();
