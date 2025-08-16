@@ -13,10 +13,9 @@
   --sky1:#0f3a2f; --sky2:#0d3329; --sky3:#0a2b23; /* Sage */
   --accent:#bfe8cf; --accent2:#98d8bb; --text:#ecfff6;
   --card:#08251e; --line:rgba(255,255,255,.15); --glow:rgba(163,227,194,.25);
-  --nav-h:68px; /* new: bottom nav height */
+  --nav-h:68px; /* bottom nav height */
 }
 body{background:linear-gradient(180deg,var(--sky1) 0%, var(--sky2) 30%, var(--sky3) 100%); color:var(--text)}
-/* make room for the bottom nav */
 .appWrap{min-height:100vh; padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom))}
 
 /* ---- YouTube feed cards ---- */
@@ -49,21 +48,10 @@ h1{font-size:20px;margin:0}
 .menuItem{display:flex;justify-content:space-between;align-items:center;padding:10px;border:1px solid var(--line);background:rgba(255,255,255,.06);border-radius:10px;margin-bottom:8px;color:var(--text);text-decoration:none}
 .badge{font-size:11px;opacity:.85;background:rgba(255,255,255,.1);padding:2px 6px;border-radius:10px}
 
-/* Responsive YouTube embed */
-.ytWrap {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16/9;
-  background: rgba(0,0,0,.3);
-  border-radius: 12px;
-  overflow: hidden;
-}
-.ytWrap iframe {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
+/* Responsive YouTube embed (for inline player) */
+.ytWrap { position: relative; width: 100%; aspect-ratio: 16/9; background: rgba(0,0,0,.3); border-radius: 12px; overflow: hidden }
+.ytWrap iframe { position: absolute; inset: 0; width: 100%; height: 100% }
+
 /* Dots + stage bar */
 .rings{display:flex;gap:6px;align-items:center;margin:10px 0 6px}
 .ring{width:12px;height:12px;border:2px solid var(--accent);border-radius:50%}
@@ -116,7 +104,6 @@ textarea::placeholder{color:#cdeede;opacity:.7}
 /* Creatures & particles */
 .leafParticle{position:fixed;will-change:transform,opacity;pointer-events:none}
 #creatureLayer{position:absolute;inset:0;pointer-events:none;z-index:4}
-/* FIX: use text-shadow (no emoji box in Safari) */
 .creature{position:absolute;opacity:0;text-shadow:0 3px 10px rgba(0,0,0,.35)}
 .creature.sky.fly{animation:fly 6s ease-in-out forwards}
 @keyframes fly{0%{transform:translateX(-30vw) translateY(0) rotate(-8deg);opacity:0}10%{opacity:1}50%{transform:translateX(25vw) translateY(-12px) rotate(6deg)}100%{transform:translateX(65vw) translateY(0) rotate(-4deg);opacity:0}}
@@ -226,15 +213,15 @@ a.btn{display:inline-block;padding:10px 14px;border-radius:10px;border:1px solid
 <body>
 <div class="appWrap">
 
-  <!-- ===== HOME (placeholder) ===== -->
- <section id="tab-home" class="outerTab">
-  <div class="cardSimple">
-    <h2>Latest Videos</h2>
-    <div id="ytFeed" class="feedList" aria-live="polite">
-      <div class="muted">Loading…</div>
+  <!-- ===== HOME (YouTube feed) ===== -->
+  <section id="tab-home" class="outerTab">
+    <div class="cardSimple">
+      <h2>Latest Videos</h2>
+      <div id="ytFeed" class="feedList" aria-live="polite">
+        <div class="muted">Loading…</div>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 
   <!-- ===== TREE APP (your full original app) ===== -->
   <section id="tab-tree" class="outerTab active">
@@ -270,15 +257,13 @@ a.btn{display:inline-block;padding:10px 14px;border-radius:10px;border:1px solid
       <section class="page" id="page-tree" aria-hidden="false">
         <section id="stage" aria-live="polite">
           <div class="scene" id="scene">
-            <!-- Parallax layers -->
             <div class="parallax">
               <div class="layer back" id="layerBack"></div>
               <div class="layer mid" id="layerMid"></div>
               <div class="layer front" id="layerFront"></div>
             </div>
-            <!-- Background forest -->
             <div id="forestLayer" class="parallax"></div>
-            <!-- Acorn screen -->
+
             <div id="acornScreen">
               <svg id="acornBig" viewBox="0 0 80 80" aria-hidden="true">
                 <defs>
@@ -296,7 +281,6 @@ a.btn{display:inline-block;padding:10px 14px;border-radius:10px;border:1px solid
               <button id="plantBtn" class="cta"><span class="sprout">🌱</span>Plant Acorn</button>
             </div>
 
-            <!-- Tree -->
             <svg id="tree" class="tree sway" viewBox="0 0 300 430" aria-hidden="true" style="display:none">
               <defs>
                 <linearGradient id="bark" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#7a5437"/><stop offset="100%" stop-color="#5a3e2b"/></linearGradient>
@@ -480,9 +464,8 @@ a.btn{display:inline-block;padding:10px 14px;border-radius:10px;border:1px solid
   </div>
 </nav>
 
+<!-- ===== MAIN APP SCRIPT (unchanged logic) ===== -->
 <script>
-/* ===== your entire original JS (unchanged) ===== */
-
 /* ===== Quotes (placeholder) ===== */
 const QUOTES = [
   "Roots grow deeper when you’re quiet inside.",
@@ -541,13 +524,12 @@ const coachOk = document.getElementById('coachOk');
 const coachSkip = document.getElementById('coachSkip');
 const toast = document.getElementById('toast');
 
-/* ===== Audio (fixed: mobile unlock + master volume + safe fallback) ===== */
+/* ===== Audio (mobile unlock + master volume + safe fallback) ===== */
 let audioEnabled = true;
 let SND_VOL = 0.9;
 let _ctx = null, _gain = null, _unlocked = false;
 const _audioCache = new Map();
 
-// File lists — if you add custom files later, just edit these names
 const SND = {
   cpGain:  ["cp1.m4a","cp2.m4a","cp3.m4a"],
   plant:   ["plant1.m4a","plant2.m4a"],
@@ -591,7 +573,7 @@ function getHtmlAudio(path){
   }
   const base=_audioCache.get(path);
   const el=base.cloneNode(true);
-  el.volume=SND_VOL; // respect master slider
+  el.volume=SND_VOL;
   return el;
 }
 async function playFile(file){
@@ -632,7 +614,7 @@ function loadState(){
 }
 const state = loadState(); SND_VOL = state.volume ?? 0.9;
 
-/* ===== Themes (unchanged visuals) ===== */
+/* ===== Themes ===== */
 const PRESETS = {
   sage:  { sky1:'#0f3a2f', sky2:'#0d3329', sky3:'#0a2b23', accent:'#bfe8cf', accent2:'#98d8bb', text:'#ecfff6' },
   evergreen: { sky1:'#0e4434', sky2:'#0c3a2c', sky3:'#0a3327', accent:'#a3e3c2', accent2:'#8fe3bb', text:'#eafff3' },
@@ -686,7 +668,13 @@ function applySeason(){
 
 /* ===== Dots & Forest background ===== */
 function updateDotsUI(){
-  ringsEl.innerHTML=''; for(let i=0;i<5;i++){ const d=document.createElement('div'); d.className='ring'; if(i<state.dots) d.classList.add('filled'); ringsEl.appendChild(d); }
+  ringsEl.innerHTML='';
+  for(let i=0;i<5;i++){
+    const d=document.createElement('div');
+    d.className='ring';
+    if(i<state.dots) d.classList.add('filled');
+    ringsEl.appendChild(d);
+  }
 }
 function addBackgroundTree(){
   const wrap=document.createElement('div'); wrap.className='forestTree';
@@ -908,7 +896,6 @@ stageEl.addEventListener('pointerup',(e)=>{
     setTimeout(()=>{ coachTip('Write a line about how the mantra felt. Journaling boosts growth.', journalBox, 'top'); state.onb.journal=1; saveState(); }, 180);
   }
   if(state.cycle.left<=0){
-    // Breath overlay at end of day
     showBreath();
   }
 }, {passive:true});
@@ -1113,7 +1100,6 @@ function boot(){
   } else if(state.theme.preset){ applyPreset(state.theme.preset); }
   syncPickersFromVars();
 
-  // Audio defaults
   try{
     ensureAudio();
     SND_VOL = state.volume ?? 0.9;
@@ -1147,7 +1133,7 @@ soundToggle.addEventListener('click', ()=>{
 boot();
 setInterval(()=>{ if(state.planted){ renderLeaves(); } }, 9*60*1000);
 
-/* ===== bottom-nav controller (new) ===== */
+/* ===== bottom-nav controller ===== */
 const outerTabs = {
   home: document.getElementById('tab-home'),
   tree: document.getElementById('tab-tree'),
@@ -1187,11 +1173,13 @@ tabButtons.forEach(b => b.addEventListener('click', ()=>activateOuter(b.dataset.
   const start=['home','profile','tree','store','explore'].includes(fromHash)?fromHash:saved;
   activateOuter(start);
 })();
+</script>
+
+<!-- ===== YOUTUBE FEED SCRIPT (separate tag; do NOT move inside the main one) ===== -->
 <script>
-// ---- YouTube feed (no API key; uses channel RSS) ----
 const YT_CHANNEL_ID = 'UCCdDJ9Lf8qhH-HOhKM4pEcQ'; // Samwell Worldwide
 
-async function buildYTFeed(limit=5){
+async function buildYTFeed(limit=8){
   const host = document.getElementById('ytFeed');
   if(!host) return;
   try{
@@ -1210,18 +1198,19 @@ async function buildYTFeed(limit=5){
       const id = (it.link.split('=')[1] || '').trim();
       const when = new Date(it.pubDate);
       const date = when.toLocaleDateString();
+      const title = it.title.replace(/</g,'&lt;').replace(/"/g,'&quot;');
       return `
         <article class="vidCard" data-vid="${id}">
           <div class="vidThumb">
-            <img alt="${it.title.replace(/"/g,'&quot;')}"
-                 src="https://i.ytimg.com/vi/${id}/hqdefault.jpg">
+            <img alt="${title}" src="https://i.ytimg.com/vi/${id}/hqdefault.jpg" loading="lazy">
             <button class="playBtn" aria-label="Play video">▶</button>
           </div>
-          <div class="vTitle">${it.title}</div>
+          <div class="vTitle">${title}</div>
           <div class="vMeta">Published ${date}</div>
         </article>`;
     }).join('');
   }catch(err){
+    console.error(err);
     host.innerHTML = `<div class="muted">Couldn’t load videos.</div>`;
   }
 }
@@ -1234,12 +1223,12 @@ document.addEventListener('click', (e)=>{
   const id = card?.dataset?.vid;
   if(!id) return;
   card.querySelector('.vidThumb').innerHTML =
-    `<iframe width="100%" height="315"
+    `<div class="ytWrap"><iframe
       src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0"
       title="YouTube video"
       frameborder="0"
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowfullscreen></iframe>`;
+      allowfullscreen></iframe></div>`;
 });
 
 // build the feed now, and again if user switches to #home
@@ -1247,7 +1236,7 @@ buildYTFeed();
 window.addEventListener('hashchange', ()=>{
   if(location.hash === '#home') buildYTFeed();
 });
-
 </script>
+
 </body>
 </html>
