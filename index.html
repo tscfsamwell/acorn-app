@@ -201,12 +201,17 @@ a.btn{display:inline-block;padding:10px 14px;border-radius:10px;border:1px solid
 
   <!-- ===== HOME (placeholder) ===== -->
   <section id="tab-home" class="outerTab">
-    <div class="cardSimple">
-      <h2>Home</h2>
-      <p class="muted">This is where the users’ feed would be (Samwell posts + community). We’ll wire it later.</p>
-      <p class="muted">Pinned: latest YouTube, guided meditations, thought vents.</p>
-    </div>
-  </section>
+  <div id="feed" class="page">
+    <h2>Latest Videos</h2>
+    <iframe width="100%" height="315"
+      src="https://www.youtube.com/embed?listType=user_uploads&list=UC2s29pIPtRtFAYfR0iE3TXQ"
+      title="Samwell Worldwide YouTube"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen>
+    </iframe>
+  </div>
+</section>
 
   <!-- ===== TREE APP (your full original app) ===== -->
   <section id="tab-tree" class="outerTab active">
