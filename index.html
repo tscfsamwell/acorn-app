@@ -563,53 +563,85 @@ function activateOuter(tab){ Object.keys(outerTabs).forEach(k=> outerTabs[k].sty
 tabButtons.forEach(b=> b.addEventListener('click', ()=> activateOuter(b.dataset.tab)));
 activateOuter(localStorage.getItem('samwell.tab')||'tree');
 
-/* -------------------- YouTube feed (restored) -------------------- */
-const YT_CHANNEL_ID='UCCdDJ9Lf8qhH-HOhKM4pEcQ';
-async function buildYTFeed(limit=8){
-  const host=document.getElementById('ytFeed'); if(!host) return;
-  try{
-    const rss=`https://www.youtube.com/feeds/videos.xml?channel_id=${YT_CHANNEL_ID}`;
-    const url = `https://api.rss2json.com/v1/api.json?rss_url=https://www.youtube.com/feeds/videos.xml?channel_id=${NEL_ID}`;
-const res = await fetch(url);
-const data = await res.json();
-let items = data.items || [];
+/* -------------------- YouTube feed (videos only; Shorts filtered) -------------------- */
+const YT_CHANNEL_ID = 'UCCdDJ9Lf8qhH-HOhKM4pEcQ';
 
-// FILTER OUT SHORTS
-items = items.filter(it => !it.link.includes('/shorts/'));
+async function buildYTFeed(limit = 8) {
+  const host = document.getElementById('ytFeed');
+  if (!host) return;
 
-if(!items.length){
-  host.innerHTML = `<div class="muted">Couldn't load feed.</div>`;
-  return;
+  try {
+    const channel = (typeof YT_CHANNEL_ID !== 'undefined' && YT_CHANNEL_ID)
+      ? YT_CHANNEL_ID
+      : (typeof NEL_ID !== 'undefined' ? NEL_ID : '');
+
+    const rss = `https://www.youtube.com/feeds/videos.xml?channel_id=${channel}`;
+    const url = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rss)}`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+    if (!data || !Array.isArray(data.items)) throw new Error('bad response');
+
+    // 1) filter out Shorts
+    let items = data.items.filter(it => !/\/shorts\//.test(it.link)).slice(0, limit);
+    if (!items.length) {
+      host.innerHTML = `<div class="muted">No videos found.</div>`;
+      return;
+    }
+
+    // robust id extractor (works with watch?v=, extra params, etc.)
+    const getId = (link) => {
+      try {
+        const u = new URL(link);
+        return u.searchParams.get('v') || u.pathname.split('/').pop();
+      } catch {
+        return (link.split('v=')[1] || '').split('&')[0];
+      }
+    };
+
+    host.innerHTML = items.map(it => {
+      const id = getId(it.link);
+      const when = new Date(it.pubDate);
+      const date = when.toLocaleDateString();
+      const title = it.title.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+      return `
+        <article class="vidCard" data-vid="${id}" style="border:1px solid var(--line);background:rgba(255,255,255,.06);border-radius:12px;overflow:hidden;margin:10px 0">
+          <div class="vidThumb" style="position:relative;aspect-ratio:16/9;background:#000">
+            <img alt="${title}" src="https://i.ytimg.com/vi/${id}/hqdefault.jpg" loading="lazy" style="width:100%;height:100%;object-fit:cover;opacity:.95">
+            <button class="playBtn" aria-label="Play video" style="position:absolute;left:10px;bottom:10px;border:0;cursor:pointer;padding:10px 12px;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;font-weight:700">▶</button>
+          </div>
+          <div class="vTitle" style="padding:10px 12px;font-weight:700">${title}</div>
+          <div class="vMeta" style="padding:0 12px 12px;opacity:.8;font-size:12px">Published ${date}</div>
+        </article>`;
+    }).join('');
+  } catch (err) {
+    host.innerHTML = `<div class="muted">Couldn't load videos.</div>`;
+  }
 }
-host.innerHTML = items.map(it => {
-  const id = (it.link.split('=')[1] || '').trim();
-  const when = new Date(it.pubDate);
-  const date = when.toLocaleDateString();
-  const title = it.title.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  return `
-    <article class="vidCard" data-vid="${id}">
-      <div class="vidThumb" style="position:relative;aspect-ratio:16/9">
-        <img alt="${title}" src="https://i.ytimg.com/vi/${id}/hqdefault.jpg">
-        <button class="playBtn" aria-label="Play video"></button>
-      </div>
-      <div class="vTitle" style="padding:10px 12px;font-weight:600">${title}</div>
-      <div class="vMeta" style="padding:0 12px 12px;opacity:0.7">${date}</div>
-    </article>`;
-}).join('');
-  }catch(err){ host.innerHTML=`<div class="muted">Couldn’t load videos.</div>`; }
-}
-document.addEventListener('click',(e)=>{
-  const btn=e.target.closest('.playBtn'); if(!btn) return;
-  const card=btn.closest('.vidCard'); const id=card?.dataset?.vid; if(!id) return;
-  card.querySelector('.vidThumb').innerHTML =
-    `<div class="ytWrap" style="position:relative;width:100%;aspect-ratio:16/9;background:rgba(0,0,0,.3);border-radius:12px;overflow:hidden">
-      <iframe src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0" title="YouTube video" frameborder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen
+
+// play inline on click
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.playBtn');
+  if (!btn) return;
+  const card = btn.closest('.vidCard');
+  const id = card?.dataset?.vid;
+  if (!id) return;
+
+  card.querySelector('.vidThumb').innerHTML = `
+    <div class="ytWrap" style="position:relative;width:100%;aspect-ratio:16/9;background:rgba(0,0,0,.3);border-radius:12px;overflow:hidden">
+      <iframe src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0"
+              title="YouTube video" frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
               style="position:absolute;inset:0;width:100%;height:100%"></iframe>
-     </div>`;
+    </div>`;
 });
+
 buildYTFeed();
-window.addEventListener('hashchange',()=>{ if(location.hash==='#home') buildYTFeed(); });
+window.addEventListener('hashchange', () => {
+  if (location.hash === '#home') buildYTFeed();
+});
 </script>
 </body>
 </html>
