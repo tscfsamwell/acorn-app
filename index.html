@@ -74,16 +74,16 @@ textarea::placeholder{color:#cdeede;opacity:.7}
 /* creatures & particles */
 .leafParticle{position:fixed;will-change:transform,opacity;pointer-events:none;z-index:999}
 #creatureLayer{position:absolute;inset:0;pointer-events:none;z-index:4}
-.creature{position:absolute;opacity:0; text-shadow:0 3px 10px rgba(0,0,0,.35); pointer-events:none}
-.creature.fly{animation:fly 7s ease-in-out forwards}
+.creature{position:absolute;opacity:0;text-shadow:0 3px 10px rgba(0,0,0,.35);pointer-events:none}
+.creature.fly{animation:fly 7.4s ease-in-out forwards}
 @keyframes fly{0%{transform:translateX(-30vw) translateY(0) rotate(-8deg);opacity:0}10%{opacity:1}50%{transform:translateX(25vw) translateY(-12px) rotate(6deg)}100%{transform:translateX(65vw) translateY(0) rotate(-4deg);opacity:0}}
-.creature.crawl{animation:crawl 12s linear forwards}
-@keyframes crawl{from{transform:translate(-50%,20%)} to{transform:translate(-50%,-130px)}}
+.creature.crawl{animation:crawl 13s linear forwards}
+@keyframes crawl{from{transform:translate(-50%,20%)} to{transform:translate(-50%,-140px)}}
 
 /* fox (tight hitbox) + den */
-#den{position:absolute;left:50%;bottom:8%;transform:translateX(-50%);width:84px;height:22px;border-radius:20px 20px 0 0;background:rgba(0,0,0,.32);box-shadow:0 -6px 12px rgba(0,0,0,.35) inset}
-.fox{position:absolute;bottom:8%;left:50%;transform:translate(-50%,0);font-size:28px;opacity:0;pointer-events:auto;z-index:5}
-.fox.show{opacity:1;transition:opacity .25s, transform .4s}
+#den{position:absolute;left:50%;bottom:8%;transform:translateX(-50%);width:86px;height:22px;border-radius:20px 20px 0 0;background:rgba(0,0,0,.28);box-shadow:0 -6px 12px rgba(0,0,0,.35) inset}
+.fox{position:absolute;bottom:8%;left:50%;transform:translate(-50%,0);font-size:28px;opacity:0;pointer-events:auto;z-index:5;line-height:1}
+.fox.show{opacity:1;transition:opacity .25s, transform .35s}
 .fox.hide{opacity:0}
 .fox:active{transform:translate(-50%,2px) scale(.98)}
 
@@ -93,6 +93,20 @@ textarea::placeholder{color:#cdeede;opacity:.7}
 /* toast */
 #toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:10001}
 #toast.show{opacity:1}
+
+/* breathe overlay */
+#breath{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);z-index:10002}
+#breathCard{width:min(520px,90vw);background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 18px 16px;color:var(--text);text-align:center;box-shadow:0 14px 36px rgba(0,0,0,.4)}
+#bTitle{font-weight:700;margin:0 0 2px}
+#bSubtitle{margin:0 0 6px;opacity:.85;font-size:13px}
+#bCircle{width:180px;height:180px;border-radius:50%;margin:14px auto 10px;background:radial-gradient(circle at 50% 40%, var(--accent), color-mix(in oklab, var(--accent) 65%, black 0%));opacity:.95;transform:scale(.92);transition:transform 3.2s ease-in-out}
+#bText{margin:0 0 10px;opacity:.9}
+#bDots{display:flex;gap:6px;justify-content:center;margin-bottom:10px}
+.bDot{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.25)}
+.bDot.on{background:var(--accent)}
+.bBtns{display:flex;gap:8px;justify-content:center}
+.bBtn{border:1px solid var(--line);background:transparent;color:var(--text);padding:8px 12px;border-radius:10px}
+.bBtn.primary{background:var(--accent);color:#0b3d2e;font-weight:800}
 
 /* bottom nav */
 nav{
@@ -105,12 +119,18 @@ nav{
 .tab.center .icon{width:46px;height:46px;border-radius:50%;background:radial-gradient(110% 110% at 30% 20%, #7ff0a0, #4cc977);color:#0a0d10;display:grid;place-items:center;border:2px solid rgba(255,255,255,.12);box-shadow:0 6px 20px rgba(102,209,122,.35)}
 .cardSimple{max-width:560px;margin:18px auto;padding:16px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid var(--line)}
 .muted{opacity:.8}
+
+/* debug overlay */
+#debug{position:fixed;right:10px;top:10px;z-index:9999;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);border:1px solid var(--line);border-radius:12px;padding:10px;display:none;min-width:220px}
+#debug h4{margin:0 0 6px;font-size:12px;letter-spacing:.3px;opacity:.85}
+#debug pre{margin:6px 0 0;font-size:12px;line-height:1.25;white-space:pre-wrap}
+#debug button{margin-top:8px;font-size:12px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--text);border-radius:8px;padding:6px 8px}
 </style>
 </head>
 
 <body>
 <div class="appWrap">
-  <!-- HOME placeholder (kept for bottom nav, can add feed later) -->
+  <!-- HOME placeholder -->
   <section id="tab-home" class="outerTab" style="display:none">
     <div class="cardSimple"><h2>Latest</h2><p class="muted">Coming soon.</p></div>
   </section>
@@ -122,7 +142,6 @@ nav{
         <div style="display:flex;align-items:center;gap:8px">
           <h1>Acorn</h1><div class="forestName" id="forestNameLabel"></div>
         </div>
-        <!-- (hamburger removed) -->
       </header>
 
       <div class="rings" id="rings"></div>
@@ -164,7 +183,7 @@ nav{
             <g id="leaves" clip-path="url(#canopyClip)"></g>
           </svg>
 
-          <div id="den"></div>
+          <div id="den" title="Fox den"></div>
           <div id="creatureLayer" aria-hidden="true"></div>
           <div class="ground"></div>
           <div class="glow"></div>
@@ -185,10 +204,33 @@ nav{
         <div class="saveNote" id="saveNote">Saved</div>
       </div>
     </main>
+
+    <!-- Breathe overlay -->
+    <div id="breath" aria-hidden="true">
+      <div id="breathCard" role="dialog" aria-modal="true" aria-labelledby="bTitle">
+        <h3 id="bTitle">Breathe with the tree</h3>
+        <div id="bSubtitle">4 easy cycles • ~30s</div>
+        <div id="bCircle" aria-hidden="true"></div>
+        <div id="bText">Inhale</div>
+        <div id="bDots"><span class="bDot"></span><span class="bDot"></span><span class="bDot"></span><span class="bDot"></span></div>
+        <div class="bBtns">
+          <button class="bBtn" id="bSkip">Skip</button>
+          <button class="bBtn primary" id="bFinish">Finish</button>
+        </div>
+      </div>
+    </div>
+
     <div id="toast" role="status" aria-live="polite"></div>
+
+    <!-- Debug overlay -->
+    <div id="debug">
+      <h4>DEV</h4>
+      <pre id="dbgText"></pre>
+      <button id="dbgReset">Reset Progress</button>
+    </div>
   </section>
 
-  <!-- PROFILE (journal list + gallery + achievements) -->
+  <!-- PROFILE -->
   <section id="tab-profile" class="outerTab" style="display:none">
     <div class="cardSimple"><h2>Profile & Journal</h2>
       <div id="entryList"></div>
@@ -245,6 +287,9 @@ const stageCPEl=document.getElementById('stageCP'); const creatureLayer=document
 const forestNameLabel=document.getElementById('forestNameLabel'); const denEl=document.getElementById('den');
 const toast=document.getElementById('toast'); const entryList=document.getElementById('entryList');
 const galleryGrid=document.getElementById('galleryGrid'); const achGrid=document.getElementById('achGrid');
+const breathEl=document.getElementById('breath'); const bCircle=document.getElementById('bCircle');
+const bText=document.getElementById('bText'); const bDots=[...document.querySelectorAll('#bDots .bDot')];
+const bSkip=document.getElementById('bSkip'); const bFinish=document.getElementById('bFinish');
 
 function todayMidnight(){const d=new Date(); d.setHours(0,0,0,0); return +d;}
 function ymd(ts){const d=new Date(ts); return d.toISOString().slice(0,10);}
@@ -253,25 +298,25 @@ function mulberry32(a){return function(){let t=a+=0x6D2B79F5;t=Math.imul(t^t>>>1
 function makeCycle(){return {seed:Math.floor(Math.random()*2**31), total:randInt(150,260), left:0, quoteIdx:-1, journal:"", fruits:[], hasFruit:false};}
 function makeDay(){return {leafCP:0, journalGiven:false, plantedGiven:false, logged:false};}
 
-const storeKey='acorn.master.embedded.v1';
+const storeKey='acorn.master.embedded.v2';
 function loadState(){
   const d=todayMidnight(), raw=localStorage.getItem(storeKey);
   if(raw){ const s=JSON.parse(raw); if(s.date!==d){ s.date=d; s.day=makeDay(); s.cpSince=0; } return s; }
   return {date:d, planted:false, cycle:makeCycle(), cp:0, day:makeDay(), dots:0, forest:0, name:"My Forest",
           entries:[], gallery:{'🦋':0,'🐦':0,'🐜':0,'🐞':0,'🦊':0,'🦉':0}, ach:{}, seenVisitorTip:0,
-          volume:0.9, cpSince:0, foxBonusSeen:0};
+          volume:0.9, cpSince:0, dev:0};
 }
 const state=loadState();
 
 /* -------------------- AUDIO (embedded via WebAudio) -------------------- */
-let audioEnabled=true, SND_VOL=state.volume??0.9, _ctx=null;
+let audioEnabled=true, _ctx=null;
 function ctx(){ if(!_ctx) _ctx = new (window.AudioContext||window.webkitAudioContext)(); return _ctx; }
-function chime(){ if(!audioEnabled) return; const c=ctx(); const o=c.createOscillator(), g=c.createGain();
-  o.type='sine'; o.frequency.value=660; g.gain.value=0; o.connect(g); g.connect(c.destination);
+function chime(){ if(!audioEnabled) return; const c=ctx(), o=c.createOscillator(), g=c.createGain();
+  o.type='sine'; o.frequency.value=640; g.gain.value=0; o.connect(g); g.connect(c.destination);
   const t=c.currentTime; g.gain.linearRampToValueAtTime(0.18,t+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t+0.35);
   o.start(t); o.stop(t+0.36);
 }
-function flutter(){ if(!audioEnabled) return; const c=ctx(); const o=c.createOscillator(), g=c.createGain();
+function flutter(){ if(!audioEnabled) return; const c=ctx(), o=c.createOscillator(), g=c.createGain();
   o.type='triangle'; o.frequency.setValueAtTime(420,c.currentTime); o.frequency.linearRampToValueAtTime(520,c.currentTime+0.15);
   g.gain.value=0.12; o.connect(g); g.connect(c.destination); o.start(); setTimeout(()=>o.stop(),180);
 }
@@ -281,13 +326,18 @@ soundToggle.addEventListener('click', ()=>{audioEnabled=!audioEnabled; soundTogg
 function showToast(msg, ms=1800){ toast.textContent=msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'), ms); }
 function updateDotsUI(){ ringsEl.innerHTML=''; for(let i=0;i<5;i++){ const d=document.createElement('div'); d.className='ring'; if(i<state.dots) d.classList.add('filled'); ringsEl.appendChild(d); }}
 
-/* -------------------- Stages & CP -------------------- */
+/* -------------------- Stages & CP (progress loops every 100) -------------------- */
 const STAGES=[{name:'Acorn',min:0},{name:'Sprout',min:5},{name:'Sapling',min:15},{name:'Young Tree',min:30},{name:'Full Tree',min:50},{name:'Grove',min:80}];
 function currentStageIndex(cp){let i=0; for(let k=0;k<STAGES.length;k++) if(cp>=STAGES[k].min) i=k; return i;}
-function nextStageTarget(cp){ const i=currentStageIndex(cp); return i>=STAGES.length-1?STAGES[i].min+20:STAGES[i+1].min; }
-function updateStageBar(){ const idx=currentStageIndex(state.cp); const stage=STAGES[idx], next=STAGES[Math.min(idx+1,STAGES.length-1)];
-  const rangeMax=next.min===stage.min?stage.min+20:next.min; const pct=Math.max(0,Math.min(100,((state.cp-stage.min)/(rangeMax-stage.min))*100));
-  stageNameEl.textContent=stage.name; stageCPEl.textContent=`${Math.round(state.cp)} CP`; stageFillEl.style.width=pct+'%'; }
+function updateStageBar(){
+  const band = Math.floor(state.cp/100);               // 0..n
+  const inBand = state.cp - band*100;                  // 0..99
+  const pct = Math.max(0, Math.min(100, inBand));      // show 0..100
+  const idx=currentStageIndex(state.cp);
+  stageNameEl.textContent = `${STAGES[idx].name}`;
+  stageCPEl.textContent = `${Math.round(state.cp)} CP`;
+  stageFillEl.style.width = pct + '%';
+}
 
 /* -------------------- Forest bg + parallax -------------------- */
 const layerBack=document.getElementById('layerBack'), layerMid=document.getElementById('layerMid'), layerFront=document.getElementById('layerFront');
@@ -350,29 +400,32 @@ function removeFruit(f,byUser=false){
 }
 
 /* -------------------- Creatures -------------------- */
-const CREATURES = {
-  butterfly: {icon:'🦋', minCP:5},
-  bird: {icon:'🐦', minCP:15},
-  ant: {icon:'🐜', minCP:10},
-  lady: {icon:'🐞', minCP:12},
-  fox: {icon:'🦊', minCP:30},
-  owl: {icon:'🦉', minCP:30}
-};
 let foxEl=null, foxVisible=false;
 
-function spawnButterfly(targetFruit=null){
+function spawnButterfly(){
   const b=document.createElement('div'); b.className='creature fly'; b.textContent='🦋';
-  b.style.top=(20+Math.random()*35)+'%'; b.style.left='-10%'; creatureLayer.appendChild(b);
-  // nudge around fruit if present
-  if(targetFruit){ const jitter=()=>{ const r=targetFruit.getBoundingClientRect(); const s=creatureLayer.getBoundingClientRect();
-      b.style.top=((r.top-s.top)+randInt(-8,8))+'px'; }; setTimeout(jitter,400); }
-  setTimeout(()=>b.remove(), 7200);
+  // start near left; leisurely speed controlled by CSS
+  b.style.top=(24+Math.random()*26)+'%'; b.style.left='-12%'; creatureLayer.appendChild(b);
+  // if fruit exists, gently orbit one fruit
+  const fruity = state.cycle.fruits[0]?.el;
+  if(fruity){
+    let t=0; const id=setInterval(()=>{
+      if(!b.isConnected){ clearInterval(id); return; }
+      const r=fruity.getBoundingClientRect(), s=creatureLayer.getBoundingClientRect();
+      const ox=r.left - s.left + r.width/2, oy=r.top - s.top + r.height/2;
+      const rad=22, px=ox + Math.cos(t)*rad, py=oy + Math.sin(t*1.2)*rad;
+      b.style.transform = `translate(${px}px, ${py}px)`;
+      t+=0.05;
+    }, 33);
+    setTimeout(()=>clearInterval(id), 6000);
+  }
+  setTimeout(()=>b.remove(), 7400);
   state.gallery['🦋']=1;
 }
 function spawnBird(){
   const d=document.createElement('div'); d.className='creature fly'; d.textContent='🐦';
   d.style.top=(18+Math.random()*24)+'%'; d.style.left='-12%'; creatureLayer.appendChild(d);
-  setTimeout(()=>d.remove(), 7200);
+  setTimeout(()=>d.remove(), 7400);
   state.gallery['🐦']=1;
   // if fruit exists, bird steals one → +1CP
   const fruity = state.cycle.fruits[0]?.el;
@@ -381,7 +434,7 @@ function spawnBird(){
 function spawnBug(which='🐜'){
   const c=document.createElement('div'); c.className='creature crawl'; c.textContent=which;
   c.style.left='50%'; c.style.bottom='8%'; c.style.transform='translate(-50%,20%)'; creatureLayer.appendChild(c);
-  setTimeout(()=>c.remove(), 12000);
+  setTimeout(()=>c.remove(), 13000);
   state.gallery[which]=1;
 }
 function spawnFox(){
@@ -391,13 +444,12 @@ function spawnFox(){
   foxEl.addEventListener('click', ()=>{ hideFox(); });
   creatureLayer.appendChild(foxEl);
   foxVisible=true; state.gallery['🦊']=1;
-  // reduce birds by 50% (handled in spawn logic) and provide leaf-double chance while visible
-  setTimeout(()=>hideFox(), 15000+Math.random()*8000);
+  setTimeout(()=>hideFox(), 16000+Math.random()*6000);
 }
 function hideFox(){
   if(!foxVisible||!foxEl) return;
   foxEl.classList.add('hide');
-  setTimeout(()=>{ foxEl?.remove(); foxEl=null; foxVisible=false; }, 280);
+  setTimeout(()=>{ foxEl?.remove(); foxEl=null; foxVisible=false; }, 260);
 }
 
 /* -------------------- Spawn controller (CP‑range based) -------------------- */
@@ -405,7 +457,7 @@ const spawnCfg = {
   butterfly: {min:15, max:25},
   bird: {min:20, max:45},
   fox: {min:40, max:100},
-  bugs: {min:40, max:90} // ants/ladybugs (only from Grove stage)
+  bugs: {min:40, max:90} // ants/ladybugs unlock at cp>=80
 };
 let nextSpawn = {
   butterfly: randInt(spawnCfg.butterfly.min, spawnCfg.butterfly.max),
@@ -416,11 +468,35 @@ let nextSpawn = {
 function considerSpawns(){
   const c=state.cpSince||0;
   const grove = state.cp>=80;
-  if(c>=nextSpawn.butterfly){ spawnButterfly(state.cycle.fruits[0]?.el); nextSpawn.butterfly+=randInt(spawnCfg.butterfly.min, spawnCfg.butterfly.max); if(!state.seenVisitorTip){ showToast("Visitors are curious when you care for the tree."); state.seenVisitorTip=1; saveState(); } }
-  const birdGate = foxVisible?1.5:1; // fox halves bird rate (harder to hit threshold)
-  if(c>=nextSpawn.bird*birdGate){ spawnBird(); nextSpawn.bird += randInt(spawnCfg.bird.min, spawnCfg.bird.max); if(!state.seenVisitorTip){ showToast("Visitors are curious when you care for the tree."); state.seenVisitorTip=1; saveState(); } }
-  if(c>=nextSpawn.fox){ spawnFox(); nextSpawn.fox += randInt(spawnCfg.fox.min, spawnCfg.fox.max); if(!state.seenVisitorTip){ showToast("Visitors are curious when you care for the tree."); state.seenVisitorTip=1; saveState(); } }
-  if(grove && c>=nextSpawn.bugs){ spawnBug(Math.random()<0.5?'🐜':'🐞'); nextSpawn.bugs += randInt(spawnCfg.bugs.min, spawnCfg.bugs.max); if(!state.seenVisitorTip){ showToast("Visitors are curious when you care for the tree."); state.seenVisitorTip=1; saveState(); } }
+
+  if(c>=nextSpawn.butterfly){
+    spawnButterfly();
+    nextSpawn.butterfly += randInt(spawnCfg.butterfly.min, spawnCfg.butterfly.max);
+    if(!state.seenVisitorTip){ showToast("Visitors are curious when you care for the tree."); state.seenVisitorTip=1; saveState(); }
+  }
+
+  // Birds: only if fruit exists; fox halves effective spawn frequency
+  const hasFruit = (state.cycle.fruits||[]).length>0;
+  if(hasFruit){
+    const gate = foxVisible ? 1.5 : 1; // fox reduces bird frequency
+    if(c >= nextSpawn.bird * gate){
+      spawnBird();
+      nextSpawn.bird += randInt(spawnCfg.bird.min, spawnCfg.bird.max);
+      if(!state.seenVisitorTip){ showToast("Visitors are curious when you care for the tree."); state.seenVisitorTip=1; saveState(); }
+    }
+  }
+
+  if(c>=nextSpawn.fox){
+    spawnFox();
+    nextSpawn.fox += randInt(spawnCfg.fox.min, spawnCfg.fox.max);
+    if(!state.seenVisitorTip){ showToast("Visitors are curious when you care for the tree."); state.seenVisitorTip=1; saveState(); }
+  }
+
+  if(grove && c>=nextSpawn.bugs){
+    spawnBug(Math.random()<0.5?'🐜':'🐞');
+    nextSpawn.bugs += randInt(spawnCfg.bugs.min, spawnCfg.bugs.max);
+    if(!state.seenVisitorTip){ showToast("Visitors are curious when you care for the tree."); state.seenVisitorTip=1; saveState(); }
+  }
 }
 
 /* -------------------- Quotes + counts -------------------- */
@@ -429,13 +505,19 @@ function updateQuote(){ mantraEl.textContent=(state.planted && state.cycle.quote
 
 /* -------------------- CP rules -------------------- */
 let tapsNeeded = randInt(3,10), tapCount=0;
-function addCP(n){ let amt=n;
-  if(foxVisible && Math.random()<0.3){ amt*=2; } // fox bonus
-  state.cp += amt; state.cpSince = (state.cpSince||0)+amt; saveState(); updateStageBar(); chime(); considerSpawns(); }
+function addCP(n){
+  let amt=n;
+  // Fox bonus: occasional double CP while fox visible
+  if(foxVisible && Math.random()<0.3){ amt*=2; }
+  state.cp += amt;
+  state.cpSince = (state.cpSince||0)+amt;
+  saveState(); updateStageBar(); chime(); considerSpawns(); updateDebug();
+}
 
-/* -------------------- Day flow -------------------- */
+/* -------------------- Day + Breathe flow -------------------- */
 function onPlanted(){
-  state.dots=(state.dots+1); if(state.dots>=5){ state.dots=0; state.forest=(state.forest||0)+1; addBackgroundTree(); }
+  state.dots=(state.dots+1);
+  if(state.dots>=5){ state.dots=0; state.forest=(state.forest||0)+1; addBackgroundTree(); }
   saveState(); updateDotsUI();
   if(!state.day.plantedGiven){ state.day.plantedGiven=true; addCP(1); }
 }
@@ -445,13 +527,44 @@ function logTodayEntry(){
   const entry={date:ts,dateISO:ymd(ts),stage:STAGES[currentStageIndex(state.cp)].name,quote:(state.cycle.quoteIdx>=0?QUOTES[state.cycle.quoteIdx]:""),note:(state.cycle.journal||"").trim()};
   state.entries.unshift(entry); state.day.logged=true; saveState();
 }
+function showBreath(){
+  breathEl.style.display='flex'; breathEl.setAttribute('aria-hidden','false');
+  let round=0, step=0;
+  const STEPS=[{label:'Inhale',scale:1.12,ms:3200},{label:'Hold',scale:1.12,ms:1200},{label:'Exhale',scale:0.90,ms:3600},{label:'Hold',scale:0.90,ms:800}];
+  const ROUNDS=4;
+  bDots.forEach(d=>d.classList.remove('on'));
+  function run(){
+    const s=STEPS[step]; bText.textContent=s.label; bCircle.style.transform=`scale(${s.scale})`;
+    setTimeout(()=>{
+      step=(step+1)%STEPS.length;
+      if(step===0){ round++; bDots.forEach((d,i)=> d.classList.toggle('on', i<round)); if(round>=ROUNDS){ finishBreath(); return; } }
+      run();
+    }, s.ms);
+  }
+  run();
+  bSkip.onclick = finishBreath; bFinish.onclick = finishBreath;
+}
+function finishBreath(){
+  breathEl.style.display='none'; breathEl.setAttribute('aria-hidden','true');
+  logTodayEntry();
+  state.planted=false; saveState();
+  showAcorn();
+}
 function plant(){
-  state.planted=true; state.cpSince=0;
+  state.planted=true; state.cpSince=0; state.seenVisitorTip = state.seenVisitorTip||0;
+  // roll new thresholds
+  nextSpawn = {
+    butterfly: randInt(spawnCfg.butterfly.min, spawnCfg.butterfly.max),
+    bird:      randInt(spawnCfg.bird.min,      spawnCfg.bird.max),
+    fox:       randInt(spawnCfg.fox.min,       spawnCfg.fox.max),
+    bugs:      randInt(spawnCfg.bugs.min,      spawnCfg.bugs.max)
+  };
   const total=randInt(150,260), seed=Math.floor(Math.random()*2**31);
   let idx=Math.floor(Math.random()*QUOTES.length); if(state.cycle && idx===state.cycle.quoteIdx && QUOTES.length>1) idx=(idx+1)%QUOTES.length;
   state.cycle={seed,total,left:total,quoteIdx:idx,journal:"",fruits:[],hasFruit:false};
-  // fruit chance: every 2–6 trees (based on forest count)
-  const chance = ((state.forest+1)%randInt(2,6)===0);
+  // fruit cadence: every 2–6 trees
+  const cadence = randInt(2,6);
+  const chance = ((state.forest+1) % cadence === 0);
   state.cycle.hasFruit = chance;
   saveState(); showTree(); onPlanted();
   if(chance) spawnFruitCluster();
@@ -460,11 +573,16 @@ function plant(){
 /* -------------------- Leaf tap / flick -------------------- */
 const stageEl=document.getElementById('stage'); let pointerStart=null;
 function spawnLeafParticle(x,y,dx=0,dy=-1){
-  const emoji=Math.random()<0.25?'🍂':'🍃'; const el=document.createElement('div'); el.className='leafParticle'; el.textContent=emoji; el.style.left=x+'px'; el.style.top=y+'px'; document.body.appendChild(el);
-  const start=performance.now(), duration=1500+Math.random()*1400; const side=(Math.random()*120+50)*(Math.random()<0.5?-1:1); const baseX=dx*80+side*0.5, baseY=dy*(-120)-40;
-  function frame(t){ const p=Math.min(1,(t-start)/duration), ease=1-Math.pow(1-p,2); const tx=x+baseX*ease, ty=y+baseY*ease+0.55*(p*220);
-    el.style.transform=`translate(${tx-x}px, ${ty-y}px) rotate(${p*240}deg)`; el.style.opacity=String(1-p); if(p<1) requestAnimationFrame(frame); else el.remove(); }
-  requestAnimationFrame(frame);
+  const emoji=Math.random()<0.25?'🍂':'🍃';
+  const el=document.createElement('div'); el.className='leafParticle'; el.textContent=emoji; el.style.left=x+'px'; el.style.top=y+'px';
+  document.body.appendChild(el);
+  const start=performance.now(), duration=1500+Math.random()*1400; const side=(Math.random()*120+50)*(Math.random()<0.5?-1:1);
+  const baseX=dx*80+side*0.5, baseY=dy*(-120)-40;
+  function frame(t){ const p=Math.min(1,(t-start)/duration), ease=1-Math.pow(1-p,2);
+    const tx=x+baseX*ease, ty=y+baseY*ease+0.55*(p*220);
+    el.style.transform=`translate(${tx-x}px, ${ty-y}px) rotate(${p*240}deg)`; el.style.opacity=String(1-p);
+    if(p<1) requestAnimationFrame(frame); else el.remove();
+  } requestAnimationFrame(frame);
 }
 stageEl.addEventListener('pointerdown',(e)=>{ if(!state.planted) return; pointerStart={x:e.clientX,y:e.clientY}; });
 stageEl.addEventListener('pointerup',(e)=>{
@@ -474,13 +592,15 @@ stageEl.addEventListener('pointerup',(e)=>{
   const r=leaf.getBoundingClientRect(); const cx=r.left+r.width/2, cy=r.top+r.height/2;
   leaf.remove(); state.cycle.left--; saveState(); updateCounts(); spawnLeafParticle(cx,cy,dx,dy); flutter();
   tapCount++; if(tapCount>=tapsNeeded){ addCP(1); tapCount=0; tapsNeeded=randInt(3,10); }
-  if(state.cycle.left<=0){ // day end
-    logTodayEntry(); state.planted=false; saveState(); showAcorn();
-  }
+  if(state.cycle.left<=0){ showBreath(); }
 },{passive:true});
 
 /* -------------------- Journal + profile view (simple) -------------------- */
 journalBox.addEventListener('input', ()=>{
+  const txt = journalBox.value.trim();
+  if(txt === '/dev on'){ state.dev=1; saveState(); document.getElementById('debug').style.display='block'; updateDebug(); return; }
+  if(txt === '/dev off'){ state.dev=0; saveState(); document.getElementById('debug').style.display='none'; return; }
+
   saveNote.textContent='Saving...'; clearTimeout(window._sv); window._sv=setTimeout(()=>{
     state.cycle.journal=journalBox.value.slice(0,1000); saveState(); saveNote.textContent='Saved';
     if(!state.day.journalGiven && state.cycle.journal.trim().length>=10){ state.day.journalGiven=true; addCP(2); }
@@ -491,6 +611,27 @@ function buildGallery(){ const list=['🦋','🐦','🐜','🐞','🦊','🦉'];
 function buildAchievements(){ achGrid.innerHTML=''; const ACH=[{id:'firstPlant',name:'First Sprout',desc:'Plant your first acorn',test:s=>s.entries.length>=1},{id:'journal10',name:'Pages Turned',desc:'Journal 10 times',test:s=>(s.entries||[]).filter(e=>e.note && e.note.trim().length>0).length>=10},{id:'cp50',name:'Growing Strong',desc:'Reach 50 CP',test:s=>s.cp>=50},{id:'forest5',name:'Tiny Grove',desc:'Grow 5 background trees',test:s=>s.forest>=5},{id:'foxSeen',name:'Foxy Friend',desc:'See a fox',test:s=>s.gallery['🦊']===1}];
   state.ach=state.ach||{}; ACH.forEach(a=>{ if(!state.ach[a.id] && a.test(state)) state.ach[a.id]=1; const ok=state.ach[a.id]; const d=document.createElement('div'); d.style.cssText=`border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center;${ok?'':'opacity:.45;filter:grayscale(1)'}`; d.innerHTML=`<div style="font-weight:700">${a.name}</div><small style="opacity:.8">${a.desc}</small>`; achGrid.appendChild(d); }); }
 
+/* -------------------- Debug overlay -------------------- */
+const dbg=document.getElementById('debug'), dbgText=document.getElementById('dbgText');
+function updateDebug(){
+  if(!state.dev) return;
+  dbgText.textContent =
+`Total CP: ${Math.round(state.cp)}
+CP since plant: ${Math.round(state.cpSince||0)}
+Leaves left: ${state.cycle.left}/${state.cycle.total}
+Fruit: ${state.cycle.fruits.length} ${(state.cycle.hasFruit?'(rolled this tree)':'')}
+Next spawns @ CP-since:
+  🦋 ${nextSpawn.butterfly}
+  🐦 ${nextSpawn.bird} ${foxVisible?'(fox -50%)':''}
+  🦊 ${nextSpawn.fox}
+  🐞/🐜 ${nextSpawn.bugs} ${state.cp>=80?'(unlocked)':'(locked <80cp)'}
+Fox visible: ${foxVisible}`;
+}
+document.getElementById('dbgReset').addEventListener('click', ()=>{
+  if(!confirm('Reset all local progress?')) return;
+  localStorage.removeItem(storeKey); location.reload();
+});
+
 /* -------------------- Save & Boot -------------------- */
 function saveState(){ try{ localStorage.setItem(storeKey, JSON.stringify(state)); }catch(e){} }
 function ensureName(){ forestNameLabel.textContent = state.name ? `• ${state.name}` : ''; }
@@ -500,9 +641,13 @@ function boot(){
   journalBox.value = state.cycle.journal || ""; saveNote.textContent='Saved';
   if(state.planted && state.cycle.left>0){ showTree(); } else { showAcorn(); }
   if(state.cycle.hasFruit) spawnFruitCluster();
+  updateDebug();
 }
-plantBtn.addEventListener('click', ()=>{ plant(); });
-resetBtn.addEventListener('click', ()=>{ if(state.planted) logTodayEntry(); state.planted=false; state.cycle=makeCycle(); state.day=makeDay(); state.cpSince=0; clearFruits(); saveState(); boot(); });
+plantBtn.addEventListener('click', ()=>{ plant(); updateDebug(); });
+resetBtn.addEventListener('click', ()=>{
+  if(state.planted) logTodayEntry();
+  state.planted=false; state.cycle=makeCycle(); state.day=makeDay(); state.cpSince=0; clearFruits(); saveState(); boot();
+});
 boot();
 
 /* -------------------- Bottom nav -------------------- */
@@ -514,9 +659,12 @@ const outerTabs={
   explore:document.getElementById('tab-explore')
 };
 const tabButtons=[...document.querySelectorAll('nav .tab')];
-function activateOuter(tab){ Object.keys(outerTabs).forEach(k=> outerTabs[k].style.display = (k===tab)?'block':'none');
-  tabButtons.forEach(b=>b.classList.toggle('active', b.dataset.tab===tab)); localStorage.setItem('samwell.tab', tab);
-  if(tab==='profile'){ renderJournalList(); buildGallery(); buildAchievements(); } }
+function activateOuter(tab){
+  Object.keys(outerTabs).forEach(k=> outerTabs[k].style.display = (k===tab)?'block':'none');
+  tabButtons.forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  localStorage.setItem('samwell.tab', tab);
+  if(tab==='profile'){ renderJournalList(); buildGallery(); buildAchievements(); }
+}
 tabButtons.forEach(b=> b.addEventListener('click', ()=> activateOuter(b.dataset.tab)));
 activateOuter(localStorage.getItem('samwell.tab')||'tree');
 </script>
