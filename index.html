@@ -19,6 +19,18 @@ body{background:linear-gradient(180deg,var(--sky1) 0%, var(--sky2) 30%, var(--sk
 /* make room for the bottom nav */
 .appWrap{min-height:100vh; padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom))}
 
+/* ---- YouTube feed cards ---- */
+.feedList{display:flex;flex-direction:column;gap:14px}
+.vidCard{border:1px solid var(--line);background:rgba(255,255,255,.06);
+  border-radius:12px;overflow:hidden}
+.vidThumb{position:relative;aspect-ratio:16/9;background:#000}
+.vidThumb img{width:100%;height:100%;object-fit:cover;display:block;opacity:.95}
+.playBtn{position:absolute;left:10px;bottom:10px;border:0;cursor:pointer;
+  padding:10px 12px;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;
+  font-weight:700}
+.vTitle{padding:10px 12px;font-weight:700}
+.vMeta{padding:0 12px 12px;opacity:.8;font-size:12px}
+
 /* outer-tab containers */
 .outerTab{display:none}
 .outerTab.active{display:block}
@@ -218,14 +230,8 @@ a.btn{display:inline-block;padding:10px 14px;border-radius:10px;border:1px solid
  <section id="tab-home" class="outerTab">
   <div class="cardSimple">
     <h2>Latest Videos</h2>
-    <div class="ytWrap">
-      <iframe
-        src="https://www.youtube.com/embed/videoseries?list=UUCdDJ9Lf8qhH-HOhKM4pEcQ"
-        title="Samwell Worldwide - Latest Videos"
-        frameborder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowfullscreen>
-      </iframe>
+    <div id="ytFeed" class="feedList" aria-live="polite">
+      <div class="muted">Loading…</div>
     </div>
   </div>
 </section>
@@ -1181,6 +1187,67 @@ tabButtons.forEach(b => b.addEventListener('click', ()=>activateOuter(b.dataset.
   const start=['home','profile','tree','store','explore'].includes(fromHash)?fromHash:saved;
   activateOuter(start);
 })();
+<script>
+// ---- YouTube feed (no API key; uses channel RSS) ----
+const YT_CHANNEL_ID = 'UCCdDJ9Lf8qhH-HOhKM4pEcQ'; // Samwell Worldwide
+
+async function buildYTFeed(limit=5){
+  const host = document.getElementById('ytFeed');
+  if(!host) return;
+  try{
+    const rss = `https://www.youtube.com/feeds/videos.xml?channel_id=${YT_CHANNEL_ID}`;
+    const url = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rss)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const items = (data.items || []).slice(0, limit);
+
+    if(!items.length){
+      host.innerHTML = `<div class="muted">No videos found.</div>`;
+      return;
+    }
+
+    host.innerHTML = items.map(it=>{
+      const id = (it.link.split('=')[1] || '').trim();
+      const when = new Date(it.pubDate);
+      const date = when.toLocaleDateString();
+      return `
+        <article class="vidCard" data-vid="${id}">
+          <div class="vidThumb">
+            <img alt="${it.title.replace(/"/g,'&quot;')}"
+                 src="https://i.ytimg.com/vi/${id}/hqdefault.jpg">
+            <button class="playBtn" aria-label="Play video">▶</button>
+          </div>
+          <div class="vTitle">${it.title}</div>
+          <div class="vMeta">Published ${date}</div>
+        </article>`;
+    }).join('');
+  }catch(err){
+    host.innerHTML = `<div class="muted">Couldn’t load videos.</div>`;
+  }
+}
+
+// swap thumbnail → embedded player on tap
+document.addEventListener('click', (e)=>{
+  const btn = e.target.closest('.playBtn');
+  if(!btn) return;
+  const card = btn.closest('.vidCard');
+  const id = card?.dataset?.vid;
+  if(!id) return;
+  card.querySelector('.vidThumb').innerHTML =
+    `<iframe width="100%" height="315"
+      src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0"
+      title="YouTube video"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen></iframe>`;
+});
+
+// build the feed now, and again if user switches to #home
+buildYTFeed();
+window.addEventListener('hashchange', ()=>{
+  if(location.hash === '#home') buildYTFeed();
+});
+</script>
 </script>
 </body>
 </html>
