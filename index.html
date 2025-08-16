@@ -569,22 +569,33 @@ async function buildYTFeed(limit=8){
   const host=document.getElementById('ytFeed'); if(!host) return;
   try{
     const rss=`https://www.youtube.com/feeds/videos.xml?channel_id=${YT_CHANNEL_ID}`;
-    const url=`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rss)}`;
-    const res=await fetch(url); const data=await res.json(); const items=(data.items||[]).slice(0,limit);
-    if(!items.length){ host.innerHTML=`<div class="muted">No videos found.</div>`; return; }
-    host.innerHTML = items.map(it=>{
-      const id=(it.link.split('=')[1]||'').trim();
-      const when=new Date(it.pubDate); const date=when.toLocaleDateString();
-      const title=it.title.replace(/</g,'&lt;').replace(/"/g,'&quot;');
-      return `<article class="vidCard" data-vid="${id}" style="border:1px solid var(--line);background:rgba(255,255,255,.06);border-radius:12px;overflow:hidden;margin:10px 0">
-        <div class="vidThumb" style="position:relative;aspect-ratio:16/9;background:#000">
-          <img alt="${title}" src="https://i.ytimg.com/vi/${id}/hqdefault.jpg" loading="lazy" style="width:100%;height:100%;object-fit:cover;opacity:.95">
-          <button class="playBtn" aria-label="Play video" style="position:absolute;left:10px;bottom:10px;border:0;cursor:pointer;padding:10px 12px;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;font-weight:700">▶</button>
-        </div>
-        <div class="vTitle" style="padding:10px 12px;font-weight:700">${title}</div>
-        <div class="vMeta" style="padding:0 12px 12px;opacity:.8;font-size:12px">Published ${date}</div>
-      </article>`;
-    }).join('');
+    const url = `https://api.rss2json.com/v1/api.json?rss_url=https://www.youtube.com/feeds/videos.xml?channel_id=${NEL_ID}`;
+const res = await fetch(url);
+const data = await res.json();
+let items = data.items || [];
+
+// FILTER OUT SHORTS
+items = items.filter(it => !it.link.includes('/shorts/'));
+
+if(!items.length){
+  host.innerHTML = `<div class="muted">Couldn't load feed.</div>`;
+  return;
+}
+host.innerHTML = items.map(it => {
+  const id = (it.link.split('=')[1] || '').trim();
+  const when = new Date(it.pubDate);
+  const date = when.toLocaleDateString();
+  const title = it.title.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return `
+    <article class="vidCard" data-vid="${id}">
+      <div class="vidThumb" style="position:relative;aspect-ratio:16/9">
+        <img alt="${title}" src="https://i.ytimg.com/vi/${id}/hqdefault.jpg">
+        <button class="playBtn" aria-label="Play video"></button>
+      </div>
+      <div class="vTitle" style="padding:10px 12px;font-weight:600">${title}</div>
+      <div class="vMeta" style="padding:0 12px 12px;opacity:0.7">${date}</div>
+    </article>`;
+}).join('');
   }catch(err){ host.innerHTML=`<div class="muted">Couldn’t load videos.</div>`; }
 }
 document.addEventListener('click',(e)=>{
