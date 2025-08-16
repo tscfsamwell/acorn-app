@@ -14,14 +14,18 @@
   --card:#08251e; --line:rgba(255,255,255,.15); --glow:rgba(163,227,194,.25);
   --nav-h:68px;
 }
-body{background:linear-gradient(180deg,var(--sky1),var(--sky2) 30%,var(--sky3));color:var(--text)}
-.app{min-height:100vh;padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom))}
+body{background:linear-gradient(180deg,var(--sky1) 0%, var(--sky2) 30%, var(--sky3) 100%); color:var(--text)}
+.appWrap{min-height:100vh; padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom))}
+
+/* outer tabs */
+.outerTab{display:none}
+.outerTab.active{display:block}
+
+/* main layout */
 main{max-width:560px;margin:0 auto;padding:16px 16px 44px}
+header{display:flex;justify-content:space-between;align-items:center}
 h1{font-size:20px;margin:0}
 .forestName{opacity:.9;font-size:13px;margin-left:8px}
-
-/* tabs (outer pages) */
-.page{display:none}.page.active{display:block}
 
 /* rings + stage bar */
 .rings{display:flex;gap:6px;align-items:center;margin:10px 0 6px}
@@ -36,9 +40,9 @@ h1{font-size:20px;margin:0}
 /* scene */
 #stage{position:relative;width:100%;aspect-ratio:3/4;border-radius:20px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.25);margin-top:6px}
 .scene{position:absolute;inset:0;display:grid;place-items:center;background:
-  radial-gradient(ellipse at 50% 85%, rgba(0,0,0,.25), transparent 40%),
-  radial-gradient(ellipse at 50% 15%, rgba(255,255,255,.12), transparent 55%),
-  linear-gradient(180deg,var(--sky1),var(--sky2) 60%,var(--sky3))}
+  radial-gradient(ellipse at 50% 85%, rgba(0,0,0,.25) 0%, rgba(0,0,0,0) 40%),
+  radial-gradient(ellipse at 50% 15%, rgba(255,255,255,.12) 0%, rgba(255,255,255,0) 55%),
+  linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 60%,var(--sky3) 100%);}
 .parallax{position:absolute;inset:0;pointer-events:none}
 .layer{position:absolute;inset:0;opacity:.35}
 .layer.back{animation:drift 18s ease-in-out infinite; transform:translateY(2%)}
@@ -48,54 +52,60 @@ h1{font-size:20px;margin:0}
 .forestTree{position:absolute;bottom:8%;opacity:.32;filter:blur(.2px) drop-shadow(0 4px 10px rgba(0,0,0,.3))}
 .ground{position:absolute;left:0;right:0;bottom:-6%;height:28%;background:radial-gradient(ellipse at 50% 20%, color-mix(in oklab, var(--sky2) 88%, black 0%) 0%, color-mix(in oklab, var(--sky3) 88%, black 0%) 45%, #0b3528 100%);box-shadow:0 -10px 40px inset rgba(0,0,0,.25); z-index:1}
 .glow{position:absolute;inset:0;background:radial-gradient(circle at 50% 25%, var(--glow), transparent 45%); z-index:1}
-svg.tree{width:92%;height:auto;filter:drop-shadow(0 6px 18px rgba(0,0,0,.35)); z-index:2}
-.sway{animation:sway 6s ease-in-out infinite}
-@keyframes sway{0%{transform:rotate(-1.2deg)}50%{transform:rotate(1.2deg)}100%{transform:rotate(-1.2deg)}}
 
-/* acorn screen */
+/* acorn -> tree */
 #acornScreen{position:absolute;inset:0;display:grid;place-items:center;gap:14px;z-index:3}
 #acornBig{width:min(42vmin,220px);height:auto;filter:drop-shadow(0 10px 24px rgba(0,0,0,.4))}
 .cta{display:inline-flex;align-items:center;gap:10px;background:var(--accent);color:#0b3d2e;border:none;border-radius:999px;padding:14px 18px;font-weight:800;font-size:16px;box-shadow:0 6px 18px rgba(0,0,0,.25)}
 .cta:active{transform:scale(.97)} .sprout{font-size:20px}
 
-/* controls + texts */
+/* tree svg */
+svg.tree{width:92%;height:auto;filter:drop-shadow(0 6px 18px rgba(0,0,0,.35)); z-index:2}
+.sway{animation:sway 6s ease-in-out infinite}
+@keyframes sway{0%{transform:rotate(-1.2deg)}50%{transform:rotate(1.2deg)}100%{transform:rotate(-1.2deg)}}
+
+/* fruit layer */
+#fruitLayer{position:absolute;inset:0;pointer-events:none;z-index:3}
+.fruit{position:absolute;width:12px;height:12px;border-radius:50%;background:#ffcc66;border:1px solid rgba(0,0,0,.25);box-shadow:0 2px 8px rgba(0,0,0,.35);pointer-events:auto;cursor:pointer}
+
+/* creatures */
+#creatureLayer{position:absolute;inset:0;pointer-events:none;z-index:4}
+.creature{position:absolute;opacity:0;text-shadow:0 3px 10px rgba(0,0,0,.35);pointer-events:none}
+.creature.sky{top:18%;}
+.creature.bark{left:50%;transform:translateX(-50%);}
+.creature.fly{animation:fly 7s ease-in-out forwards}
+@keyframes fly{0%{transform:translateX(-30vw) translateY(0) rotate(-6deg);opacity:0}10%{opacity:1}50%{transform:translateX(25vw) translateY(-10px) rotate(5deg)}100%{transform:translateX(65vw) translateY(0) rotate(-3deg);opacity:0}}
+.creature.crawl{animation:crawl 14s linear forwards}
+@keyframes crawl{from{transform:translate(-50%,0)} to{transform:translate(-50%,-140px)}}
+/* fox & den */
+#foxDen{position:absolute;left:50%;bottom:5.5%;transform:translateX(-50%);width:56px;height:18px;border-radius:999px;background:rgba(0,0,0,.35);box-shadow:0 -4px 10px rgba(0,0,0,.25) inset, 0 6px 10px rgba(0,0,0,.25)}
+.creature.fox{bottom:6%;left:50%;transform:translateX(-50%);font-size:30px;animation:foxWalk 16s ease-in-out forwards}
+@keyframes foxWalk{
+  0%{opacity:0; transform:translate(-50%,0) translateX(-12vw)}
+  8%{opacity:1} 24%{transform:translate(-50%,0) translateX(-4vw)}
+  40%{transform:translate(-50%,0) translateX(10vw)}
+  70%{transform:translate(-50%,0) translateX(-6vw)}
+  84%{transform:translate(-50%,2px)}
+  100%{opacity:0; transform:translate(-50%,10px)} /* down into den */
+}
+
+/* controls & text */
+.mantra{min-height:52px;text-align:center;font-size:16px;line-height:1.35;margin:12px 0 0}
+.count{font-size:12px;opacity:.85;text-align:center;margin-top:6px}
 .controls{display:flex;justify-content:space-between;gap:8px;margin-top:10px}
 .ghost{background:transparent;color:var(--text);border:1px solid var(--line);border-radius:999px;padding:10px 14px}
-.mantra{min-height:52px;text-align:center;font-size:16px;line-height:1.35;margin:10px 0 0}
-.count{font-size:12px;opacity:.85;text-align:center;margin-top:6px}
 
-/* journal box only */
+/* journal box on tree page only */
 .journal{margin-top:14px}
 label{font-size:13px;opacity:.95}
 textarea{width:100%;min-height:84px;margin-top:6px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:var(--text);padding:12px;resize:vertical}
 textarea::placeholder{color:#cdeede;opacity:.7}
 .saveNote{font-size:12px;opacity:.75;margin-top:6px}
 
-/* creatures & particles (no layout shift) */
-#creatureLayer{position:absolute;inset:0;pointer-events:none;z-index:4;contain:layout paint}
-.creature{position:absolute;opacity:0;text-shadow:0 3px 10px rgba(0,0,0,.35);will-change:transform,opacity}
-.creature.sky.fly{animation:fly 7s ease-in-out forwards}
-@keyframes fly{
-  0%{transform:translate(-15%, -10%) translateX(-40vw) rotate(-10deg);opacity:0}
-  10%{opacity:1}
-  50%{transform:translate(-15%, -10%) translateX(10vw) translateY(-10px) rotate(6deg)}
-  100%{transform:translate(-15%, -10%) translateX(60vw) rotate(-4deg);opacity:0}
-}
-.creature.bark.crawl{left:50%;transform:translateX(-50%);animation:crawl 12s linear forwards}
-@keyframes crawl{from{bottom:18%} to{bottom:58%}}
-.creature.ground.fox{bottom:6%;left:50%;transform:translateX(-50%);font-size:30px;animation:fox 16s ease-in-out forwards}
-@keyframes fox{
-  0%{opacity:0; transform:translate(-50%,0) translateX(-12vw)}
-  8%{opacity:1} 22%{transform:translate(-50%,0) translateX(-4vw)}
-  30%{transform:translate(-50%,0) translateX(0)}
-  55%{transform:translate(-50%,0) translateX(10vw)}
-  86%{transform:translate(-50%,0) translateX(-6vw)}
-  100%{opacity:0; transform:translate(-50%,0) translateX(14vw)}
-}
-.leafParticle{position:fixed;will-change:transform,opacity;pointer-events:none}
-
-/* profile */
-.sectionTitle{margin:10px 0 8px;font-size:16px}
+/* profile pages */
+.page{display:none} .page[aria-hidden="false"]{display:block}
+.jTop{display:flex;justify-content:space-between;align-items:center;margin:8px 0 12px}
+.editNameBtn,.paletteBtn{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:8px;padding:6px 10px;font-size:12px}
 .statRow{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 12px}
 .stat{background:rgba(255,255,255,.08);border:1px solid var(--line);padding:8px 10px;border-radius:10px;font-size:12px}
 .entry{border:1px solid var(--line);background:rgba(255,255,255,.06);border-radius:12px;padding:10px;margin-bottom:10px}
@@ -106,19 +116,14 @@ textarea::placeholder{color:#cdeede;opacity:.7}
 .card{border:1px solid var(--line);background:rgba(255,255,255,.06);border-radius:12px;padding:12px;text-align:center}
 .locked{opacity:.45;filter:grayscale(1)}
 .card small{display:block;opacity:.8;margin-top:6px;font-size:11px}
-.paletteRow{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
-.paletteBtn{border:1px solid var(--line);background:transparent;color:var(--text);border-radius:8px;padding:6px 10px;font-size:12px}
-.colorBox{width:18px;height:18px;border-radius:4px;border:1px solid rgba(255,255,255,.25)}
-.palette{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:8px 10px}
-#volRange{width:160px}
 
-/* coach + toast + breath (unchanged behavior) */
+/* coach + toast */
 #coach{position:fixed;inset:0;pointer-events:none;z-index:10000}
 .coachMask{position:absolute;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(2px);opacity:0;transition:opacity .15s}
 #coach.show .coachMask{opacity:1}
 .coachCard{position:absolute;max-width:260px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;box-shadow:0 12px 30px rgba(0,0,0,.35);opacity:0;transform:translateY(6px);transition:opacity .18s, transform .18s;pointer-events:auto}
 #coach.show .coachCard{opacity:1;transform:translateY(0)}
-.coachText{font-size:14px;margin:0 0 8px}
+.coachText{font-size:14px;line-height:1.35;margin:0 0 8px}
 .coachBtns{display:flex;gap:8px;justify-content:flex-end}
 .coachBtn{background:var(--accent);color:#0b3d2e;border:none;border-radius:10px;padding:8px 10px;font-weight:700}
 .coachSkip{background:transparent;color:var(--text);border:1px solid rgba(255,255,255,.25)}
@@ -126,36 +131,72 @@ textarea::placeholder{color:#cdeede;opacity:.7}
 #toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:10001}
 #toast.show{opacity:1}
 
+/* breath */
 #breath{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);z-index:10002}
-#breathCard{width:min(520px,90vw);background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 18px 16px;text-align:center;box-shadow:0 14px 36px rgba(0,0,0,.4)}
+#breathCard{width:min(520px,90vw);background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 18px 16px;color:var(--text);text-align:center;box-shadow:0 14px 36px rgba(0,0,0,.4)}
+#bTitle{font-weight:700;margin:0 0 2px}
+#bSubtitle{margin:0 0 6px;opacity:.85;font-size:13px}
 #bCircle{width:180px;height:180px;border-radius:50%;margin:14px auto 10px;background:radial-gradient(circle at 50% 40%, var(--accent), color-mix(in oklab, var(--accent) 65%, black 0%));opacity:.95;transform:scale(.92);transition:transform 3.2s ease-in-out}
-.bDot{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.25)}.bDot.on{background:var(--accent)}
+#bText{margin:0 0 10px;opacity:.9}
+#bDots{display:flex;gap:6px;justify-content:center;margin-bottom:10px}
+.bDot{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.25)}
+.bDot.on{background:var(--accent)}
+.bBtns{display:flex;gap:8px;justify-content:center}
+.bBtn{border:1px solid var(--line);background:transparent;color:var(--text);padding:8px 12px;border-radius:10px}
+.bBtn.primary{background:var(--accent);color:#0b3d2e;font-weight:800}
 
 /* bottom nav */
-nav{position:fixed;left:0;right:0;bottom:0;z-index:50;height:calc(var(--nav-h) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:rgba(10,18,16,.9);backdrop-filter:saturate(120%) blur(10px);border-top:1px solid var(--line)}
+nav{
+  position:fixed;left:0;right:0;bottom:0;z-index:50;
+  height:calc(var(--nav-h) + env(safe-area-inset-bottom));
+  padding-bottom:env(safe-area-inset-bottom);
+  background:rgba(10,18,16,.9); backdrop-filter:saturate(120%) blur(10px);
+  border-top:1px solid var(--line);
+}
 .tabs{height:var(--nav-h);display:grid;grid-template-columns:repeat(5,1fr);align-items:stretch}
-.tab{appearance:none;border:0;background:transparent;color:rgba(255,255,255,.7);font:600 12px/1 system-ui,-apple-system,Segoe UI,Roboto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer}
+.tab{
+  appearance:none;border:0;background:transparent;color:rgba(255,255,255,.7);
+  font:600 12px/1 system-ui,-apple-system,Segoe UI,Roboto;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;
+}
 .tab svg{width:22px;height:22px;opacity:.95}
 .tab.active{color:var(--accent)}
-.tab.center .icon{width:46px;height:46px;border-radius:50%;background:radial-gradient(110% 110% at 30% 20%, #7ff0a0, #4cc977);color:#0a0d10;display:grid;place-items:center;border:2px solid rgba(255,255,255,.12);box-shadow:0 6px 20px rgba(102,209,122,.35)}
-.cardSimple{max-width:560px;margin:18px auto;padding:16px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid var(--line)}
+.tab.center .icon{
+  width:46px;height:46px;border-radius:50%;
+  background:radial-gradient(110% 110% at 30% 20%, #7ff0a0, #4cc977);
+  color:#0a0d10;display:grid;place-items:center;border:2px solid rgba(255,255,255,.12);
+  box-shadow:0 6px 20px rgba(102,209,122,.35);
+}
 a.btn{display:inline-block;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:#0e1916;color:var(--text);text-decoration:none}
+.cardSimple{max-width:560px;margin:18px auto;padding:16px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid var(--line)}
 .muted{opacity:.8}
+
+/* YouTube feed */
+.feedList{display:flex;flex-direction:column;gap:14px}
+.vidCard{border:1px solid var(--line);background:rgba(255,255,255,.06);border-radius:12px;overflow:hidden}
+.vidThumb{position:relative;aspect-ratio:16/9;background:#000}
+.vidThumb img{width:100%;height:100%;object-fit:cover;display:block;opacity:.95}
+.playBtn{position:absolute;left:10px;bottom:10px;border:0;cursor:pointer;padding:10px 12px;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;font-weight:700}
+.vTitle{padding:10px 12px;font-weight:700}
+.vMeta{padding:0 12px 12px;opacity:.8;font-size:12px}
+.ytWrap{position:relative;width:100%;aspect-ratio:16/9;background:rgba(0,0,0,.3);border-radius:12px;overflow:hidden}
+.ytWrap iframe{position:absolute;inset:0;width:100%;height:100%}
 </style>
 </head>
-<body>
-<div class="app">
 
-  <!-- HOME (placeholder: YouTube feed) -->
-  <section id="home" class="page">
+<body>
+<div class="appWrap">
+
+  <!-- HOME (YouTube feed) -->
+  <section id="tab-home" class="outerTab">
     <div class="cardSimple">
       <h2>Latest Videos</h2>
       <div id="ytFeed" class="feedList" aria-live="polite"><div class="muted">Loading…</div></div>
     </div>
   </section>
 
-  <!-- TREE -->
-  <section id="treeTab" class="page active">
+  <!-- TREE APP -->
+  <section id="tab-tree" class="outerTab active">
     <main>
       <header>
         <div style="display:flex;align-items:center;gap:8px">
@@ -163,6 +204,7 @@ a.btn{display:inline-block;padding:10px 14px;border-radius:10px;border:1px solid
         </div>
       </header>
 
+      <!-- rings + stage -->
       <div class="rings" id="rings"></div>
       <div class="stageWrap">
         <div class="stageName" id="stageName">Acorn</div>
@@ -170,6 +212,7 @@ a.btn{display:inline-block;padding:10px 14px;border-radius:10px;border:1px solid
         <div class="stageCP" id="stageCP">0 CP</div>
       </div>
 
+      <!-- stage -->
       <section id="stage" aria-live="polite">
         <div class="scene" id="scene">
           <div class="parallax">
@@ -206,6 +249,8 @@ a.btn{display:inline-block;padding:10px 14px;border-radius:10px;border:1px solid
             <g id="leaves" clip-path="url(#canopyClip)"></g>
           </svg>
 
+          <div id="fruitLayer" aria-hidden="false"></div>
+          <div id="foxDen" aria-hidden="true"></div>
           <div class="ground"></div>
           <div class="glow"></div>
           <div id="creatureLayer" aria-hidden="true"></div>
@@ -243,20 +288,27 @@ a.btn{display:inline-block;padding:10px 14px;border-radius:10px;border:1px solid
 
     <!-- breath -->
     <div id="breath" aria-hidden="true">
-      <div id="breathCard" role="dialog" aria-modal="true">
+      <div id="breathCard" role="dialog" aria-modal="true" aria-labelledby="bTitle">
         <h3 id="bTitle">Breathe with the tree</h3>
         <div id="bSubtitle">4 easy cycles • ~30s</div>
-        <div id="bCircle"></div>
+        <div id="bCircle" aria-hidden="true"></div>
         <div id="bText">Inhale</div>
         <div id="bDots"><span class="bDot"></span><span class="bDot"></span><span class="bDot"></span><span class="bDot"></span></div>
-        <div class="bBtns"><button class="bBtn" id="bSkip">Skip</button><button class="bBtn primary" id="bFinish">Finish</button></div>
+        <div class="bBtns">
+          <button class="bBtn" id="bSkip">Skip</button>
+          <button class="bBtn primary" id="bFinish">Finish</button>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- PROFILE (everything else) -->
-  <section id="profile" class="page">
+  <!-- PROFILE (journal list + gallery + achievements + settings) -->
+  <section id="tab-profile" class="outerTab">
     <main>
+      <div class="jTop">
+        <div style="font-weight:700">Profile & Journal</div>
+        <button class="editNameBtn" id="editNameBtn">Edit name</button>
+      </div>
       <div class="statRow">
         <div class="stat">Forest: <span id="forestNameStat"></span></div>
         <div class="stat">Streak: <span id="streakStat">0</span> days</div>
@@ -264,17 +316,15 @@ a.btn{display:inline-block;padding:10px 14px;border-radius:10px;border:1px solid
         <div class="stat">Forest trees: <span id="forestCountStat">0</span></div>
         <div class="stat">Entries: <span id="entryCountStat">0</span></div>
       </div>
-
-      <div class="sectionTitle">Entries</div>
       <div id="entryList"></div>
 
-      <div class="sectionTitle">Creature Gallery</div>
+      <div class="jTop" style="margin-top:18px"><div style="font-weight:700">Creature Gallery</div></div>
       <div class="grid" id="galleryGrid"></div>
 
-      <div class="sectionTitle">Achievements</div>
+      <div class="jTop" style="margin-top:18px"><div style="font-weight:700">Achievements</div></div>
       <div class="grid" id="achGrid"></div>
 
-      <div class="sectionTitle">Settings — Colours & Audio</div>
+      <div class="jTop" style="margin-top:18px"><div style="font-weight:700">Settings — Colours & Audio</div></div>
       <div class="paletteRow">
         <button class="paletteBtn" data-preset="sage">🌿 Sage</button>
         <button class="paletteBtn" data-preset="evergreen">🌲 Evergreen</button>
@@ -282,14 +332,14 @@ a.btn{display:inline-block;padding:10px 14px;border-radius:10px;border:1px solid
         <button class="paletteBtn" data-preset="amber">🍁 Amber</button>
       </div>
       <div class="palette">
-        <span class="colorBox" id="cSky1Box"></span><label>Sky 1</label><input type="color" id="cSky1" value="#0f3a2f">
-        <span class="colorBox" id="cSky2Box"></span><label>Sky 2</label><input type="color" id="cSky2" value="#0d3329">
-        <span class="colorBox" id="cSky3Box"></span><label>Sky 3</label><input type="color" id="cSky3" value="#0a2b23">
+        <label>Sky 1</label><input type="color" id="cSky1" value="#0f3a2f">
+        <label>Sky 2</label><input type="color" id="cSky2" value="#0d3329">
+        <label>Sky 3</label><input type="color" id="cSky3" value="#0a2b23">
       </div>
       <div class="palette" style="margin-top:8px">
-        <span class="colorBox" id="cAcc1Box"></span><label>Accent</label><input type="color" id="cAcc1" value="#bfe8cf">
-        <span class="colorBox" id="cAcc2Box"></span><label>Accent 2</label><input type="color" id="cAcc2" value="#98d8bb">
-        <span class="colorBox" id="cTextBox"></span><label>Text</label><input type="color" id="cText" value="#ecfff6">
+        <label>Accent</label><input type="color" id="cAcc1" value="#bfe8cf">
+        <label>Accent 2</label><input type="color" id="cAcc2" value="#98d8bb">
+        <label>Text</label><input type="color" id="cText" value="#ecfff6">
       </div>
       <div class="palette" style="margin-top:8px">
         <label style="margin-right:8px">Master Volume</label>
@@ -299,7 +349,7 @@ a.btn{display:inline-block;padding:10px 14px;border-radius:10px;border:1px solid
   </section>
 
   <!-- STORE -->
-  <section id="store" class="page">
+  <section id="tab-store" class="outerTab">
     <div class="cardSimple">
       <h2>Store</h2>
       <p class="muted">Book, audiobook, merch and app cosmetics will live here.</p>
@@ -308,242 +358,417 @@ a.btn{display:inline-block;padding:10px 14px;border-radius:10px;border:1px solid
   </section>
 
   <!-- EXPLORE -->
-  <section id="explore" class="page">
+  <section id="tab-explore" class="outerTab">
     <div class="cardSimple">
       <h2>Explore</h2>
-      <p class="muted">Explore themes/topics and search specific problems or solutions. (Coming soon.)</p>
+      <p class="muted">Explore themes/topics and search specific problems or solutions. (Hook to quotes, tags, videos later.)</p>
     </div>
   </section>
-
 </div>
 
 <!-- bottom nav -->
 <nav aria-label="Primary">
   <div class="tabs">
-    <button class="tab" data-goto="home">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l9 8h-3v8h-5v-5H11v5H6v-8H3l9-8z"/></svg><span>Home</span>
+    <button class="tab" data-tab="home" aria-label="Home">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l9 8h-3v8h-5v-5H11v5H6v-8H3l9-8z"/></svg>
+      <span>Home</span>
     </button>
-    <button class="tab" data-goto="profile">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zm-7 9a7 7 0 1114 0H5z"/></svg><span>Profile</span>
+    <button class="tab" data-tab="profile" aria-label="Profile">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zm-7 9a7 7 0 1114 0H5z"/></svg>
+      <span>Profile</span>
     </button>
-    <button class="tab center active" data-goto="treeTab">
-      <div class="icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a6 6 0 016 6 4 4 0 11-8 0A6 6 0 006 14a4 4 0 004 4h1v4h2v-4h1a6 6 0 000-12 6 6 0 00-2-4z"/></svg></div>
+    <button class="tab center" data-tab="tree" aria-label="Tree">
+      <div class="icon">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a6 6 0 016 6 4 4 0 11-8 0A6 6 0 006 14a4 4 0 004 4h1v4h2v-4h1a6 6 0 000-12 6 6 0 00-2-4z"/></svg>
+      </div>
       <span style="margin-top:4px">Tree</span>
     </button>
-    <button class="tab" data-goto="store">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4h10l1 4H6l1-4zm-1 6h12v9H6v-9zm3 2v5h2v-5H9zm4 0v5h2v-5h-2z"/></svg><span>Store</span>
+    <button class="tab" data-tab="store" aria-label="Store">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4h10l1 4H6l1-4zm-1 6h12v9H6v-9zm3 2v5h2v-5H9zm4 0v5h2v-5h-2z"/></svg>
+      <span>Store</span>
     </button>
-    <button class="tab" data-goto="explore">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.5 3a7.5 7.5 0 105.3 12.8l4.2 4.2 1.4-1.4-4.2-4.2A7.5 7.5 0 0010.5 3zm0 2a5.5 5.5 0 110 11 5.5 5.5 0 010-11z"/></svg><span>Explore</span>
+    <button class="tab" data-tab="explore" aria-label="Explore">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.5 3a7.5 7.5 0 105.3 12.8l4.2 4.2 1.4-1.4-4.2-4.2A7.5 7.5 0 0010.5 3zm0 2a5.5 5.5 0 110 11 5.5 5.5 0 010-11z"/></svg>
+      <span>Explore</span>
     </button>
   </div>
 </nav>
 
 <script>
-/* ===== data ===== */
-const QUOTES=["Roots grow deeper when you’re quiet inside.","Observation is love in practice.","Small actions carry long echoes.","Be kinder than you feel."];
+/* ===== quotes ===== */
+const QUOTES = [
+  "Roots grow deeper when you’re quiet inside.",
+  "Observation is love in practice.",
+  "Small actions carry long echoes.",
+  "Be kinder than you feel."
+];
 
-/* ===== els ===== */
-const ringsEl=document.getElementById('rings'), forestLayer=document.getElementById('forestLayer');
-const plantBtn=document.getElementById('plantBtn'), acornScreen=document.getElementById('acornScreen');
-const treeSVG=document.getElementById('tree'), leavesLayer=document.getElementById('leaves');
-const mantraEl=document.getElementById('mantra'), leafCountEl=document.getElementById('leafCount');
-const soundToggle=document.getElementById('soundToggle'), resetBtn=document.getElementById('resetBtn');
-const journalBox=document.getElementById('journalBox'), saveNote=document.getElementById('saveNote');
-const stageNameEl=document.getElementById('stageName'), stageFillEl=document.getElementById('stageFill'), stageCPEl=document.getElementById('stageCP');
-const creatureLayer=document.getElementById('creatureLayer'), stageEl=document.getElementById('stage');
-const forestNameLabel=document.getElementById('forestNameLabel');
-const galleryGrid=document.getElementById('galleryGrid'), achGrid=document.getElementById('achGrid'), entryList=document.getElementById('entryList');
-const forestNameStat=document.getElementById('forestNameStat'), streakStat=document.getElementById('streakStat'), cpStat=document.getElementById('cpStat'), forestCountStat=document.getElementById('forestCountStat'), entryCountStat=document.getElementById('entryCountStat');
-const layerBack=document.getElementById('layerBack'), layerMid=document.getElementById('layerMid'), layerFront=document.getElementById('layerFront');
+/* ===== elements ===== */
+const ringsEl = document.getElementById('rings');
+const forestLayer = document.getElementById('forestLayer');
+const plantBtn = document.getElementById('plantBtn');
+const acornScreen = document.getElementById('acornScreen');
+const treeSVG = document.getElementById('tree');
+const leavesLayer = document.getElementById('leaves');
+const fruitLayer = document.getElementById('fruitLayer');
+const foxDen = document.getElementById('foxDen');
+const mantraEl = document.getElementById('mantra');
+const leafCountEl = document.getElementById('leafCount');
+const soundToggle = document.getElementById('soundToggle');
+const resetBtn = document.getElementById('resetBtn');
+const journalBox = document.getElementById('journalBox');
+const saveNote = document.getElementById('saveNote');
+const stageNameEl = document.getElementById('stageName');
+const stageFillEl = document.getElementById('stageFill');
+const stageCPEl   = document.getElementById('stageCP');
+const creatureLayer = document.getElementById('creatureLayer');
 
-/* ===== audio (safe) ===== */
-let audioEnabled=true, SND_VOL=0.9, _ctx=null,_gain=null,_unlocked=false;
-function ensureAudio(){if(_ctx) return; _ctx=new (window.AudioContext||window.webkitAudioContext)(); _gain=_ctx.createGain(); _gain.gain.value=SND_VOL; _gain.connect(_ctx.destination);}
-function primeAudio(){ensureAudio(); if(_unlocked) return; try{const b=_ctx.createBuffer(1,1,22050); const s=_ctx.createBufferSource(); s.buffer=b; s.connect(_gain); s.start(0); _ctx.resume(); _unlocked=true;}catch(e){}}
-document.addEventListener('pointerdown',primeAudio,{once:true,passive:true});
-function beep(f=560,ms=120){if(!audioEnabled) return; ensureAudio(); try{const o=_ctx.createOscillator(),g=_ctx.createGain(); o.type='sine';o.frequency.value=f; g.gain.value=.0001; g.gain.setTargetAtTime(.25,_ctx.currentTime,.008); o.connect(g); g.connect(_gain); o.start(); setTimeout(()=>{g.gain.setTargetAtTime(.0001,_ctx.currentTime,.02); setTimeout(()=>o.stop(),100)},ms);}catch(e){}}
+/* profile tab els */
+const forestNameLabel = document.getElementById('forestNameLabel');
+const forestNameStat = document.getElementById('forestNameStat');
+const streakStat = document.getElementById('streakStat');
+const cpStat = document.getElementById('cpStat');
+const forestCountStat = document.getElementById('forestCountStat');
+const entryCountStat = document.getElementById('entryCountStat');
+const entryList = document.getElementById('entryList');
+const galleryGrid = document.getElementById('galleryGrid');
+const achGrid = document.getElementById('achGrid');
+
+/* coach + toast */
+const coach = document.getElementById('coach');
+const coachText = document.getElementById('coachText');
+const coachCard = document.getElementById('coachCard');
+const coachArrow = document.getElementById('coachArrow');
+const coachOk = document.getElementById('coachOk');
+const coachSkip = document.getElementById('coachSkip');
+const toast = document.getElementById('toast');
+
+/* ===== sound (restored) ===== */
+let audioEnabled = true;
+let SND_VOL = 0.9;
+let _ctx = null, _gain = null, _unlocked = false;
+const _audioCache = new Map();
+const SND = {
+  cpGain:  ["cp1.m4a","cp2.m4a","cp3.m4a"],
+  plant:   ["plant1.m4a","plant2.m4a"],
+  level:   ["level1.m4a","level2.m4a"],
+  creature:["visit1.m4a","visit2.m4a","visit3.m4a"]
+};
+function ensureAudio(){ if(_ctx) return; _ctx = new (window.AudioContext||window.webkitAudioContext)(); _gain=_ctx.createGain(); _gain.gain.value=SND_VOL; _gain.connect(_ctx.destination); }
+function primeAudio(){ ensureAudio(); if(_unlocked) return; try{ const b=_ctx.createBuffer(1,1,22050), s=_ctx.createBufferSource(); s.buffer=b; s.connect(_gain); s.start(0); _ctx.resume(); _unlocked=true; }catch(e){} }
+document.addEventListener('pointerdown', primeAudio, {once:true, passive:true});
+function beep(freq=560, ms=120){ if(!audioEnabled) return; ensureAudio(); try{ const o=_ctx.createOscillator(), g=_ctx.createGain(); o.type='sine'; o.frequency.value=freq; g.gain.value=0.0001; g.gain.setTargetAtTime(0.25, _ctx.currentTime, 0.008); o.connect(g); g.connect(_gain); o.start(); setTimeout(()=>{ g.gain.setTargetAtTime(0.0001, _ctx.currentTime, 0.02); setTimeout(()=>o.stop(), 100); }, ms);}catch(e){} }
+function getHtmlAudio(path){ if(!_audioCache.has(path)){ const a=new Audio(path); a.preload='auto'; _audioCache.set(path,a);} const base=_audioCache.get(path); const el=base.cloneNode(true); el.volume=SND_VOL; return el; }
+async function playFile(file){ if(!audioEnabled) return; try{ const a=getHtmlAudio(file.startsWith('sounds/')?file:`sounds/${file}`); if(_ctx && _ctx.state==='suspended') await _ctx.resume(); await a.play(); }catch(e){ beep(520,130); } }
+function playFrom(list){ if(!Array.isArray(list)||!list.length) return; playFile(list[Math.floor(Math.random()*list.length)]); }
+const SOUND = { cpGain(){playFrom(SND.cpGain)}, plant(){playFrom(SND.plant)}, level(){playFrom(SND.level)}, creature(){playFrom(SND.creature)} };
 
 /* ===== state ===== */
-const storeKey='acorn.master.clean.v1';
-function today(){const d=new Date(); d.setHours(0,0,0,0); return +d;}
-function ymd(ts){return new Date(ts).toISOString().slice(0,10);}
-function ri(a,b){return Math.floor(a+Math.random()*(b-a+1));}
-function rng(seed){return function(){let t=seed+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;}}
-function makeCycle(){return{seed:Math.floor(Math.random()*2**31),total:ri(140,220),left:0,quoteIdx:-1,journal:""};}
-function makeDay(){return{leafCP:0,journalGiven:false,plantedGiven:false,logged:false};}
-function load(){const d=today(),raw=localStorage.getItem(storeKey); if(raw){const s=JSON.parse(raw); if(s.date!==d){s.date=d;s.day=makeDay();} return s;}
-  return{date:d,planted:false,cycle:makeCycle(),cp:0,day:makeDay(),dots:0,forest:0,name:"",entries:[],onb:{},gallery:{'🦋':0,'🐦':0,'🐜':0,'🐞':0,'🦊':0,'🦉':0},ach:{},theme:{},volume:0.9};}
-const state=load(); SND_VOL=state.volume??0.9;
-function save(){try{localStorage.setItem(storeKey,JSON.stringify(state))}catch(e){}}
+const storeKey='acorn.master.sage.v3';
+function todayMidnight(){const d=new Date(); d.setHours(0,0,0,0); return +d;}
+function ymd(ts){const d=new Date(ts); return d.toISOString().slice(0,10);}
+function randInt(min,max){return Math.floor(min+Math.random()*(max-min+1));}
+function mulberry32(a){return function(){let t=a+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;}}
+function makeCycle(){return{seed:Math.floor(Math.random()*2**31), total:randInt(120,260), left:0, quoteIdx:-1, journal:"", fruit:[], hasFruit:false};}
+function makeDay(){return{leafCP:0, journalGiven:false, plantedGiven:false, logged:false};}
+function loadState(){const d=todayMidnight(), raw=localStorage.getItem(storeKey); if(raw){const s=JSON.parse(raw); if(s.date!==d){s.date=d; s.day=makeDay();} return s;} return {date:d, planted:false, cycle:makeCycle(), cp:0, day:makeDay(), dots:0, forest:0, name:"", entries:[], dev:0, simNight:0, onb:{plant:0, leaves:0, journal:0, dots:0, menu:0, creature:0, never:0}, gallery:{'🦋':0,'🐦':0,'🐜':0,'🐞':0,'🦊':0,'🦉':0}, ach:{}, theme:{}, volume:0.9, visitorsTipShown:0, careCP:0, since:{butterfly:0,bird:0,fox:0}};}
+const state = loadState(); SND_VOL = state.volume ?? 0.9;
 
-/* ===== theme & season ===== */
-const PRESETS={sage:{sky1:'#0f3a2f',sky2:'#0d3329',sky3:'#0a2b23',accent:'#bfe8cf',accent2:'#98d8bb',text:'#ecfff6'},
+/* ===== themes ===== */
+const PRESETS = {
+  sage:{sky1:'#0f3a2f',sky2:'#0d3329',sky3:'#0a2b23',accent:'#bfe8cf',accent2:'#98d8bb',text:'#ecfff6'},
   evergreen:{sky1:'#0e4434',sky2:'#0c3a2c',sky3:'#0a3327',accent:'#a3e3c2',accent2:'#8fe3bb',text:'#eafff3'},
   dusk:{sky1:'#15263a',sky2:'#112032',sky3:'#0d1928',accent:'#9ad0ff',accent2:'#75b8ff',text:'#e9f6ff'},
-  amber:{sky1:'#2b3326',sky2:'#222a1f',sky3:'#1a2218',accent:'#ffc47a',accent2:'#ffad4d',text:'#fff6e8'}};
-function setVars(o){const r=document.documentElement; r.style.setProperty('--sky1',o.sky1); r.style.setProperty('--sky2',o.sky2); r.style.setProperty('--sky3',o.sky3); r.style.setProperty('--accent',o.accent); r.style.setProperty('--accent2',o.accent2); r.style.setProperty('--text',o.text);}
-function applyPreset(name){const p=PRESETS[name]; if(!p) return; setVars(p); state.theme={preset:name,custom:false}; save();}
-function seasonIndex(){return Math.floor((state.forest||0)/3)%4;}
-function applySeason(){const s=[PRESETS.sage,PRESETS.evergreen,PRESETS.amber,PRESETS.dusk][seasonIndex()]; if(!state.theme.custom) setVars({...s,accent:getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(),accent2:getComputedStyle(document.documentElement).getPropertyValue('--accent2').trim(),text:getComputedStyle(document.documentElement).getPropertyValue('--text').trim()});
-  layerBack.innerHTML=`<svg width="100%" height="100%"><ellipse cx="18%" cy="32%" rx="22%" ry="18%" fill="rgba(255,255,255,.04)"/></svg>`;
-  layerMid.innerHTML =`<svg width="100%" height="100%"><ellipse cx="74%" cy="24%" rx="18%" ry="14%" fill="rgba(255,255,255,.05)"/></svg>`;
-  layerFront.innerHTML=`<svg width="100%" height="100%"><ellipse cx="42%" cy="18%" rx="16%" ry="12%" fill="rgba(255,255,255,.06)"/></svg>`;
-}
+  amber:{sky1:'#2b3326',sky2:'#222a1f',sky3:'#1a2218',accent:'#ffc47a',accent2:'#ffad4d',text:'#fff6e8'}
+};
+function setCSSVars(s1,s2,s3,acc1,acc2,txt){const r=document.documentElement;r.style.setProperty('--sky1',s1);r.style.setProperty('--sky2',s2);r.style.setProperty('--sky3',s3);r.style.setProperty('--accent',acc1);r.style.setProperty('--accent2',acc2);r.style.setProperty('--text',txt);}
+function applyPreset(name){const p=PRESETS[name]; if(!p) return; setCSSVars(p.sky1,p.sky2,p.sky3,p.accent,p.accent2,p.text); state.theme={preset:name,custom:false}; saveState();}
+function getVar(name){return getComputedStyle(document.documentElement).getPropertyValue(name).trim();}
 
-/* ===== stage bar ===== */
+/* ===== stage & UI ===== */
 const STAGES=[{name:'Acorn',min:0},{name:'Sprout',min:5},{name:'Sapling',min:15},{name:'Young Tree',min:30},{name:'Full Tree',min:50},{name:'Grove',min:80}];
-function stageIdx(cp){let i=0; for(let k=0;k<STAGES.length;k++) if(cp>=STAGES[k].min) i=k; return i;}
-function nextTarget(cp){const i=stageIdx(cp), n=STAGES[Math.min(i+1,STAGES.length-1)]; return i>=STAGES.length-1?STAGES[i].min+20:n.min;}
-function updateBar(){const i=stageIdx(state.cp), s=STAGES[i], n=STAGES[Math.min(i+1,STAGES.length-1)]; const max=n.min===s.min? s.min+20 : n.min;
-  const pct=Math.max(0,Math.min(100,((state.cp-s.min)/(max-s.min))*100)); stageNameEl.textContent=s.name; stageCPEl.textContent=`${Math.round(state.cp)} CP`; stageFillEl.style.width=pct+'%';}
+function currentStageIndex(cp){let i=0; for(let k=0;k<STAGES.length;k++) if(cp>=STAGES[k].min) i=k; return i;}
+function nextStageTarget(cp){const i=currentStageIndex(cp); return i>=STAGES.length-1?STAGES[i].min+20:STAGES[i+1].min;}
+function updateStageBar(){const idx=currentStageIndex(state.cp); const stage=STAGES[idx], next=STAGES[Math.min(idx+1,STAGES.length-1)]; const rangeMax= next.min===stage.min ? stage.min+20 : next.min; const pct=Math.max(0,Math.min(100,((state.cp-stage.min)/(rangeMax-stage.min))*100)); stageNameEl.textContent=stage.name; stageCPEl.textContent=`${Math.round(state.cp)} CP`; stageFillEl.style.width=pct+'%';}
 
-/* ===== rings & forest ===== */
-function updateRings(){ringsEl.innerHTML=''; for(let i=0;i<5;i++){const d=document.createElement('div'); d.className='ring'; if(i<state.dots) d.classList.add('filled'); ringsEl.appendChild(d);}}
-function addBgTree(){const wrap=document.createElement('div'); wrap.className='forestTree'; const left=Math.random()<.5?ri(6,26):ri(58,86); const scale=(Math.random()*.4+.7); wrap.style.left=left+'%'; wrap.style.transform=`translateX(-50%) scale(${scale})`;
-  wrap.innerHTML=`<svg width="120" height="160" viewBox="0 0 120 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-  <defs><linearGradient id="barkSoft" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#5c4430"/><stop offset="100%" stop-color="#3f2e22"/></linearGradient>
-  <radialGradient id="leafSoft" cx="50%" cy="40%" r="60%"><stop offset="0%" stop-color="#a5d9c1"/><stop offset="100%" stop-color="#6fb899"/></radialGradient></defs>
-  <path d="M60 150 L60 95" stroke="url(#barkSoft)" stroke-width="14" stroke-linecap="round"/><ellipse cx="60" cy="70" rx="44" ry="32" fill="url(#leafSoft)"/></svg>`;
-  forestLayer.appendChild(wrap);}
-function renderForest(){forestLayer.innerHTML=''; for(let i=0;i<(state.forest||0);i++) addBgTree();}
+/* ===== seasons ===== */
+function seasonIndex(){return Math.floor((state.forest||0)/3)%4;}
+function applySeason(){const idx=seasonIndex(); const pal=[PRESETS.sage,PRESETS.evergreen,PRESETS.amber,PRESETS.dusk][idx]; if(!state.theme||!state.theme.custom){setCSSVars(pal.sky1,pal.sky2,pal.sky3,getVar('--accent'),getVar('--accent2'),getVar('--text'));} layerBack.innerHTML=`<svg width="100%" height="100%"><ellipse cx="18%" cy="32%" rx="22%" ry="18%" fill="rgba(255,255,255,.04)"/></svg>`; layerMid.innerHTML=`<svg width="100%" height="100%"><ellipse cx="74%" cy="24%" rx="18%" ry="14%" fill="rgba(255,255,255,.05)"/></svg>`; layerFront.innerHTML=`<svg width="100%" height="100%"><ellipse cx="42%" cy="18%" rx="16%" ry="12%" fill="rgba(255,255,255,.06)"/></svg>`;}
 
-/* ===== tree & leaves ===== */
-function setTree(on){treeSVG.style.display=on?'block':'none';}
-function renderLeaves(){leavesLayer.innerHTML=''; const cx=150,cy=170,rx=95,ry=65; const r=rng(state.cycle.seed); const N=state.cycle.left;
-  for(let i=0;i<N;i++){const a=2*Math.PI*r(), t=Math.sqrt(r()); const x=cx+t*rx*Math.cos(a), y=cy+t*ry*Math.sin(a); const s=.8+r()*0.6;
-    const e=document.createElementNS('http://www.w3.org/2000/svg','ellipse'); e.setAttribute('cx',x); e.setAttribute('cy',y); e.setAttribute('rx',4*s); e.setAttribute('ry',6*s); e.setAttribute('fill','url(#leafGrad)'); e.setAttribute('opacity',0.95); leavesLayer.appendChild(e);} }
-function showAcorn(){acornScreen.style.display='grid'; setTree(false); setQuote(); setCount();}
-function showTree(){acornScreen.style.display='none'; setTree(true); renderLeaves(); setQuote(); setCount();}
+/* ===== dots & forest ===== */
+function updateDotsUI(){ringsEl.innerHTML=''; for(let i=0;i<5;i++){const d=document.createElement('div'); d.className='ring'; if(i<state.dots) d.classList.add('filled'); ringsEl.appendChild(d);}}
+function addBackgroundTree(){const wrap=document.createElement('div'); wrap.className='forestTree'; const left=Math.random()<0.5?randInt(6,26):randInt(58,86); const scale=(Math.random()*0.4+0.7); wrap.style.left=left+'%'; wrap.style.transform=`translateX(-50%) scale(${scale})`; wrap.innerHTML=`<svg width="120" height="160" viewBox="0 0 120 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="barkSoft" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#5c4430"/><stop offset="100%" stop-color="#3f2e22"/></linearGradient><radialGradient id="leafSoft" cx="50%" cy="40%" r="60%"><stop offset="0%" stop-color="#a5d9c1"/><stop offset="100%" stop-color="#6fb899"/></radialGradient></defs><path d="M60 150 L60 95" stroke="url(#barkSoft)" stroke-width="14" stroke-linecap="round"/><ellipse cx="60" cy="70" rx="44" ry="32" fill="url(#leafSoft)"/></svg>`; forestLayer.appendChild(wrap);}
+function renderForest(){forestLayer.innerHTML=''; for(let i=0;i<(state.forest||0);i++) addBackgroundTree();}
 
-/* ===== creatures (float / crawl, no layout shift) ===== */
-const CREATURES=[{icon:'🦋',zone:'sky',minCP:5,chance:.30,duration:7000},
-  {icon:'🐦',zone:'sky',minCP:15,chance:.25,duration:7500},
-  {icon:'🐜',zone:'bark',minCP:10,chance:.18,duration:12000},
-  {icon:'🐞',zone:'bark',minCP:12,chance:.18,duration:12000},
-  {icon:'🦊',zone:'ground',minCP:30,chance:.14,duration:16000}];
-function night(){return (new Date().getHours()>=20||new Date().getHours()<6) && state.cp>=30;}
-function spawn(def){
-  const el=document.createElement('div'); el.className=`creature ${def.zone}`; el.textContent=def.icon;
-  if(def.zone==='sky'){el.style.top=(18+Math.random()*36)+'%'; el.classList.add('fly');}
-  else if(def.zone==='bark'){el.classList.add('crawl'); el.style.bottom=ri(18,26)+'%';}
-  else if(def.zone==='ground'){el.classList.add('fox');}
-  creatureLayer.appendChild(el); setTimeout(()=>el.remove(),def.duration||8000);
-  state.gallery[def.icon]=1; save(); buildGallery(); toastMsg("Visitors are curious when you care for the tree.");
+/* ===== leaves ===== */
+function setTreeVisible(on){treeSVG.style.display=on?'block':'none';}
+function renderLeaves(){leavesLayer.innerHTML=''; const cx=150, cy=170, rx=95, ry=65; const rnd=mulberry32(state.cycle.seed); const grad='url(#leafGrad)'; const N=state.cycle.left; for(let i=0;i<N;i++){const a=2*Math.PI*rnd(); const r=Math.sqrt(rnd()); const x=cx+r*rx*Math.cos(a), y=cy+r*ry*Math.sin(a); const s=0.8+rnd()*0.6; const e=document.createElementNS('http://www.w3.org/2000/svg','ellipse'); e.setAttribute('cx',x); e.setAttribute('cy',y); e.setAttribute('rx',4*s); e.setAttribute('ry',6*s); e.setAttribute('fill',grad); e.setAttribute('opacity',0.95); leavesLayer.appendChild(e);}}
+
+/* ===== fruit ===== */
+function maybeSeedFruitForCycle(){
+  // ~ every 2–6 trees: 1 means fruit this cycle
+  if(state.cycle.hasFruit!==undefined && state.cycle.fruit?.length) return;
+  const roll = randInt(2,6);
+  state.cycle.hasFruit = (roll===2);
+  if(!state.cycle.hasFruit) return;
+  const rnd=mulberry32(state.cycle.seed^0x9e3779b9);
+  const count = randInt(3,6);
+  const cx=150, cy=170, rx=80, ry=55;
+  state.cycle.fruit=[];
+  for(let i=0;i<count;i++){
+    const a=2*Math.PI*rnd(); const r=Math.sqrt(rnd());
+    const x=cx+r*rx*Math.cos(a), y=cy+r*ry*Math.sin(a);
+    state.cycle.fruit.push({x,y,got:0});
+  }
+  saveState();
 }
-function maybeCreature(trigger='tap'){
-  let pool=CREATURES.filter(c=>state.cp>=c.minCP); if(night()) pool=pool.concat([{icon:'🦉',zone:'sky',minCP:30,chance:.22,duration:7000}]);
-  if(!pool.length) return; const pick=pool[Math.floor(Math.random()*pool.length)];
-  const mult=trigger==='plant'?1.8:1; if(Math.random()<=pick.chance*mult) spawn(pick);
+function renderFruit(){
+  fruitLayer.innerHTML='';
+  if(!state.planted || !state.cycle.hasFruit) return;
+  state.cycle.fruit.forEach((f,idx)=>{
+    if(f.got) return;
+    const el=document.createElement('div'); el.className='fruit'; el.style.left=`calc(${f.x/300*100}% - 6px)`; el.style.top=`calc(${f.y/430*100}% - 6px)`;
+    el.dataset.i=String(idx);
+    fruitLayer.appendChild(el);
+  });
 }
 
-/* ===== quote & count ===== */
-function setCount(){leafCountEl.textContent=state.planted?`Leaves left. ${state.cycle.left} of ${state.cycle.total}`:'';}
-function setQuote(){mantraEl.textContent=(state.planted && state.cycle.quoteIdx>=0)?QUOTES[state.cycle.quoteIdx]:'';}
+/* ===== creatures ===== */
+function spawnCreature(def){
+  const el=document.createElement('div'); el.className=`creature ${def.zone} ${def.anim||''}`; el.textContent=def.icon;
+  if(def.zone==='sky'){ el.style.top=(18+Math.random()*36)+'%'; }
+  else if(def.zone==='bark'){ el.style.bottom=(20+Math.random()*30)+'%'; }
+  else if(def.zone==='ground'){ /* fox emerges near den then walks; handled by CSS keyframes */ el.classList.add('fox'); }
+  creatureLayer.appendChild(el);
+  setTimeout(()=>el.remove(), def.duration||8000);
+  state.gallery[def.icon]=1; saveState(); buildGallery();
+  SOUND.creature();
+  // One-time visitor tip
+  if(!state.visitorsTipShown){ showToast("Visitors are curious when you care for the tree."); state.visitorsTipShown=1; saveState(); }
+  checkAchievements();
+}
+const CRE_SPAWN = {
+  butterfly:{range:[15,25], minCP:0, make:()=>({icon:'🦋',zone:'sky',anim:'fly',duration:6500})},
+  bird:{range:[20,45], minCP:0, make:()=>({icon:'🐦',zone:'sky',anim:'fly',duration:7000})},
+  fox:{range:[40,100], minCP:0, make:()=>({icon:'🦊',zone:'ground',duration:16000})},
+  ant:{range:[25,50], minCP:10, make:()=>({icon:'🐜',zone:'bark',anim:'crawl',duration:12000})},
+  lady:{range:[25,50], minCP:12, make:()=>({icon:'🐞',zone:'bark',anim:'crawl',duration:12000})}
+};
+function tickCareCP(n=1){
+  state.careCP += n;
+  for(const k of ['butterfly','bird','fox','ant','lady']){
+    state.since[k] = (state.since[k]||0) + n;
+    const [lo,hi] = CRE_SPAWN[k].range;
+    const need = state.since[k] >= (state[`th_${k}`] || (state[`th_${k}`] = randInt(lo,hi)));
+    const allowed = state.cp >= (CRE_SPAWN[k].minCP||0);
+    if(need && allowed){
+      // owl only at night; leave for future toggles
+      if(k==='fox'){ /* tiny pause to 'emerge' */ }
+      spawnCreature(CRE_SPAWN[k].make());
+      state.since[k]=0;
+      state[`th_${k}`]=randInt(lo,hi);
+    }
+  }
+  saveState();
+}
 
-/* ===== CP / ach (minimal) ===== */
-function addCP(n){state.cp+=n; save(); updateBar();}
+/* ===== counts & quote ===== */
+function updateCounts(){leafCountEl.textContent = state.planted ? `Leaves left. ${state.cycle.left} of ${state.cycle.total}` : '';}
+function updateQuote(){mantraEl.textContent = (state.planted && state.cycle.quoteIdx>=0) ? QUOTES[state.cycle.quoteIdx] : '';}
+
+/* ===== CP & Achievements ===== */
+function addCP(amount){ state.cp += amount; saveState(); updateStageBar(); SOUND.cpGain(); checkAchievements(); }
+const ACH=[
+  {id:'firstPlant',name:'First Sprout',desc:'Plant your first acorn',test:s=>s.entries.length>=1},
+  {id:'journal10',name:'Pages Turned',desc:'Journal 10 times',test:s=>(s.entries||[]).filter(e=>e.note && e.note.trim().length>0).length>=10},
+  {id:'cp50',name:'Growing Strong',desc:'Reach 50 CP',test:s=>s.cp>=50},
+  {id:'forest5',name:'Tiny Grove',desc:'Grow 5 background trees',test:s=>s.forest>=5},
+  {id:'foxSeen',name:'Foxy Friend',desc:'See a fox',test:s=>s.gallery['🦊']===1}
+];
+function checkAchievements(){state.ach = state.ach||{}; ACH.forEach(a=>{ if(!state.ach[a.id] && a.test(state)){ state.ach[a.id]=1; saveState(); showToast(`🏅 ${a.name}`); SOUND.level(); buildAchievements(); }});}
 
 /* ===== breath ===== */
-const breathEl=document.getElementById('breath'), bCircle=document.getElementById('bCircle'), bText=document.getElementById('bText');
-const bDots=[...document.querySelectorAll('#bDots .bDot')]; let bTimer=null,bStep=0,bRound=0;
-const STEPS=[{t:'Inhale',s:1.12,ms:3200},{t:'Hold',s:1.12,ms:1200},{t:'Exhale',s:.90,ms:3600},{t:'Hold',s:.90,ms:800}], ROUNDS=4;
-function breathShow(){bRound=0;bStep=0;bDots.forEach(d=>d.classList.remove('on')); breathEl.style.display='flex'; runStep();}
-function breathHide(){clearTimeout(bTimer); bTimer=null; breathEl.style.display='none';}
-function runStep(){const s=STEPS[bStep]; bText.textContent=s.t; bCircle.style.transform=`scale(${s.s})`; bTimer=setTimeout(()=>{bStep=(bStep+1)%STEPS.length; if(bStep===0){bRound++; bDots.slice(0,bRound).forEach(d=>d.classList.add('on')); if(bRound>=ROUNDS){finishDay(); return;}} runStep();},s.ms);}
-document.getElementById('bSkip').onclick=document.getElementById('bFinish').onclick=()=>finishDay();
-function finishDay(){breathHide(); logEntry(); state.planted=false; save(); showAcorn();}
+const breathEl=document.getElementById('breath'), bCircle=document.getElementById('bCircle'), bText=document.getElementById('bText'), bDots=Array.from(document.querySelectorAll('#bDots .bDot')), bSkip=document.getElementById('bSkip'), bFinish=document.getElementById('bFinish');
+let breathTimer=null, breathStep=0, breathRound=0;
+const BREATH_STEPS=[{label:'Inhale',scale:1.12,ms:3200},{label:'Hold',scale:1.12,ms:1200},{label:'Exhale',scale:0.90,ms:3600},{label:'Hold',scale:0.90,ms:800}], BREATH_ROUNDS=4;
+function showBreath(){breathRound=0;breathStep=0;bDots.forEach(d=>d.classList.remove('on'));updateBreathDot();breathEl.style.display='flex';breathEl.setAttribute('aria-hidden','false');runBreathStep();}
+function hideBreath(){clearTimeout(breathTimer);breathTimer=null;breathEl.style.display='none';breathEl.setAttribute('aria-hidden','true');}
+function updateBreathDot(){bDots.forEach((d,i)=> d.classList.toggle('on', i<breathRound));}
+function runBreathStep(){const s=BREATH_STEPS[breathStep]; bText.textContent=s.label; bCircle.style.transform=`scale(${s.scale})`; breathTimer=setTimeout(()=>{breathStep=(breathStep+1)%BREATH_STEPS.length; if(breathStep===0){breathRound++;updateBreathDot(); if(breathRound>=BREATH_ROUNDS){finishDay();return;}} runBreathStep();}, s.ms);}
+bSkip.addEventListener('click', ()=>finishDay()); bFinish.addEventListener('click', ()=>finishDay());
+function finishDay(){hideBreath(); logTodayEntry(); state.planted=false; saveState(); showAcorn(); SOUND.level();}
 
-/* ===== plant & taps ===== */
-function onPlanted(){state.dots=(state.dots+1)%5; if(state.dots===0){state.forest=(state.forest||0)+1; addBgTree(); applySeason();} save(); updateRings(); addCP(1); maybeCreature('plant');}
-function logEntry(){if(state.day.logged) return; const ts=today(); state.entries.unshift({date:ts,dateISO:ymd(ts),stage:STAGES[stageIdx(state.cp)].name,quote:(state.cycle.quoteIdx>=0?QUOTES[state.cycle.quoteIdx]:""),note:(state.cycle.journal||"").trim()}); state.day.logged=true; save();}
-function plant(){state.planted=true; const total=ri(140,220), seed=Math.floor(Math.random()*2**31); let i=ri(0,QUOTES.length-1); if(state.cycle && i===state.cycle.quoteIdx && QUOTES.length>1) i=(i+1)%QUOTES.length; state.cycle={seed,total,left:total,quoteIdx:i,journal:""}; save(); showTree(); onPlanted();}
-plantBtn.addEventListener('click',plant,{passive:true});
+/* ===== plant/day flow ===== */
+function onPlanted(){
+  state.dots=(state.dots+1);
+  if(state.dots>=5){state.dots=0; state.forest=(state.forest||0)+1; addBackgroundTree(); applySeason(); checkAchievements();}
+  saveState(); updateDotsUI();
+  if(!state.day.plantedGiven){state.day.plantedGiven=true; addCP(1);}
+  if(!state.onb.dots && !state.onb.never){ coachTip('These 5 dots track planted trees. Fill all 5 to grow your background forest.', document.getElementById('rings'), 'top'); state.onb.dots=1; saveState();}
+}
+function logTodayEntry(){
+  if(state.day.logged) return;
+  const ts=todayMidnight();
+  const entry={date:ts,dateISO:ymd(ts),stage:STAGES[currentStageIndex(state.cp)].name,quote:(state.cycle.quoteIdx>=0?QUOTES[state.cycle.quoteIdx]:""),note:(state.cycle.journal||"").trim()};
+  state.entries=state.entries||[]; state.entries.unshift(entry); state.day.logged=true; saveState(); checkAchievements();
+}
+function plant(){
+  state.planted=true;
+  const total=randInt(120,260), seed=Math.floor(Math.random()*2**31);
+  let idx=Math.floor(Math.random()*QUOTES.length); if(state.cycle && idx===state.cycle.quoteIdx && QUOTES.length>1) idx=(idx+1)%QUOTES.length;
+  state.cycle={seed,total,left:total,quoteIdx:idx,journal:"",fruit:[],hasFruit:false}; state.careCP=0; state.since={butterfly:0,bird:0,fox:0,ant:0,lady:0};
+  saveState(); showTree(); SOUND.plant(); onPlanted(); maybeSeedFruitForCycle(); renderFruit();
+  setTimeout(()=>{ if(!state.onb.leaves && !state.onb.never){ coachTip('Tap or flick the leaves. Little taps add Care Points.', document.getElementById('stage'), 'center'); state.onb.leaves=1; saveState(); }}, 700);
+}
 
-/* precise leaf origin + flick */
-let pointerStart=null;
-stageEl.addEventListener('pointerdown',e=>{if(!state.planted) return; pointerStart={x:e.clientX,y:e.clientY};});
-stageEl.addEventListener('pointerup',e=>{
+/* ===== tap / flick ===== */
+const stageEl=document.getElementById('stage'); let pointerStart=null;
+function spawnLeafParticle(x,y,dx=0,dy=-1){const emoji=Math.random()<0.25?'🍂':'🍃'; const el=document.createElement('div'); el.className='leafParticle'; el.textContent=emoji; el.style.position='fixed'; el.style.left=x+'px'; el.style.top=y+'px'; el.style.willChange='transform,opacity'; el.style.pointerEvents='none'; document.body.appendChild(el); const start=performance.now(), duration=1500+Math.random()*1400; const side=(Math.random()*120+50)*(Math.random()<0.5?-1:1); const baseX=dx*80 + side*0.5, baseY=dy*(-120)-40; function frame(t){const p=Math.min(1,(t-start)/duration), ease=1-Math.pow(1-p,2); const tx=x + baseX*ease, ty=y + baseY*ease + 0.55*(p*220); el.style.transform=`translate(${tx-x}px, ${ty-y}px) rotate(${p*240}deg)`; el.style.opacity=String(1-p); if(p<1) requestAnimationFrame(frame); else el.remove();} requestAnimationFrame(frame);}
+stageEl.addEventListener('pointerdown',(e)=>{ if(!state.planted) return; pointerStart={x:e.clientX,y:e.clientY}; });
+stageEl.addEventListener('pointerup',(e)=>{
   if(!state.planted) return;
-  let dx=0,dy=-1; if(pointerStart){const vx=e.clientX-pointerStart.x, vy=e.clientY-pointerStart.y, m=Math.hypot(vx,vy)||1; dx=vx/m; dy=vy/m; pointerStart=null;}
+  // fruit hit?
+  const t=e.target; if(t.classList && t.classList.contains('fruit')){ const i=+t.dataset.i; if(state.cycle.fruit?.[i] && !state.cycle.fruit[i].got){ state.cycle.fruit[i].got=1; t.remove(); saveState(); addCP(1); SOUND.cpGain(); } return; }
+
+  let dx=0, dy=-1;
+  if(pointerStart){ const vx=e.clientX-pointerStart.x, vy=e.clientY-pointerStart.y; const m=Math.hypot(vx,vy)||1; dx=vx/m; dy=vy/m; pointerStart=null; }
   const leaf=leavesLayer.lastElementChild; if(!leaf) return;
-  const r=leaf.getBoundingClientRect(); const cx=r.left+r.width/2, cy=r.top+r.height/2;
-  leaf.remove(); state.cycle.left--; save(); setCount(); spawnLeafParticle(cx,cy,dx,dy); addCP(0.2); maybeCreature('tap');
-  if(state.cycle.left<=0) breathShow();
-},{passive:true});
+  const r=leaf.getBoundingClientRect(); const cx=r.left + r.width/2, cy=r.top + r.height/2;
+  leaf.remove(); state.cycle.left--; tickCareCP(1); saveState(); updateCounts(); SOUND.cpGain(); spawnLeafParticle(cx,cy,dx,dy);
+  if(state.cycle.left<=0){ showBreath(); }
+}, {passive:true});
 
-function spawnLeafParticle(x,y,dx=0,dy=-1){
-  const el=document.createElement('div'); el.className='leafParticle'; el.textContent=Math.random()<.25?'🍂':'🍃'; el.style.left=x+'px'; el.style.top=y+'px'; document.body.appendChild(el);
-  const start=performance.now(), dur=1500+Math.random()*1400, side=(Math.random()*120+50)*(Math.random()<.5?-1:1); const bx=dx*80+side*.5, by=dy*(-120)-40;
-  function f(t){const p=Math.min(1,(t-start)/dur), ease=1-Math.pow(1-p,2); const tx=x+bx*ease, ty=y+by*ease+0.55*(p*220);
-    el.style.transform=`translate(${tx-x}px,${ty-y}px) rotate(${p*240}deg)`; el.style.opacity=String(1-p); if(p<1) requestAnimationFrame(f); else el.remove();}
-  requestAnimationFrame(f);
+/* ===== profile builders ===== */
+function buildGallery(){ if(!galleryGrid) return; galleryGrid.innerHTML=''; ['🦋','🐦','🐜','🐞','🦊','🦉'].forEach(icon=>{const unlocked=state.gallery[icon]===1; const div=document.createElement('div'); div.className='card'+(unlocked?'':' locked'); div.innerHTML=`<div style="font-size:28px">${icon}</div><small>${unlocked?'Seen':'Locked'}</small>`; galleryGrid.appendChild(div);});}
+const ACH_LIST=[{id:'firstPlant',name:'First Sprout',desc:'Plant your first acorn'},{id:'journal10',name:'Pages Turned',desc:'Journal 10 times'},{id:'cp50',name:'Growing Strong',desc:'Reach 50 CP'},{id:'forest5',name:'Tiny Grove',desc:'Grow 5 background trees'},{id:'foxSeen',name:'Foxy Friend',desc:'See a fox'}];
+function buildAchievements(){ if(!achGrid) return; achGrid.innerHTML=''; ACH_LIST.forEach(a=>{const ok=state.ach?.[a.id]; const div=document.createElement('div'); div.className='card'+(ok?'':' locked'); div.innerHTML=`<div style="font-weight:700">${a.name}</div><small>${a.desc}</small>`; achGrid.appendChild(div);});}
+function calcStreak(entries){ if(!entries||!entries.length) return 0; const days=new Set(entries.map(e=>e.dateISO)); let streak=0; let d=new Date(); d.setHours(0,0,0,0); while(days.has(d.toISOString().slice(0,10))){ streak++; d.setDate(d.getDate()-1);} return streak;}
+function renderJournalPage(){
+  if(!document.getElementById('tab-profile').classList.contains('active')) return;
+  ensureForestName();
+  forestCountStat.textContent=String(state.forest||0);
+  cpStat.textContent=String(Math.round(state.cp||0));
+  entryCountStat.textContent=String((state.entries||[]).length);
+  streakStat.textContent=String(calcStreak(state.entries||[]));
+  entryList.innerHTML='';
+  (state.entries||[]).forEach(e=>{
+    const div=document.createElement('div'); div.className='entry';
+    div.innerHTML=`<h4>${e.dateISO} • ${e.stage}</h4><div class="meta">Mantra — ${e.quote?e.quote:'—'}</div><div class="note">${e.note?e.note.replace(/</g,'&lt;'):'<em>No entry</em>'}</div>`;
+    entryList.appendChild(div);
+  });
 }
 
-/* journal save + streak render */
-journalBox.addEventListener('input',()=>{saveNote.textContent='Saving...'; clearTimeout(window.__sv); window.__sv=setTimeout(()=>{state.cycle.journal=journalBox.value.slice(0,1000); save(); saveNote.textContent='Saved'; if(!state.day.journalGiven && state.cycle.journal.trim().length>=10){state.day.journalGiven=true; addCP(2);}},350);});
-function streak(entries){if(!entries.length) return 0; const days=new Set(entries.map(e=>e.dateISO)); let s=0; let d=new Date(); d.setHours(0,0,0,0); while(days.has(d.toISOString().slice(0,10))){s++; d.setDate(d.getDate()-1);} return s;}
-function renderProfile(){
-  forestNameStat.textContent=state.name||'—'; forestCountStat.textContent=String(state.forest||0);
-  cpStat.textContent=String(Math.round(state.cp||0)); entryCountStat.textContent=String((state.entries||[]).length); streakStat.textContent=String(streak(state.entries||[]));
-  entryList.innerHTML=''; (state.entries||[]).forEach(e=>{const div=document.createElement('div'); div.className='entry'; div.innerHTML=`<h4>${e.dateISO} • ${e.stage}</h4><div class="meta">Mantra — ${e.quote||'—'}</div><div class="note">${e.note?e.note.replace(/</g,'&lt;'):'<em>No entry</em>'}</div>`; entryList.appendChild(div);});
-}
+/* ===== name + journal typing ===== */
+let saveTimer=null;
+function ensureForestName(){ if(!state.name){ const n=prompt("Name your forest 🌲","My Forest"); if(n){ state.name=n.slice(0,24); saveState(); } } forestNameLabel.textContent = state.name ? `• ${state.name}` : ''; forestNameStat.textContent = state.name || '—'; }
+journalBox.addEventListener('input', ()=>{
+  saveNote.textContent='Saving...'; clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{ state.cycle.journal = journalBox.value.slice(0,1000); saveState(); saveNote.textContent='Saved';
+    if(!state.day.journalGiven && state.cycle.journal.trim().length >= 10){ state.day.journalGiven=true; addCP(2); }
+  }, 350);
+});
 
-/* small helpers */
-function toastMsg(m){const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1800);}
-function ensureName(){if(!state.name){const n=prompt("Name your forest 🌲","My Forest"); if(n){state.name=n.slice(0,24); save();}} forestNameLabel.textContent=state.name?`• ${state.name}`:'';}
-function updateUI(){updateBar(); updateRings(); renderForest(); ensureName(); soundToggle.textContent='Sound. '+(audioEnabled?'On':'Off'); journalBox.value=state.cycle.journal||''; setQuote(); setCount(); if(state.planted && state.cycle.left>0) showTree(); else showAcorn();}
-
-/* settings in Profile */
+/* ===== settings ===== */
 const cSky1=document.getElementById('cSky1'), cSky2=document.getElementById('cSky2'), cSky3=document.getElementById('cSky3');
 const cAcc1=document.getElementById('cAcc1'), cAcc2=document.getElementById('cAcc2'), cText=document.getElementById('cText');
 const volRange=document.getElementById('volRange');
-function hex(rgb){rgb=rgb.trim(); if(rgb.startsWith('#')) return rgb; const m=rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/); if(!m) return '#ffffff'; const h=n=>('0'+(+n).toString(16)).slice(-2); return '#'+h(m[1])+h(m[2])+h(m[3]);}
-function syncPickers(){const cs=getComputedStyle(document.documentElement); cSky1.value=hex(cs.getPropertyValue('--sky1')); cSky2.value=hex(cs.getPropertyValue('--sky2')); cSky3.value=hex(cs.getPropertyValue('--sky3')); cAcc1.value=hex(cs.getPropertyValue('--accent')); cAcc2.value=hex(cs.getPropertyValue('--accent2')); cText.value=hex(cs.getPropertyValue('--text'));}
-[cSky1,cSky2,cSky3,cAcc1,cAcc2,cText].forEach(i=>i.addEventListener('input',()=>{setVars({sky1:cSky1.value,sky2:cSky2.value,sky3:cSky3.value,accent:cAcc1.value,accent2:cAcc2.value,text:cText.value}); state.theme={custom:true,values:{sky1:cSky1.value,sky2:cSky2.value,sky3:cSky3.value,accent:cAcc1.value,accent2:cAcc2.value,text:cText.value}}; save();}));
-document.querySelectorAll('.paletteBtn').forEach(b=>b.addEventListener('click',()=>{applyPreset(b.dataset.preset); syncPickers(); toastMsg('Theme updated');}));
-volRange?.addEventListener('input',()=>{SND_VOL=parseFloat(volRange.value||'0.9'); state.volume=SND_VOL; save(); try{ensureAudio(); if(_gain) _gain.gain.value=SND_VOL;}catch(e){} toastMsg(`Volume: ${Math.round(SND_VOL*100)}%`);});
+function rgb2hex(rgb){rgb=rgb.trim(); if(rgb.startsWith('#')) return rgb; const m=rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/); if(!m) return '#ffffff'; const toHex=n=>('0'+parseInt(n,10).toString(16)).slice(-2); return '#'+toHex(m[1])+toHex(m[2])+toHex(m[3]);}
+function syncPickersFromVars(){ if(!cSky1) return; cSky1.value=rgb2hex(getVar('--sky1')); cSky2.value=rgb2hex(getVar('--sky2')); cSky3.value=rgb2hex(getVar('--sky3')); cAcc1.value=rgb2hex(getVar('--accent')); cAcc2.value=rgb2hex(getVar('--accent2')); cText.value=rgb2hex(getVar('--text')); }
+;[cSky1,cSky2,cSky3,cAcc1,cAcc2,cText].forEach(inp=>{ if(!inp) return; inp.addEventListener('input', ()=>{ setCSSVars(cSky1.value,cSky2.value,cSky3.value,cAcc1.value,cAcc2.value,cText.value); state.theme={custom:true,preset:null,values:{sky1:cSky1.value,sky2:cSky2.value,sky3:cSky3.value,accent:cAcc1.value,accent2:cAcc2.value,text:cText.value}}; saveState(); });});
+document.querySelectorAll('.paletteBtn').forEach(btn=>{btn.addEventListener('click', ()=>{applyPreset(btn.getAttribute('data-preset')); syncPickersFromVars(); showToast(`Theme set: ${btn.textContent.trim()}`);});});
+if(volRange){volRange.addEventListener('input', ()=>{ SND_VOL=parseFloat(volRange.value||'0.9'); state.volume=SND_VOL; saveState(); try{ensureAudio(); if(_gain) _gain.gain.value=SND_VOL;}catch(e){} showToast(`Volume: ${Math.round(SND_VOL*100)}%`);});}
 
-/* controls */
-resetBtn.addEventListener('click',()=>{if(state.planted) logEntry(); state.planted=false; state.cycle=makeCycle(); state.day=makeDay(); save(); updateUI();});
-soundToggle.addEventListener('click',()=>{audioEnabled=!audioEnabled; soundToggle.setAttribute('aria-pressed',String(audioEnabled)); soundToggle.textContent='Sound. '+(audioEnabled?'On':'Off');});
+/* ===== save/load ===== */
+function saveState(){ try{ localStorage.setItem(storeKey, JSON.stringify(state)); }catch(e){} }
 
-/* profile extras */
-function buildGallery(){if(!galleryGrid) return; const list=['🦋','🐦','🐜','🐞','🦊','🦉']; galleryGrid.innerHTML=''; list.forEach(i=>{const u=state.gallery[i]===1; const d=document.createElement('div'); d.className='card'+(u?'':' locked'); d.innerHTML=`<div style="font-size:28px">${i}</div><small>${u?'Seen':'Locked'}</small>`; galleryGrid.appendChild(d);});}
-const ACH=[{id:'first',name:'First Sprout',desc:'Plant your first acorn', test:s=>(s.entries||[]).length>=1},{id:'cp50',name:'Growing Strong',desc:'Reach 50 CP', test:s=>s.cp>=50},{id:'forest5',name:'Tiny Grove',desc:'Grow 5 background trees', test:s=>s.forest>=5}];
-function buildAch(){achGrid.innerHTML=''; ACH.forEach(a=>{const ok=state.ach?.[a.id]; const d=document.createElement('div'); d.className='card'+(ok?'':' locked'); d.innerHTML=`<div style="font-weight:700">${a.name}</div><small>${a.desc}</small>`; achGrid.appendChild(d);});}
-function checkAch(){ACH.forEach(a=>{if(!state.ach[a.id] && a.test(state)){state.ach[a.id]=1; save(); buildAch(); toastMsg('🏅 '+a.name);}});}
+/* ===== boot ===== */
+function updateDotsAndForest(){updateDotsUI(); renderForest();}
+function showAcorn(){acornScreen.style.display='grid'; setTreeVisible(false); fruitLayer.innerHTML=''; updateQuote(); updateCounts();}
+function showTree(){acornScreen.style.display='none'; setTreeVisible(true); renderLeaves(); renderFruit(); updateQuote(); updateCounts();}
 
-/* boot */
 function boot(){
-  if(!state.theme || (!state.theme.custom && !state.theme.preset)) applyPreset('sage');
-  else if(state.theme.custom) setVars(state.theme.values); else applyPreset(state.theme.preset);
-  syncPickers(); applySeason(); updateBar(); updateRings(); renderForest(); ensureName(); journalBox.value=state.cycle.journal||''; updateUI(); buildGallery(); buildAch();
+  if(!state.theme || (!state.theme.custom && !state.theme.preset)){ applyPreset('sage'); }
+  else if(state.theme.custom && state.theme.values){ const v=state.theme.values; setCSSVars(v.sky1,v.sky2,v.sky3,v.accent,v.accent2,v.text); }
+  else if(state.theme.preset){ applyPreset(state.theme.preset); }
+  syncPickersFromVars();
+
+  try{ ensureAudio(); SND_VOL=state.volume ?? 0.9; if(volRange) volRange.value=String(SND_VOL); if(_gain) _gain.gain.value=SND_VOL; }catch(e){}
+
+  ensureForestName(); applySeason();
+  updateStageBar(); updateDotsAndForest();
+  journalBox.value = state.cycle.journal || ""; saveState(); saveNote.textContent='Saved';
+  forestNameLabel.textContent = state.name ? `• ${state.name}` : '';
+  soundToggle.setAttribute('aria-pressed', String(audioEnabled));
+  soundToggle.textContent = 'Sound. ' + (audioEnabled ? 'On' : 'Off');
+
+  if(state.planted && state.cycle.left>0){ showTree(); maybeSeedFruitForCycle(); renderFruit(); } else { showAcorn(); }
+  if(!state.onb.plant && !state.onb.never){ setTimeout(()=>coachTip('Tap the acorn to plant your first tree. You’ll get a mantra for today.', plantBtn, 'top'), 300); state.onb.plant=1; saveState(); }
 }
+plantBtn.addEventListener('click', plant, {passive:true});
+resetBtn.addEventListener('click', ()=>{ if(state.planted) logTodayEntry(); state.planted=false; state.cycle=makeCycle(); state.day=makeDay(); saveState(); boot();});
+soundToggle.addEventListener('click', ()=>{ audioEnabled=!audioEnabled; soundToggle.setAttribute('aria-pressed',String(audioEnabled)); soundToggle.textContent='Sound. '+(audioEnabled?'On':'Off'); });
+
 boot();
+setInterval(()=>{ if(state.planted){ renderLeaves(); } }, 9*60*1000);
 
-/* bottom nav */
-const pages={home:document.getElementById('home'), profile:document.getElementById('profile'), treeTab:document.getElementById('treeTab'), store:document.getElementById('store'), explore:document.getElementById('explore')};
-function showTab(id){Object.values(pages).forEach(p=>p.classList.remove('active')); (pages[id]||pages.treeTab).classList.add('active'); document.querySelectorAll('nav .tab').forEach(b=>b.classList.toggle('active',b.dataset.goto===id)); if(id==='profile') renderProfile();}
-document.querySelectorAll('nav .tab').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.goto)));
-showTab('treeTab');
+/* ===== bottom nav ===== */
+const outerTabs={home:document.getElementById('tab-home'), tree:document.getElementById('tab-tree'), profile:document.getElementById('tab-profile'), store:document.getElementById('tab-store'), explore:document.getElementById('tab-explore')};
+const tabButtons=[...document.querySelectorAll('nav .tab')];
+function activateOuter(tab){
+  Object.values(outerTabs).forEach(el=>el.classList.remove('active'));
+  tabButtons.forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  if(outerTabs[tab]) outerTabs[tab].classList.add('active');
+  localStorage.setItem('samwell.tab', tab);
+  location.hash='#'+tab;
+  if(tab==='profile'){ renderJournalPage(); buildGallery(); buildAchievements(); }
+}
+tabButtons.forEach(b=>b.addEventListener('click', ()=>activateOuter(b.dataset.tab)));
+(function initTab(){ const fromHash=(location.hash||'').replace('#',''); const saved=localStorage.getItem('samwell.tab')||'tree'; const start=['home','profile','tree','store','explore'].includes(fromHash)?fromHash:saved; activateOuter(start); })();
 
-/* YouTube feed (light RSS -> thumb only; player swaps on tap) */
+/* ===== coach + toast ===== */
+function coachTip(text, target, position='top'){
+  if(state.onb?.never) return;
+  const coachEl=coach;
+  coachText.textContent = text;
+  function showAt(x, y, arrowX=null, arrowY=null, showArrow=true){
+    coachCard.style.left = Math.max(12, Math.min(x, window.innerWidth - 272)) + 'px';
+    coachCard.style.top  = Math.max(12, Math.min(y, window.innerHeight - 140)) + 'px';
+    if(showArrow){
+      coachArrow.style.display = 'block';
+      coachArrow.style.left = Math.max(12, Math.min((arrowX ?? x)+8, window.innerWidth - 12)) + 'px';
+      coachArrow.style.top  = Math.max(8, Math.min((arrowY ?? y)-10, window.innerHeight - 8)) + 'px';
+    } else coachArrow.style.display = 'none';
+    coachEl.setAttribute('aria-hidden','false'); coachEl.classList.add('show');
+  }
+  let rect=null; try{ rect = target?.getBoundingClientRect?.() || null; }catch(e){ rect=null; }
+  const usable = rect && rect.width>0 && rect.height>0 && rect.bottom>0 && rect.right>0 && rect.top<window.innerHeight && rect.left<window.innerWidth;
+  setTimeout(()=>{
+    if(!usable){ const x=window.innerWidth/2 - 130, y=window.innerHeight/2 - 60; showAt(x,y,null,null,false); return; }
+    if(position==='inside'){ showAt(rect.left+14, rect.top+60, null,null,false); }
+    else if(position==='center'){ const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2; showAt(cx-130, cy-40, cx-8, cy-10, true); }
+    else { const cx=rect.left+rect.width/2; const topY=rect.top-80; showAt(cx-130, topY, cx-8, rect.top-12, true); }
+  }, 120);
+  function close(){ coachEl.classList.remove('show'); coachEl.setAttribute('aria-hidden','true'); }
+  coachOk.onclick = close; coachSkip.onclick = ()=>{ state.onb.never=1; saveState(); close(); };
+  coach.querySelector('.coachMask').onclick = close;
+}
+function showToast(msg){ toast.textContent = msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'), 2200); }
+
+/* ===== YouTube feed ===== */
 const YT_CHANNEL_ID='UCCdDJ9Lf8qhH-HOhKM4pEcQ';
 async function buildYTFeed(limit=8){
-  const box=document.getElementById('ytFeed'); if(!box) return;
+  const host=document.getElementById('ytFeed'); if(!host) return;
   try{
     const rss=`https://www.youtube.com/feeds/videos.xml?channel_id=${YT_CHANNEL_ID}`;
     const url=`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rss)}`;
     const res=await fetch(url); const data=await res.json(); const items=(data.items||[]).slice(0,limit);
-    if(!items.length){box.innerHTML='<div class="muted">No videos found.</div>'; return;}
-    box.innerHTML=items.map(it=>{const id=(it.link.split('=')[1]||'').trim(); const when=new Date(it.pubDate).toLocaleDateString(); const title=it.title.replace(/</g,'&lt;').replace(/"/g,'&quot;');
-      return `<article class="vidCard" data-vid="${id}"><div class="vidThumb"><img alt="${title}" src="https://i.ytimg.com/vi/${id}/hqdefault.jpg" loading="lazy"><button class="playBtn">▶</button></div><div class="vTitle">${title}</div><div class="vMeta">Published ${when}</div></article>`;}).join('');
-  }catch(e){box.innerHTML='<div class="muted">Couldn’t load videos.</div>'; }
+    if(!items.length){ host.innerHTML=`<div class="muted">No videos found.</div>`; return; }
+    host.innerHTML = items.map(it=>{const id=(it.link.split('=')[1]||'').trim(); const date=new Date(it.pubDate).toLocaleDateString(); const title=it.title.replace(/</g,'&lt;').replace(/"/g,'&quot;'); return `<article class="vidCard" data-vid="${id}"><div class="vidThumb"><img alt="${title}" src="https://i.ytimg.com/vi/${id}/hqdefault.jpg" loading="lazy"><button class="playBtn" aria-label="Play video">▶</button></div><div class="vTitle">${title}</div><div class="vMeta">Published ${date}</div></article>`;}).join('');
+  }catch(err){ host.innerHTML=`<div class="muted">Couldn’t load videos.</div>`; }
 }
-document.addEventListener('click',e=>{const btn=e.target.closest('.playBtn'); if(!btn) return; const card=btn.closest('.vidCard'); const id=card?.dataset?.vid; if(!id) return;
-  card.querySelector('.vidThumb').innerHTML=`<div style="position:relative;width:100%;aspect-ratio:16/9"><iframe src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0" title="YouTube video" style="position:absolute;inset:0;width:100%;height:100%" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;});
+document.addEventListener('click', (e)=>{ const btn=e.target.closest?.('.playBtn'); if(!btn) return; const card=btn.closest('.vidCard'); const id=card?.dataset?.vid; if(!id) return; card.querySelector('.vidThumb').innerHTML=`<div class="ytWrap"><iframe src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0" title="YouTube video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;});
 buildYTFeed();
+window.addEventListener('hashchange', ()=>{ if(location.hash==='#home') buildYTFeed(); });
 </script>
 </body>
 </html>
