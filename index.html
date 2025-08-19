@@ -30,6 +30,8 @@ h1{font-size:20px;margin:0}
 .stageFill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .35s}
 .stageName{min-width:98px;font-size:13px;opacity:.9}
 .stageCP{font-size:12px;opacity:.85;min-width:74px;text-align:right}
+/* bonus note under the bar */
+.bonusNote{margin-top:6px;font-size:12px;opacity:.9;color:var(--accent);text-align:right}
 
 /* scene */
 #stage{position:relative;width:100%;aspect-ratio:3/4;border-radius:20px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.25);margin-top:6px}
@@ -105,6 +107,23 @@ nav{position:fixed;left:0;right:0;bottom:0;z-index:50;height:calc(var(--nav-h) +
 .tab svg{width:22px;height:22px;opacity:.95}
 .tab.active{color:var(--accent)}
 .tab.center .icon{width:46px;height:46px;border-radius:50%;background:radial-gradient(110% 110% at 30% 20%, #7ff0a0, #4cc977);color:#0a0d10;display:grid;place-items:center;border:2px solid rgba(255,255,255,.12);box-shadow:0 6px 20px rgba(102,209,122,.35)}
+
+/* ===== BREATHE overlay ===== */
+#breatheScreen{
+  position:absolute; inset:0; z-index:5; display:none; place-items:center;
+  background:radial-gradient(circle at 50% 30%, rgba(163,227,194,.18), rgba(0,0,0,.35));
+  backdrop-filter:saturate(120%) blur(2px);
+}
+.breatheWrap{display:grid; place-items:center; gap:14px; text-align:center}
+.breatheText{font-size:16px; opacity:.95}
+.breatheCircle{
+  width:min(48vmin,240px); height:min(48vmin,240px); border-radius:50%;
+  border:2px solid var(--accent); box-shadow:0 0 20px var(--glow) inset, 0 6px 18px rgba(0,0,0,.35);
+  animation:breath 7s ease-in-out infinite;
+}
+@keyframes breath{
+  0%{transform:scale(.82)} 40%{transform:scale(1.06)} 60%{transform:scale(1.06)} 100%{transform:scale(.82)}
+}
 </style>
 </head>
 
@@ -136,6 +155,7 @@ nav{position:fixed;left:0;right:0;bottom:0;z-index:50;height:calc(var(--nav-h) +
         <div class="stageBar"><div class="stageFill" id="stageFill"></div></div>
         <div class="stageCP" id="stageCP">0 CP</div>
       </div>
+      <div class="bonusNote" id="bonusNote" style="display:none"></div>
 
       <section id="stage" aria-live="polite">
         <div class="scene" id="scene">
@@ -157,6 +177,15 @@ nav{position:fixed;left:0;right:0;bottom:0;z-index:50;height:calc(var(--nav-h) +
               <rect x="42" y="24" width="10" height="6" rx="3" fill="#6b4b30" transform="rotate(-25 47 27)"/>
             </svg>
             <button id="plantBtn" class="cta"><span class="sprout">🌱</span>Plant Acorn</button>
+          </div>
+
+          <!-- BREATHE overlay -->
+          <div id="breatheScreen">
+            <div class="breatheWrap">
+              <div class="breatheCircle" aria-hidden="true"></div>
+              <div class="breatheText" id="breatheText">Breathe in…</div>
+              <button id="breatheContinue" class="cta" style="margin-top:18px">Continue</button>
+            </div>
           </div>
 
           <svg id="tree" class="tree sway" viewBox="0 0 300 430" aria-hidden="true" style="display:none">
@@ -260,6 +289,7 @@ const stageCPEl=document.getElementById('stageCP'), creatureLayer=document.getEl
 const forestNameLabel=document.getElementById('forestNameLabel'), denEl=document.getElementById('den');
 const toast=document.getElementById('toast'), entryList=document.getElementById('entryList');
 const galleryGrid=document.getElementById('galleryGrid'), achGrid=document.getElementById('achGrid');
+const bonusNote=document.getElementById('bonusNote');
 
 function todayMidnight(){const d=new Date(); d.setHours(0,0,0,0); return +d;}
 function ymd(ts){const d=new Date(ts); return d.toISOString().slice(0,10);}
@@ -271,10 +301,10 @@ function makeDay(){return {leafCP:0, journalGiven:false, plantedGiven:false, log
 const storeKey='acorn.master.totalcp.v1';
 function loadState(){
   const d=todayMidnight(), raw=localStorage.getItem(storeKey);
-  if(raw){ const s=JSON.parse(raw); if(s.date!==d){ s.date=d; s.day=makeDay(); } return s; }
+  if(raw){ const s=JSON.parse(raw); if(s.date!==d){ s.date=d; s.day=makeDay(); } if(!s.bonusUntil) s.bonusUntil=0; return s; }
   return {date:d, planted:false, cycle:makeCycle(), cp:0, day:makeDay(), dots:0, forest:0, name:"My Forest",
           entries:[], gallery:{'🦋':0,'🐦':0,'🐜':0,'🐞':0,'🦊':0,'🦉':0}, ach:{}, seenVisitorTip:0, volume:0.9,
-          nextSpawn:{}}; // nextSpawn = absolute CP milestones
+          nextSpawn:{}, bonusUntil:0};
 }
 const state=loadState();
 
@@ -305,6 +335,7 @@ function updateStageBar(){ // cycle every 100 CP
   stageNameEl.textContent=stage.name;
   stageCPEl.textContent=`${Math.round(state.cp)} CP`;
   stageFillEl.style.width = (cyc)+'%';
+  updateBonusUI();
 }
 
 /* -------------------- Forest bg -------------------- */
@@ -336,9 +367,20 @@ function renderLeaves(){
   leavesLayer.innerHTML='';
   const cx=150, cy=170, rx=95, ry=65; const rnd=mulberry32(state.cycle.seed); const N=state.cycle.left;
   for(let i=0;i<N;i++){ const a=2*Math.PI*rnd(); const r=Math.sqrt(rnd()); const x=cx+r*rx*Math.cos(a), y=cy+r*ry*Math.sin(a);
-    const s=0.8+rnd()*0.6; const e=document.createElementNS('http://www.w3.org/2000/svg','ellipse');
-    e.setAttribute('cx',x); e.setAttribute('cy',y); e.setAttribute('rx',4*s); e.setAttribute('ry',6*s); e.setAttribute('fill','url(#leafGrad)'); e.setAttribute('opacity',0.95);
-    leavesLayer.appendChild(e); }
+    const s=0.8+rnd()*0.6; const e=document.createElementNS('http://www.w3.org/200svg','ellipse');
+  }
+  // fallback: if above NS bug, redo properly:
+  leavesLayer.innerHTML='';
+  const rnd2=mulberry32(state.cycle.seed);
+  for(let i=0;i<state.cycle.left;i++){
+    const a=2*Math.PI*rnd2(); const r=Math.sqrt(rnd2());
+    const x=150+r*95*Math.cos(a), y=170+r*65*Math.sin(a);
+    const s=0.8+rnd2()*0.6; const e=document.createElementNS('http://www.w3.org/2000/svg','ellipse');
+    e.setAttribute('cx',x); e.setAttribute('cy',y);
+    e.setAttribute('rx',4*s); e.setAttribute('ry',6*s);
+    e.setAttribute('fill','url(#leafGrad)'); e.setAttribute('opacity',0.95);
+    leavesLayer.appendChild(e);
+  }
 }
 function showAcorn(){ acornScreen.style.display='grid'; setTreeVisible(false); updateQuote(); updateCounts(); }
 function showTree(){ acornScreen.style.display='none'; setTreeVisible(true); renderLeaves(); updateQuote(); updateCounts(); }
@@ -409,7 +451,7 @@ const spawnCfg = {
   butterfly: {min:15, max:25},
   bird:      {min:20, max:45},
   fox:       {min:40, max:100},
-  bugs:      {min:40, max:90}  // ants/ladybugs start once you pass ~40CP
+  bugs:      {min:40, max:90}
 };
 function scheduleIfNeeded(){
   const ns = state.nextSpawn || {};
@@ -433,24 +475,19 @@ function considerSpawns(){
     rollNext('butterfly');
     showToast("Visitors are curious when you care for the tree.");
   }
-
-  // Birds: not gated by fruit; fruit = +50% rate → smaller delta
   const fruitBoost = state.cycle.fruits.length ? 0.67 : 1.0;
   const foxPenalty = foxVisible ? 1.5 : 1.0;
   if(cp >= state.nextSpawn.bird){
-    // apply boost by scheduling next with scaled range
     spawnBird();
     const delta = randInt(spawnCfg.bird.min, spawnCfg.bird.max);
     state.nextSpawn.bird = cp + Math.round(delta * fruitBoost * foxPenalty);
     showToast("Visitors are curious when you care for the tree.");
   }
-
   if(cp >= state.nextSpawn.fox){
     spawnFox();
     rollNext('fox');
     showToast("Visitors are curious when you care for the tree.");
   }
-
   if(cp >= state.nextSpawn.bugs){
     spawnBug(Math.random()<0.5?'🐜':'🐞');
     rollNext('bugs');
@@ -462,18 +499,48 @@ function considerSpawns(){
 function updateCounts(){ leafCountEl.textContent= state.planted ? `Leaves left. ${state.cycle.left} of ${state.cycle.total}` : ''; }
 function updateQuote(){ mantraEl.textContent=(state.planted && state.cycle.quoteIdx>=0)? QUOTES[state.cycle.quoteIdx] : ''; }
 
-/* -------------------- CP rules -------------------- */
+/* -------------------- CP rules + BONUS -------------------- */
 let tapsNeeded = randInt(3,10), tapCount=0;
+let bonusTicker = null;
+
+function isBonusActive(){
+  return (Date.now() < (state.bonusUntil||0));
+}
+function startBonus(seconds=30){
+  state.bonusUntil = Date.now() + seconds*1000;
+  saveState();
+  updateBonusUI();
+  if(bonusTicker) clearInterval(bonusTicker);
+  bonusTicker = setInterval(()=>{
+    if(!isBonusActive()){ clearInterval(bonusTicker); bonusTicker=null; updateBonusUI(); return; }
+    updateBonusUI();
+  }, 250);
+  showToast("2× CP bonus for 30s!");
+}
+
+function updateBonusUI(){
+  if(isBonusActive()){
+    const leftMs = Math.max(0, state.bonusUntil - Date.now());
+    const s = Math.ceil(leftMs/1000);
+    bonusNote.style.display = 'block';
+    bonusNote.textContent = `2× Bonus • ${s}s`;
+  }else{
+    bonusNote.style.display = 'none';
+  }
+}
+
 function addCP(n){
-  let amt=n;
-  if(foxVisible && Math.random()<0.3) amt*=2;
-  state.cp += amt;
+  let mult = 1;
+  if(foxVisible && Math.random()<0.3) mult*=2;   // fox lucky double
+  if(isBonusActive()) mult*=2;                   // breathe bonus
+  state.cp += n * mult;
   saveState(); updateStageBar(); chime(); considerSpawns();
 }
 
 /* -------------------- Day flow -------------------- */
 function onPlanted(){
-  state.dots=(state.dots+1); if(state.dots>=5){ state.dots=0; state.forest=(state.forest||0)+1; addBackgroundTree(); }
+  state.dots=(state.dots+1);
+  if(state.dots>=5){ state.dots=0; state.forest=(state.forest||0)+1; addBackgroundTree(); }
   saveState(); updateDotsUI();
   if(!state.day.plantedGiven){ state.day.plantedGiven=true; addCP(1); }
 }
@@ -489,13 +556,39 @@ function plant(){
   if(state.cycle && idx===state.cycle.quoteIdx && QUOTES.length>1) idx=(idx+1)%QUOTES.length;
   state.planted=true;
   state.cycle={seed,total,left:total,quoteIdx:idx,journal:"",fruits:[],hasFruit:false};
-  // fruit chance: every 2–6 trees (soft)
   const chance = ((state.forest+1)%randInt(2,6)===0);
   state.cycle.hasFruit = chance;
   saveState(); showTree(); onPlanted();
   if(chance) spawnFruitCluster();
-  scheduleIfNeeded(); // ensure spawns are scheduled against absolute CP
+  scheduleIfNeeded();
 }
+
+/* -------------------- BREATHE overlay logic -------------------- */
+const breatheEl = document.getElementById('breatheScreen');
+const breatheText = document.getElementById('breatheText');
+const breatheContinue = document.getElementById('breatheContinue');
+let _breathTimer = null;
+
+function showBreathe(){
+  breatheEl.style.display = 'grid';
+  // rotate cues in sync with 7s animation
+  clearInterval(_breathTimer);
+  _breathTimer = setInterval(()=>{
+    const t = performance.now()%7000;
+    if(t < 2400)      breatheText.textContent = 'Breathe in…';
+    else if(t < 4200) breatheText.textContent = 'Hold…';
+    else              breatheText.textContent = 'Breathe out…';
+  }, 300);
+}
+function hideBreathe(){
+  breatheEl.style.display = 'none';
+  clearInterval(_breathTimer); _breathTimer=null;
+}
+breatheContinue?.addEventListener('click', ()=>{
+  hideBreathe();
+  showAcorn();
+  startBonus(30);
+});
 
 /* -------------------- Leaf tap / flick -------------------- */
 const stageEl=document.getElementById('stage'); let pointerStart=null;
@@ -514,7 +607,12 @@ stageEl.addEventListener('pointerup',(e)=>{
   const r=leaf.getBoundingClientRect(); const cx=r.left+r.width/2, cy=r.top+r.height/2;
   leaf.remove(); state.cycle.left--; saveState(); updateCounts(); spawnLeafParticle(cx,cy,dx,dy); flutter();
   tapCount++; if(tapCount>=tapsNeeded){ addCP(1); tapCount=0; tapsNeeded=randInt(3,10); }
-  if(state.cycle.left<=0){ logTodayEntry(); state.planted=false; saveState(); showAcorn(); }
+  if(state.cycle.left<=0){
+    logTodayEntry();
+    state.planted=false;
+    saveState();
+    showBreathe();  // << BREATHE instead of jumping straight to acorn
+  }
 },{passive:true});
 
 /* -------------------- Journal + profile view -------------------- */
@@ -539,6 +637,8 @@ function boot(){
   if(state.planted && state.cycle.left>0){ showTree(); } else { showAcorn(); }
   if(state.cycle.hasFruit) spawnFruitCluster();
   scheduleIfNeeded();
+  // restore bonus UI if active
+  if(isBonusActive()){ updateBonusUI(); if(!bonusTicker){ bonusTicker=setInterval(()=>{ if(!isBonusActive()){ clearInterval(bonusTicker); bonusTicker=null; } updateBonusUI(); }, 250); } }
 }
 plantBtn.addEventListener('click', ()=>{ plant(); });
 resetBtn.addEventListener('click', ()=>{
@@ -589,7 +689,7 @@ async function buildYTFeed(limit = 8) {
       return;
     }
 
-    // robust id extractor (works with watch?v=, extra params, etc.)
+    // robust id extractor
     const getId = (link) => {
       try {
         const u = new URL(link);
