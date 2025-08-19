@@ -118,11 +118,16 @@ nav{position:fixed;left:0;right:0;bottom:0;z-index:50;height:calc(var(--nav-h) +
 .breatheText{font-size:16px; opacity:.95}
 .breatheCircle{
   width:min(48vmin,240px); height:min(48vmin,240px); border-radius:50%;
-  border:2px solid var(--accent); box-shadow:0 0 20px var(--glow) inset, 0 6px 18px rgba(0,0,0,.35);
-  animation:breath 7s ease-in-out infinite;
+  border:2px solid var(--accent);
+  box-shadow:0 0 20px var(--glow) inset, 0 6px 18px rgba(0,0,0,.35);
+  animation:breath 12s ease-in-out infinite;
 }
+/* 4s IN (grow) → 3s HOLD (steady) → 5s OUT (shrink) */
 @keyframes breath{
-  0%{transform:scale(.82)} 40%{transform:scale(1.06)} 60%{transform:scale(1.06)} 100%{transform:scale(.82)}
+  0%   {transform:scale(.82)}
+  33.333% {transform:scale(1.06)}   /* end of 4s inhale */
+  58.333% {transform:scale(1.06)}   /* end of 3s hold (total 7s) */
+  100% {transform:scale(.82)}       /* 5s exhale back */
 }
 </style>
 </head>
@@ -567,28 +572,68 @@ function plant(){
 const breatheEl = document.getElementById('breatheScreen');
 const breatheText = document.getElementById('breatheText');
 const breatheContinue = document.getElementById('breatheContinue');
-let _breathTimer = null;
+
+const DUR_IN = 4000, DUR_HOLD = 3000, DUR_OUT = 5000; // ms
+const CYCLES_TOTAL = 4;
+
+let _phaseTimer = null;
+let _cycleIdx = 0;
+let _eligibleForBonus = false;
+
+function clearPhaseTimer(){ if(_phaseTimer){ clearTimeout(_phaseTimer); _phaseTimer = null; } }
+
+function runCyclePhase(){
+  // Phase 1: IN
+  breatheText.textContent = 'Breathe in…';
+  _phaseTimer = setTimeout(()=>{
+    // Phase 2: HOLD
+    breatheText.textContent = 'Hold…';
+    _phaseTimer = setTimeout(()=>{
+      // Phase 3: OUT
+      breatheText.textContent = 'Breathe out…';
+      _phaseTimer = setTimeout(()=>{
+        _cycleIdx++;
+        if(_cycleIdx < CYCLES_TOTAL){
+          runCyclePhase(); // next cycle
+        }else{
+          // finished all cycles → allow bonus
+          _eligibleForBonus = true;
+          breatheContinue.textContent = 'Continue';
+        }
+      }, DUR_OUT);
+    }, DUR_HOLD);
+  }, DUR_IN);
+}
 
 function showBreathe(){
+  // prepare UI
   breatheEl.style.display = 'grid';
-  // rotate cues in sync with 7s animation
-  clearInterval(_breathTimer);
-  _breathTimer = setInterval(()=>{
-    const t = performance.now()%7000;
-    if(t < 2400)      breatheText.textContent = 'Breathe in…';
-    else if(t < 4200) breatheText.textContent = 'Hold…';
-    else              breatheText.textContent = 'Breathe out…';
-  }, 300);
+  _eligibleForBonus = false;
+  _cycleIdx = 0;
+  breatheContinue.textContent = 'Skip';     // visible the whole time
+  // clicking BEFORE completion = skip (no bonus)
+  breatheContinue.onclick = ()=>{ hideBreathe(false); };
+
+  clearPhaseTimer();
+  runCyclePhase();
 }
-function hideBreathe(){
+
+function hideBreathe(grant=false){
+  clearPhaseTimer();
   breatheEl.style.display = 'none';
-  clearInterval(_breathTimer); _breathTimer=null;
-}
-breatheContinue?.addEventListener('click', ()=>{
-  hideBreathe();
+  if(grant) startBonus(30); // starts 2× CP and the countdown UI
   showAcorn();
-  startBonus(30);
+}
+
+// When button reads "Continue", change its click to grant bonus
+const observer = new MutationObserver(() => {
+  if(_eligibleForBonus && breatheContinue.textContent === 'Continue'){
+    breatheContinue.onclick = ()=> hideBreathe(true); // grant bonus
+  }
 });
+observer.observe(breatheContinue, {childList:true});
+
+/* hook: after the last leaf is cleared, show breathe instead of acorn */
 
 /* -------------------- Leaf tap / flick -------------------- */
 const stageEl=document.getElementById('stage'); let pointerStart=null;
