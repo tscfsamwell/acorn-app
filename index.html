@@ -122,20 +122,23 @@ nav{position:fixed;left:0;right:0;bottom:0;z-index:50;height:calc(var(--nav-h) +
   box-shadow:0 0 20px var(--glow) inset, 0 6px 18px rgba(0,0,0,.35);
   animation:breath 12s ease-in-out infinite;
 }
-/* 4s IN (grow) → 3s HOLD (steady) → 5s OUT (shrink) */
+/* 4s IN → 3s HOLD → 5s OUT */
 @keyframes breath{
   0%   {transform:scale(.82)}
-  33.333% {transform:scale(1.06)}   /* end of 4s inhale */
-  58.333% {transform:scale(1.06)}   /* end of 3s hold (total 7s) */
-  100% {transform:scale(.82)}       /* 5s exhale back */
+  33.333% {transform:scale(1.06)}
+  58.333% {transform:scale(1.06)}
+  100% {transform:scale(.82)}
 }
+
+/* minor: ensure play button always clickable */
+.vidThumb .playBtn { pointer-events:auto }
 </style>
 </head>
 
 <body>
 <div class="appWrap">
 
-  <!-- HOME (YouTube feed restored) -->
+  <!-- HOME -->
   <section id="tab-home" class="outerTab" style="display:none">
     <div class="cardSimple">
       <h2>Latest Videos</h2>
@@ -236,7 +239,7 @@ nav{position:fixed;left:0;right:0;bottom:0;z-index:50;height:calc(var(--nav-h) +
     </div>
   </section>
 
-  <!-- STORE (link restored) -->
+  <!-- STORE -->
   <section id="tab-store" class="outerTab" style="display:none">
     <div class="cardSimple">
       <h2>Store</h2>
@@ -245,7 +248,7 @@ nav{position:fixed;left:0;right:0;bottom:0;z-index:50;height:calc(var(--nav-h) +
     </div>
   </section>
 
-  <!-- EXPLORE placeholder -->
+  <!-- EXPLORE -->
   <section id="tab-explore" class="outerTab" style="display:none">
     <div class="cardSimple"><h2>Explore</h2><p class="muted">Soon.</p></div>
   </section>
@@ -274,6 +277,7 @@ nav{position:fixed;left:0;right:0;bottom:0;z-index:50;height:calc(var(--nav-h) +
   </div>
 </nav>
 
+<!-- ===== CORE APP SCRIPT ===== -->
 <script>
 /* -------------------- TEXT + STATE -------------------- */
 const QUOTES=[
@@ -334,7 +338,7 @@ function updateDotsUI(){ ringsEl.innerHTML=''; for(let i=0;i<5;i++){ const d=doc
 /* -------------------- Stages & CP -------------------- */
 const STAGES=[{name:'Acorn',min:0},{name:'Sprout',min:5},{name:'Sapling',min:15},{name:'Young Tree',min:30},{name:'Full Tree',min:50},{name:'Grove',min:80}];
 function currentStageIndex(cp){let i=0; for(let k=0;k<STAGES.length;k++) if(cp>=STAGES[k].min) i=k; return i;}
-function updateStageBar(){ // cycle every 100 CP
+function updateStageBar(){
   const cyc = state.cp % 100;
   const stage=STAGES[currentStageIndex(state.cp)];
   stageNameEl.textContent=stage.name;
@@ -370,17 +374,12 @@ function applySeason(){ layerBack.innerHTML=`<svg width="100%" height="100%"><el
 function setTreeVisible(on){ treeSVG.style.display=on?'block':'none'; }
 function renderLeaves(){
   leavesLayer.innerHTML='';
-  const cx=150, cy=170, rx=95, ry=65; const rnd=mulberry32(state.cycle.seed); const N=state.cycle.left;
-  for(let i=0;i<N;i++){ const a=2*Math.PI*rnd(); const r=Math.sqrt(rnd()); const x=cx+r*rx*Math.cos(a), y=cy+r*ry*Math.sin(a);
-    const s=0.8+rnd()*0.6; const e=document.createElementNS('http://www.w3.org/200svg','ellipse');
-  }
-  // fallback: if above NS bug, redo properly:
-  leavesLayer.innerHTML='';
-  const rnd2=mulberry32(state.cycle.seed);
+  const rnd=mulberry32(state.cycle.seed);
   for(let i=0;i<state.cycle.left;i++){
-    const a=2*Math.PI*rnd2(); const r=Math.sqrt(rnd2());
+    const a=2*Math.PI*rnd(); const r=Math.sqrt(rnd());
     const x=150+r*95*Math.cos(a), y=170+r*65*Math.sin(a);
-    const s=0.8+rnd2()*0.6; const e=document.createElementNS('http://www.w3.org/2000/svg','ellipse');
+    const s=0.8+rnd()*0.6;
+    const e=document.createElementNS('http://www.w3.org/2000/svg','ellipse');
     e.setAttribute('cx',x); e.setAttribute('cy',y);
     e.setAttribute('rx',4*s); e.setAttribute('ry',6*s);
     e.setAttribute('fill','url(#leafGrad)'); e.setAttribute('opacity',0.95);
@@ -416,7 +415,7 @@ function removeFruit(f,byUser=false){
 
 /* -------------------- Creatures -------------------- */
 let foxEl=null, foxVisible=false;
-function spawnButterfly(targetFruit=null){
+function spawnButterfly(){
   const b=document.createElement('div'); b.className='creature fly'; b.textContent='🦋';
   b.style.top=(20+Math.random()*35)+'%'; b.style.left='-10%'; creatureLayer.appendChild(b);
   setTimeout(()=>b.remove(), 7200);
@@ -451,7 +450,7 @@ function hideFox(){
   setTimeout(()=>{ foxEl?.remove(); foxEl=null; foxVisible=false; }, 280);
 }
 
-/* -------------------- Spawn controller (ABSOLUTE total CP milestones) -------------------- */
+/* -------------------- Spawn controller -------------------- */
 const spawnCfg = {
   butterfly: {min:15, max:25},
   bird:      {min:20, max:45},
@@ -476,7 +475,7 @@ function considerSpawns(){
   const cp = state.cp||0;
 
   if(cp >= state.nextSpawn.butterfly){
-    spawnButterfly(state.cycle.fruits[0]?.el);
+    spawnButterfly();
     rollNext('butterfly');
     showToast("Visitors are curious when you care for the tree.");
   }
@@ -536,8 +535,8 @@ function updateBonusUI(){
 
 function addCP(n){
   let mult = 1;
-  if(foxVisible && Math.random()<0.3) mult*=2;   // fox lucky double
-  if(isBonusActive()) mult*=2;                   // breathe bonus
+  if(foxVisible && Math.random()<0.3) mult*=2;
+  if(isBonusActive()) mult*=2;
   state.cp += n * mult;
   saveState(); updateStageBar(); chime(); considerSpawns();
 }
@@ -556,11 +555,11 @@ function logTodayEntry(){
   state.entries.unshift(entry); state.day.logged=true; saveState();
 }
 function plant(){
-  const total=randInt(150,260), seed=Math.floor(Math.random()*2**31);
+  const total=randInt(150,260);
   let idx=Math.floor(Math.random()*QUOTES.length);
   if(state.cycle && idx===state.cycle.quoteIdx && QUOTES.length>1) idx=(idx+1)%QUOTES.length;
   state.planted=true;
-  state.cycle={seed,total,left:total,quoteIdx:idx,journal:"",fruits:[],hasFruit:false};
+  state.cycle={seed:Math.floor(Math.random()*2**31), total, left:total, quoteIdx:idx, journal:"",fruits:[],hasFruit:false};
   const chance = ((state.forest+1)%randInt(2,6)===0);
   state.cycle.hasFruit = chance;
   saveState(); showTree(); onPlanted();
@@ -573,7 +572,7 @@ const breatheEl = document.getElementById('breatheScreen');
 const breatheText = document.getElementById('breatheText');
 const breatheContinue = document.getElementById('breatheContinue');
 
-const DUR_IN = 4000, DUR_HOLD = 3000, DUR_OUT = 5000; // ms
+const DUR_IN = 4000, DUR_HOLD = 3000, DUR_OUT = 5000;
 const CYCLES_TOTAL = 4;
 
 let _phaseTimer = null;
@@ -583,20 +582,16 @@ let _eligibleForBonus = false;
 function clearPhaseTimer(){ if(_phaseTimer){ clearTimeout(_phaseTimer); _phaseTimer = null; } }
 
 function runCyclePhase(){
-  // Phase 1: IN
   breatheText.textContent = 'Breathe in…';
   _phaseTimer = setTimeout(()=>{
-    // Phase 2: HOLD
     breatheText.textContent = 'Hold…';
     _phaseTimer = setTimeout(()=>{
-      // Phase 3: OUT
       breatheText.textContent = 'Breathe out…';
       _phaseTimer = setTimeout(()=>{
         _cycleIdx++;
         if(_cycleIdx < CYCLES_TOTAL){
-          runCyclePhase(); // next cycle
+          runCyclePhase();
         }else{
-          // finished all cycles → allow bonus
           _eligibleForBonus = true;
           breatheContinue.textContent = 'Continue';
         }
@@ -606,12 +601,10 @@ function runCyclePhase(){
 }
 
 function showBreathe(){
-  // prepare UI
   breatheEl.style.display = 'grid';
   _eligibleForBonus = false;
   _cycleIdx = 0;
-  breatheContinue.textContent = 'Skip';     // visible the whole time
-  // clicking BEFORE completion = skip (no bonus)
+  breatheContinue.textContent = 'Skip';
   breatheContinue.onclick = ()=>{ hideBreathe(false); };
 
   clearPhaseTimer();
@@ -621,19 +614,16 @@ function showBreathe(){
 function hideBreathe(grant=false){
   clearPhaseTimer();
   breatheEl.style.display = 'none';
-  if(grant) startBonus(30); // starts 2× CP and the countdown UI
+  if(grant) startBonus(30);
   showAcorn();
 }
 
-// When button reads "Continue", change its click to grant bonus
 const observer = new MutationObserver(() => {
   if(_eligibleForBonus && breatheContinue.textContent === 'Continue'){
-    breatheContinue.onclick = ()=> hideBreathe(true); // grant bonus
+    breatheContinue.onclick = ()=> hideBreathe(true);
   }
 });
 observer.observe(breatheContinue, {childList:true});
-
-/* hook: after the last leaf is cleared, show breathe instead of acorn */
 
 /* -------------------- Leaf tap / flick -------------------- */
 const stageEl=document.getElementById('stage'); let pointerStart=null;
@@ -656,7 +646,7 @@ stageEl.addEventListener('pointerup',(e)=>{
     logTodayEntry();
     state.planted=false;
     saveState();
-    showBreathe();  // << BREATHE instead of jumping straight to acorn
+    showBreathe();
   }
 },{passive:true});
 
@@ -682,7 +672,6 @@ function boot(){
   if(state.planted && state.cycle.left>0){ showTree(); } else { showAcorn(); }
   if(state.cycle.hasFruit) spawnFruitCluster();
   scheduleIfNeeded();
-  // restore bonus UI if active
   if(isBonusActive()){ updateBonusUI(); if(!bonusTicker){ bonusTicker=setInterval(()=>{ if(!isBonusActive()){ clearInterval(bonusTicker); bonusTicker=null; } updateBonusUI(); }, 250); } }
 }
 plantBtn.addEventListener('click', ()=>{ plant(); });
@@ -702,70 +691,64 @@ const outerTabs={
   explore:document.getElementById('tab-explore')
 };
 const tabButtons=[...document.querySelectorAll('nav .tab')];
-function activateOuter(tab){ Object.keys(outerTabs).forEach(k=> outerTabs[k].style.display = (k===tab)?'block':'none');
-  tabButtons.forEach(b=>b.classList.toggle('active', b.dataset.tab===tab)); localStorage.setItem('samwell.tab', tab);
-  if(tab==='profile'){ renderJournalList(); buildGallery(); buildAchievements(); } }
+function activateOuter(tab){
+  Object.keys(outerTabs).forEach(k=> outerTabs[k].style.display = (k===tab)?'block':'none');
+  tabButtons.forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  localStorage.setItem('samwell.tab', tab);
+  if(tab==='profile'){ renderJournalList(); buildGallery(); buildAchievements(); }
+  if(tab==='home'){ buildYTFeed(); }
+}
 tabButtons.forEach(b=> b.addEventListener('click', ()=> activateOuter(b.dataset.tab)));
 activateOuter(localStorage.getItem('samwell.tab')||'tree');
+</script>
 
-<!-- -------------------- YouTube feed (shows videos + Shorts) -------------------- -->
+<!-- ===== YOUTUBE FEED SCRIPT (separate block, no nesting) ===== -->
 <script>
 const YT_CHANNEL_ID = 'UCCdDJ9Lf8qhH-HOhKM4pEcQ';
 
-async function buildYTFeed(limit = 8) {
+async function buildYTFeed(limit = 12) {
   const host = document.getElementById('ytFeed');
   if (!host) return;
 
   host.innerHTML = `<div class="muted">Loading…</div>`;
 
   try {
-    const channel = (typeof YT_CHANNEL_ID !== 'undefined' && YT_CHANNEL_ID)
-      ? YT_CHANNEL_ID
-      : (typeof NEL_ID !== 'undefined' ? NEL_ID : '');
-
-    const rss = `https://www.youtube.com/feeds/videos.xml?channel_id=${channel}`;
+    const rss = `https://www.youtube.com/feeds/videos.xml?channel_id=${encodeURIComponent(YT_CHANNEL_ID)}`;
     const url = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rss)}`;
 
-    const res  = await fetch(url);
+    const res  = await fetch(url, { cache: 'no-store' });
+    if(!res.ok) throw new Error('network');
     const data = await res.json();
-    if (!data || !Array.isArray(data.items)) throw new Error('Bad response');
-
-    // ✅ Keep ALL uploads (long-form + Shorts), newest first
-    const items = data.items
-      .sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate))
-      .slice(0, limit);
-
+    const items = Array.isArray(data?.items) ? data.items.sort((a,b)=>new Date(b.pubDate)-new Date(a.pubDate)).slice(0,limit) : [];
     if (!items.length) {
       host.innerHTML = `<div class="muted">No videos found.</div>`;
       return;
     }
 
-    // Robust YouTube ID extractor
     const getId = (link) => {
       try {
         const u = new URL(link);
         return u.searchParams.get('v') || u.pathname.split('/').pop();
       } catch {
-        return (link.split('v=')[1] || '').split('&')[0];
+        if (!link) return '';
+        const v = (link.split('v=')[1] || '').split('&')[0];
+        return v || link.split('/').pop();
       }
     };
 
     host.innerHTML = items.map((it) => {
       const id    = getId(it.link);
-      const when  = new Date(it.pubDate);
+      const when  = new Date(it.pubDate || Date.now());
       const date  = when.toLocaleDateString();
-      const title = it.title.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      const isShort = /\/shorts\//.test(it.link);
-
+      const title = String(it.title || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const isShort = (it.link || '').includes('/shorts/');
       return `
         <article class="vidCard" data-vid="${id}"
                  style="border:1px solid var(--line);background:rgba(255,255,255,.06);
                         border-radius:12px;overflow:hidden;margin:10px 0">
           <div class="vidThumb" style="position:relative;aspect-ratio:16/9;background:#000">
-            <img alt="${title}"
-                 src="https://i.ytimg.com/vi/${id}/hqdefault.jpg"
-                 loading="lazy"
-                 style="width:100%;height:100%;object-fit:cover;opacity:.95">
+            <img alt="${title}" src="https://i.ytimg.com/vi/${id}/hqdefault.jpg"
+                 loading="lazy" style="width:100%;height:100%;object-fit:cover;opacity:.95">
             <button class="playBtn" aria-label="Play video"
                     style="position:absolute;left:10px;bottom:10px;border:0;cursor:pointer;
                            padding:10px 12px;border-radius:999px;background:rgba(0,0,0,.55);
@@ -786,29 +769,32 @@ async function buildYTFeed(limit = 8) {
   }
 }
 
-// Inline play on click (works for videos + Shorts)
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('.playBtn');
   if (!btn) return;
   const card = btn.closest('.vidCard');
-  const id = card?.dataset?.vid;
+  const id = card ? card.getAttribute('data-vid') : '';
   if (!id) return;
 
-  card.querySelector('.vidThumb').innerHTML = `
-    <div class="ytWrap" style="position:relative;width:100%;aspect-ratio:16/9;
-                               background:rgba(0,0,0,.3);border-radius:12px;overflow:hidden">
-      <iframe src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0"
-              title="YouTube video" frameborder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen
-              style="position:absolute;inset:0;width:100%;height:100%"></iframe>
+  const wrap = card.querySelector('.vidThumb');
+  if (!wrap) return;
+
+  wrap.innerHTML = `
+    <div class="ytWrap" style="position:relative;width:100%;aspect-ratio:16/9;background:rgba(0,0,0,.3);border-radius:12px;overflow:hidden">
+      <iframe
+        src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0"
+        title="YouTube video"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+        style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>
     </div>`;
 });
 
-buildYTFeed();
-window.addEventListener('hashchange', () => {
-  if (location.hash === '#home') buildYTFeed();
-});
+// Build once on load if user lands on Home
+if ((localStorage.getItem('samwell.tab')||'tree') === 'home') {
+  buildYTFeed();
+}
 </script>
+
 </body>
 </html>
