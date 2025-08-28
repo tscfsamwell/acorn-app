@@ -708,12 +708,15 @@ function activateOuter(tab){ Object.keys(outerTabs).forEach(k=> outerTabs[k].sty
 tabButtons.forEach(b=> b.addEventListener('click', ()=> activateOuter(b.dataset.tab)));
 activateOuter(localStorage.getItem('samwell.tab')||'tree');
 
-/* -------------------- YouTube feed (videos only; Shorts filtered) -------------------- */
+<!-- -------------------- YouTube feed (shows videos + Shorts) -------------------- -->
+<script>
 const YT_CHANNEL_ID = 'UCCdDJ9Lf8qhH-HOhKM4pEcQ';
 
 async function buildYTFeed(limit = 8) {
   const host = document.getElementById('ytFeed');
   if (!host) return;
+
+  host.innerHTML = `<div class="muted">Loading…</div>`;
 
   try {
     const channel = (typeof YT_CHANNEL_ID !== 'undefined' && YT_CHANNEL_ID)
@@ -723,18 +726,21 @@ async function buildYTFeed(limit = 8) {
     const rss = `https://www.youtube.com/feeds/videos.xml?channel_id=${channel}`;
     const url = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rss)}`;
 
-    const res = await fetch(url);
+    const res  = await fetch(url);
     const data = await res.json();
-    if (!data || !Array.isArray(data.items)) throw new Error('bad response');
+    if (!data || !Array.isArray(data.items)) throw new Error('Bad response');
 
-    // 1) filter out Shorts
-    let items = data.items.filter(it => !/\/shorts\//.test(it.link)).slice(0, limit);
+    // ✅ Keep ALL uploads (long-form + Shorts), newest first
+    const items = data.items
+      .sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate))
+      .slice(0, limit);
+
     if (!items.length) {
       host.innerHTML = `<div class="muted">No videos found.</div>`;
       return;
     }
 
-    // robust id extractor
+    // Robust YouTube ID extractor
     const getId = (link) => {
       try {
         const u = new URL(link);
@@ -744,28 +750,43 @@ async function buildYTFeed(limit = 8) {
       }
     };
 
-    host.innerHTML = items.map(it => {
-      const id = getId(it.link);
-      const when = new Date(it.pubDate);
-      const date = when.toLocaleDateString();
+    host.innerHTML = items.map((it) => {
+      const id    = getId(it.link);
+      const when  = new Date(it.pubDate);
+      const date  = when.toLocaleDateString();
       const title = it.title.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const isShort = /\/shorts\//.test(it.link);
 
       return `
-        <article class="vidCard" data-vid="${id}" style="border:1px solid var(--line);background:rgba(255,255,255,.06);border-radius:12px;overflow:hidden;margin:10px 0">
+        <article class="vidCard" data-vid="${id}"
+                 style="border:1px solid var(--line);background:rgba(255,255,255,.06);
+                        border-radius:12px;overflow:hidden;margin:10px 0">
           <div class="vidThumb" style="position:relative;aspect-ratio:16/9;background:#000">
-            <img alt="${title}" src="https://i.ytimg.com/vi/${id}/hqdefault.jpg" loading="lazy" style="width:100%;height:100%;object-fit:cover;opacity:.95">
-            <button class="playBtn" aria-label="Play video" style="position:absolute;left:10px;bottom:10px;border:0;cursor:pointer;padding:10px 12px;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;font-weight:700">▶</button>
+            <img alt="${title}"
+                 src="https://i.ytimg.com/vi/${id}/hqdefault.jpg"
+                 loading="lazy"
+                 style="width:100%;height:100%;object-fit:cover;opacity:.95">
+            <button class="playBtn" aria-label="Play video"
+                    style="position:absolute;left:10px;bottom:10px;border:0;cursor:pointer;
+                           padding:10px 12px;border-radius:999px;background:rgba(0,0,0,.55);
+                           color:#fff;font-weight:700">▶</button>
+            ${isShort ? `<span style="position:absolute;right:10px;top:10px;
+                                   background:rgba(0,0,0,.6);color:#fff;font-size:11px;
+                                   padding:4px 8px;border-radius:999px">Shorts</span>` : ``}
           </div>
           <div class="vTitle" style="padding:10px 12px;font-weight:700">${title}</div>
-          <div class="vMeta" style="padding:0 12px 12px;opacity:.8;font-size:12px">Published ${date}</div>
+          <div class="vMeta" style="padding:0 12px 12px;opacity:.8;font-size:12px">
+            Published ${date} ${isShort ? '• <span style="opacity:.9">Shorts</span>' : ''}
+          </div>
         </article>`;
     }).join('');
   } catch (err) {
+    console.error(err);
     host.innerHTML = `<div class="muted">Couldn't load videos.</div>`;
   }
 }
 
-// play inline on click
+// Inline play on click (works for videos + Shorts)
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('.playBtn');
   if (!btn) return;
@@ -774,7 +795,8 @@ document.addEventListener('click', (e) => {
   if (!id) return;
 
   card.querySelector('.vidThumb').innerHTML = `
-    <div class="ytWrap" style="position:relative;width:100%;aspect-ratio:16/9;background:rgba(0,0,0,.3);border-radius:12px;overflow:hidden">
+    <div class="ytWrap" style="position:relative;width:100%;aspect-ratio:16/9;
+                               background:rgba(0,0,0,.3);border-radius:12px;overflow:hidden">
       <iframe src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0"
               title="YouTube video" frameborder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
