@@ -132,6 +132,63 @@ nav{position:fixed;left:0;right:0;bottom:0;z-index:50;height:calc(var(--nav-h) +
 
 /* minor: ensure play button always clickable */
 .vidThumb .playBtn { pointer-events:auto }
+
+/* ===== EXPLORE (new) ===== */
+.explore-grid{
+  display:grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap:16px;
+  margin-top:8px;
+  align-items:start;
+}
+@media (max-width: 640px){
+  .explore-grid{ grid-template-columns:1fr; }
+}
+
+/* Social buttons */
+.sbtn{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:14px 16px;
+  margin-bottom:12px;
+  border-radius:12px;
+  text-decoration:none;
+  color:#fff;
+  font-weight:600;
+  background:#145c45;                /* lighter Samwell green */
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+  transition: background .2s ease, transform .04s ease;
+}
+.sbtn:hover{ background:#1a7356; }
+.sbtn:active{ transform: translateY(1px); }
+
+/* On-brand icon tiles */
+.sbtn .ico{
+  width:36px; height:36px;
+  border-radius:9px;
+  display:grid; place-items:center;
+  background:#0e4a3a;                /* darker tile */
+  color:#fff; font-weight:800; letter-spacing:.4px; font-size:13px;
+}
+.sbtn.ig .ico::after{ content:"IG"; }
+.sbtn.tt .ico::after{ content:"TT"; }
+.sbtn.x  .ico::after{ content:"X";  }
+.sbtn.yt .ico::after{ content:"YT"; }
+
+/* Right column card */
+.explore-right{
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius:12px;
+  padding:16px;
+}
+.explore-right h3{ margin:0 0 8px; }
+.coming{
+  margin:0; padding-left:18px;
+  display:grid; gap:6px;
+  color:#cfe9dc;
+}
 </style>
 </head>
 
@@ -248,25 +305,41 @@ nav{position:fixed;left:0;right:0;bottom:0;z-index:50;height:calc(var(--nav-h) +
     </div>
   </section>
 
-  <!-- EXPLORE -->
-<section id="tab-explore" class="outerTab" style="display:none">
-  <div class="cardSimple">
-    <h2>Explore</h2>
-    <p class="muted">Step into the Samwell world.</p>
+  <!-- EXPLORE (fixed) -->
+  <section id="tab-explore" class="outerTab" style="display:none">
+    <div class="cardSimple">
+      <h2>Explore</h2>
 
-    <div class="explore-buttons">
-      <a href="https://www.instagram.com/samwellworldwide?igsh=MXB2bXd0ZTIzZGhucg%3D%3D&utm_source=qr" target="_blank" class="explore-btn">📸 Instagram</a>
-      <a href="https://www.tiktok.com/@samwellsworld?_t=ZN-8zHQSbi5p1K&_r=1" target="_blank" class="explore-btn">🎬 TikTok</a>
-      <a href="https://x.com/samwellsworld?s=21" target="_blank" class="explore-btn">🐦 Twitter / X</a>
-      <a href="https://youtube.com/@samwellworldwide?si=LTPYLkfGEfPZnJO-" target="_blank" class="explore-btn">▶️ YouTube</a>
-    </div>
+      <div class="explore-grid">
+        <!-- LEFT: Social buttons -->
+        <nav class="explore-left">
+          <a class="sbtn ig" href="https://www.instagram.com/samwellworldwide?igsh=MXB2bXd0ZTIzZGhucg%3D%3D&utm_source=qr" target="_blank" rel="noopener" aria-label="Open Instagram">
+            <span class="ico"></span><span>Instagram</span>
+          </a>
+          <a class="sbtn tt" href="https://www.tiktok.com/@samwellsworld?_t=ZN-8zHQSbi5p1K&_r=1" target="_blank" rel="noopener" aria-label="Open TikTok">
+            <span class="ico"></span><span>TikTok</span>
+          </a>
+          <a class="sbtn x" href="https://x.com/samwellsworld?s=21" target="_blank" rel="noopener" aria-label="Open X (Twitter)">
+            <span class="ico"></span><span>Twitter / X</span>
+          </a>
+          <a class="sbtn yt" href="https://youtube.com/@samwellworldwide?si=LTPYLkfGEfPZnJO-" target="_blank" rel="noopener" aria-label="Open YouTube">
+            <span class="ico"></span><span>YouTube</span>
+          </a>
+        </nav>
 
-    <div class="explore-coming-soon">
-      <h3>🌱 Coming Soon</h3>
-      <p class="muted">Events, livestreams, workshops & book signings</p>
+        <!-- RIGHT: Coming soon panel -->
+        <aside class="explore-right">
+          <h3>Coming Soon</h3>
+          <ul class="coming">
+            <li>Livestream schedule</li>
+            <li>Workshops and meetups</li>
+            <li>Book signings and talks</li>
+            <li>Announcements</li>
+          </ul>
+        </aside>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 </div>
 
 <!-- bottom nav -->
